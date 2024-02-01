@@ -81,7 +81,7 @@
 															  {% if vehicle.status == 1 %}
 															  	<td>In Active</td>
 															  {% endif %}
-															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:vehicle_detail_edit' %}">
+															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:vehicle_detail_edit' %}?id={{ vehicle.id }}">
 																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
 															   		</a>
 															  </td>
