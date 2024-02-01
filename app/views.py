@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -571,14 +572,22 @@ def spl_bus_data_entry_add(request):
             messages.error(request, 'Special bus data entry details creation Failed!!')
         return redirect("app:spl_bus_data_entry_list")
     try:
-        vehicle_data = Vehicle.objects.filter(Q(status=0) | Q(status=1))
         depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
+        # reporting_depot_data = Vehicle.objects.filter(Q(status=0) | Q(status=1))
+        # depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
         operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
-        return render(request, 'vehicle_details/add.html', {'vehicle_data': vehicle_data, "depot_data": depot_data,
-                                                            'operation_type_data': operation_type_data})
+        return render(request, 'spl_bus_data_entry/add.html', {'depot_data': depot_data,
+                                                               'operation_type_data': operation_type_data})
     except Exception as e:
         print(e)
-        return render(request, 'vehicle_details/add.html', {})
+        return render(request, 'spl_bus_data_entry/add.html', {})
+
+
+def get_depot_vehicle_number(request):
+    depot_id = request.GET.get('depot_id')
+    vehicle_details_data = VehicleDetails.objects.filter(depot=depot_id).values('id', 'bus_number')
+    vehicle_details = list(vehicle_details_data)
+    return JsonResponse({'vehicle_details': vehicle_details})
 
 
 def spl_bus_data_entry_edit(request):

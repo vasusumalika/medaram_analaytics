@@ -66,6 +66,8 @@ class OperationType(models.Model):
                                    blank=True, default="")
 
 
+# bus_number means vechicle_no
+
 class VehicleDetails(models.Model):
     id = models.AutoField(primary_key=True)
     depot = models.ForeignKey(Depot, on_delete=models.CASCADE, related_name="vehicle_details_depot")

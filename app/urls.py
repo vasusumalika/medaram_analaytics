@@ -46,4 +46,7 @@ urlpatterns = [
     path('spl/bus/data/entry/add', views.spl_bus_data_entry_add, name='spl_bus_data_entry_add'),
     path('spl/bus/data/entry/edit', views.spl_bus_data_entry_edit, name='spl_bus_data_entry_edit'),
     path('spl/bus/data/entry/update', views.spl_bus_data_entry_update, name='spl_bus_data_entry_update'),
+
+    path('get/depot/vehicle/number', views.get_depot_vehicle_number, name='get_depot_vehicle_number'),
+
 ]
