@@ -64,6 +64,15 @@
 													</div>
 												</div>
 
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="vehicle_owner">Vehicle Owner</label>
+                                                    <select class="form-control custom-select" id="vehicle_owner" name="vehicle_owner" required>
+														<option>Select one</option>
+														<option value= "RTC" {% if vehicle_detail.vehicle_owner == RTC %} selected {% endif %}>RTC</option>
+														<option value= "PHB" {% if vehicle_detail.vehicle_owner == PHB %} selected {% endif %}>PHB</option>
+													</select>
+												</div>
+
 												<div class="col-sm-12 col-md-12 col-xl-6">
 													<div class="form-group">
 														<label class="form-label text-muted">Depot:</label>

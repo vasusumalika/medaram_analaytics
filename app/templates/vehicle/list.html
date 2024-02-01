@@ -60,6 +60,7 @@
 														<tr>
 															<th class="border-bottom-0">Name</th>
 															<th class="border-bottom-0">Status</th>
+															<th class="border-bottom-0">Vehicle Owner</th>
                                                             <th class="border-bottom-0">Created At</th>
 															<th class="border-bottom-0">Actions</th>
 
@@ -78,6 +79,7 @@
 															  {% if vehicle.status == 2 %}
 															  	<td>Delete</td>
 															  {% endif %}
+															  <td>{{ vehicle.vehicle_owner }}</td>
                                                               <td>{{ vehicle.created_at }}</td>
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:vehicle_edit' %}?id={{ vehicle.id }}">
 																   	<i class="fe fe-edit fe-pen" title="Edit"></i>

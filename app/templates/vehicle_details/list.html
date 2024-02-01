@@ -59,6 +59,7 @@
 													<thead>
 														<tr>
 															<th class="border-bottom-0">Vehicle Name</th>
+															<th class="border-bottom-0">Vehicle Owner</th>
 															<th class="border-bottom-0">Depot</th>
 															<th class="border-bottom-0">Bus Number</th>
 															<th class="border-bottom-0">Operation Type</th>
@@ -70,13 +71,14 @@
 														{% for vehicle in vehicle_details %}
                                                           <tr>
 															  <td>{{ vehicle.vehicle_name.name }}</td>
-															  <td>{{ vehicle.depot_id.name }}</td>
+															  <td>{{ vehicle.vehicle_owner }}</td>
+															  <td>{{ vehicle.depot.name }}</td>
 															  <td>{{ vehicle.bus_number }}</td>
 															  <td>{{ vehicle.opt_type.name }}</td>
-															  {% if user.status == 0 %}
+															  {% if vehicle.status == 0 %}
 															  	<td>Active</td>
 															  {% endif %}
-															  {% if user.status == 1 %}
+															  {% if vehicle.status == 1 %}
 															  	<td>In Active</td>
 															  {% endif %}
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:vehicle_detail_edit' %}">

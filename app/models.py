@@ -43,6 +43,7 @@ class Depot(models.Model):
 class Vehicle(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256)
+    vehicle_owner = models.CharField(max_length=256, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
@@ -73,6 +74,7 @@ class VehicleDetails(models.Model):
     vehicle_name = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name="vehicle_details_vehicle")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    vehicle_owner = models.CharField(max_length=256, null=True, blank=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vehicle_details_created_user',
                                    default="", null=True, blank=True)

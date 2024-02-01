@@ -345,10 +345,11 @@ def vehicle_list(request):
 def vehicle_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
+        vehicle_owner = request.POST.get('vehicle_owner')
         status = request.POST.get('status')
         try:
             user = User.objects.get(id=request.session['user_id'])
-            vehicle = Vehicle.objects.create(name=name, status=status, created_by=user)
+            vehicle = Vehicle.objects.create(name=name, status=status, created_by=user, vehicle_owner=vehicle_owner)
             vehicle.save()
             messages.success(request, 'Vehicle  Created Successfully')
         except Exception as e:
@@ -371,12 +372,14 @@ def vehicle_edit(request):
 def vehicle_update(request):
     vehicle_id = request.POST.get('id')
     name = request.POST.get('name')
+    vehicle_owner = request.POST.get('vehicle_owner')
     status = request.POST.get('status')
     if vehicle_id:
         try:
             vehicle_data = Vehicle.objects.get(id=vehicle_id)
             vehicle_data.name = name
             vehicle_data.status = status
+            vehicle_data.vehicle_owner = vehicle_owner
             user_data = User.objects.get(id=request.session['user_id'])
             vehicle_data.updated_by = user_data
             vehicle_data.save()
@@ -401,15 +404,17 @@ def vehicle_detail_add(request):
         depot_id = request.POST.get('depot_id')
         bus_number = request.POST.get('bus_number')
         opt_type_id = request.POST.get('opt_type')
+        vehicle_owner = request.POST.get('vehicle_owner')
         vehicle_detail_status = request.POST.get('status')
         try:
             vehicle_data = Vehicle.objects.get(id=vehicle_id)
             depot_data = Depot.objects.get(id=depot_id)
             operation_type_data = OperationType.objects.get(id=opt_type_id)
             user_data = User.objects.get(id=request.session['user_id'])
-            vehicle_detail = VehicleDetails.objects.create(vehicle_name=vehicle_data, depot_id=depot_data,
+            vehicle_detail = VehicleDetails.objects.create(vehicle_name=vehicle_data, depot=depot_data,
                                                            opt_type=operation_type_data, bus_number=bus_number,
-                                                           status=vehicle_detail_status, created_by=user_data)
+                                                           status=vehicle_detail_status, created_by=user_data,
+                                                           vehicle_owner=vehicle_owner)
             vehicle_detail.save()
             messages.success(request, 'Vehicle Details saved Successfully')
         except Exception as e:
@@ -417,11 +422,11 @@ def vehicle_detail_add(request):
             messages.error(request, 'Vehicle Details Creation Failed!!')
         return redirect("app:vehicle_details_list")
     try:
-        vehicle_data = UserType.objects.filter(Q(status=0) | Q(status=1))
+        vehicle_data = Vehicle.objects.filter(Q(status=0) | Q(status=1))
         depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
         operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
-        return render(request, 'users/add.html', {'vehicle_data': vehicle_data, "depot_data": depot_data,
-                                                  'operation_type_data': operation_type_data})
+        return render(request, 'vehicle_details/add.html', {'vehicle_data': vehicle_data, "depot_data": depot_data,
+                                                            'operation_type_data': operation_type_data})
     except Exception as e:
         print(e)
         return render(request, 'vehicle_details/add.html', {})
@@ -434,14 +439,14 @@ def vehicle_detail_edit(request):
         operation_type_id_list = []
         depot_id_list = []
         vehicle_id_list = []
-        if vehicle_detail_data.depot_id:
-            depot_id_list.append(vehicle_detail_data.depot_id.id)
+        if vehicle_detail_data.depot:
+            depot_id_list.append(vehicle_detail_data.depot.id)
         if vehicle_detail_data.opt_type:
             operation_type_id_list.append(vehicle_detail_data.opt_type.id)
         if vehicle_detail_data.vehicle_name:
             vehicle_id_list.append(vehicle_detail_data.vehicle_name.id)
     try:
-        vehicle_data = UserType.objects.filter(Q(status=0) | Q(status=1))
+        vehicle_data = Vehicle.objects.filter(Q(status=0) | Q(status=1))
         depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
         operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'vehicle_details/edit.html', {"vehicle_data": vehicle_data, 'depot_data': depot_data,
@@ -461,16 +466,18 @@ def vehicle_detail_update(request):
     depot_id = request.POST.get('depot_id')
     bus_number = request.POST.get('bus_number')
     opt_type_id = request.POST.get('opt_type')
+    vehicle_owner = request.POST.get('vehicle_owner')
     vehicle_detail_status = request.POST.get('status')
     if vehicle_detail_id:
         try:
             vehicle_detail_data = VehicleDetails.objects.get(id=vehicle_detail_id)
             vehicle_detail_data.bus_number = bus_number
+            vehicle_detail_data.vehicle_owner = vehicle_owner
             vehicle_detail_data.status = vehicle_detail_status
             vehicle_data = Vehicle.objects.get(id=vehicle_id)
             vehicle_detail_data.vehicle_name = vehicle_data
             depot_data = Depot.objects.get(id=depot_id)
-            vehicle_detail_data.depot_id = depot_data
+            vehicle_detail_data.depot = depot_data
             operation_type_data = OperationType.objects.get(id=opt_type_id)
             vehicle_detail_data.opt_type = operation_type_data
             user_data = User.objects.get(id=request.session['user_id'])
