@@ -435,7 +435,7 @@
                     var vehicle_number_select = $('#vehicle_number');
                     vehicle_number_select.empty();
                     $.each(data.vehicle_details, function(index, vehicle_detail) {
-                        vehicle_number_select.append('<option value="' + vehicle_details.id + '">' + vehicle_details.bus_number + '</option>');
+                        vehicle_number_select.append('<option value="' + vehicle_detail.bus_number + '">' + vehicle_detail.bus_number + '</option>');
                     });
                 }
             });

@@ -65,7 +65,7 @@
 
 
 												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="special_bus_reporting_depot">special_bus_reporting_depot</label>
+                                                    <label class="form-label" for="special_bus_reporting_depot">Special Bus Reporting depot</label>
                                                     <select class="form-control custom-select" name="special_bus_reporting_depot" id="special_bus_reporting_depot" required>
                                                      	<option value="">Select Option</option>
                                                         	{% for depo in depot_data %}
@@ -95,19 +95,61 @@
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="vehicle_number">Bus Number</label>
                                                     <select class="form-control custom-select select2 select2-show-search" name="vehicle_number" id="vehicle_number" required>
-                                                     	<option selected disabled>Select Option</option>
+                                                     	<option selected >Select Option</option>
                                                     </select>
 												</div>
 
 
 												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="status">Status</label>
-                                                    <select class="form-control custom-select" id="status" name="status" required>
-														<option value="">Select Option</option>
-															<option value=0>Active</option>
-															<option value=1>In Active</option>
-													</select>
+                                                    <label class="form-label" for="log_sheet_no">Log Sheet No</label>
+                                                    <input type="text" id="log_sheet_no" name="log_sheet_no" class="form-control" required>
 												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver1_name">Driver1 Name</label>
+                                                    <input type="text" id="driver1_name" name="driver1_name" class="form-control" required>
+												</div>
+
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver1_staff_no">Driver1 Staff Number</label>
+                                                    <input type="text" id="driver1_staff_no" name="driver1_staff_no" class="form-control" required>
+												</div>
+
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver1_phone_number">Driver1 Phone Number</label>
+                                                    <input type="text" id="driver1_phone_number" name="driver1_phone_number" class="form-control" required>
+												</div>
+
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver2_name">Driver2 Name</label>
+                                                    <input type="text" id="driver2_name" name="driver2_name" class="form-control" required>
+												</div>
+
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver2_staff_no">Driver2 Staff Number</label>
+                                                    <input type="text" id="driver2_staff_no" name="driver2_staff_no" class="form-control" required>
+												</div>
+
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver2_phone_number">Driver2 Phone Number</label>
+                                                    <input type="text" id="driver2_phone_number" name="driver2_phone_number" class="form-control" required>
+												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="incharge_name">Incharge Name</label>
+                                                    <input type="text" id="incharge_name" name="incharge_name" class="form-control" required>
+												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="incharge_phone_number">Incharge Phone Number</label>
+                                                    <input type="text" id="incharge_phone_number" name="incharge_phone_number" class="form-control" required>
+												</div>
+
 
 												<div class="form-group mt-3">
 													<div>

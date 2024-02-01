@@ -9,6 +9,7 @@ from django.db import transaction
 from django.contrib.auth.hashers import check_password
 import pandas as pd
 
+
 # Create your views here.
 
 
@@ -184,8 +185,8 @@ def user_type_add(request):
         name = request.POST.get('name')
         user_status = request.POST.get('status')
         try:
-            user_data = User.objects.get(id=request.session['user_id'])
-            user_type = UserType.objects.create(name=name, status=user_status, created_by=user_data)
+            # user_data = User.objects.get(id=request.session['user_id'])
+            user_type = UserType.objects.create(name=name, status=user_status)
             user_type.save()
             messages.success(request, 'User Type Created Successfully')
         except Exception as e:
@@ -239,9 +240,8 @@ def depot_add(request):
         depot_code = request.POST.get('depot_code')
         depot_status = request.POST.get('status')
         try:
-            user_data = User.objects.get(id=request.session['user_id'])
-            depot = Depot.objects.create(name=name, depot_code=depot_code, status=depot_status,
-                                         created_by=user_data)
+            # user_data = User.objects.get(id=request.session['user_id'])
+            depot = Depot.objects.create(name=name, depot_code=depot_code, status=depot_status)
             depot.save()
             messages.success(request, 'Depot Created Successfully')
         except Exception as e:
@@ -525,46 +525,51 @@ def operation_type_import(request):
         return redirect("app:operation_type_list")
     return render(request, 'operation_type/import.html', {})
 
+
 def spl_bus_data_entry_list(request):
     spl_bus_data_entry_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
     return render(request, 'spl_bus_data_entry/list.html', {"spl_bus_data_entry_data": spl_bus_data_entry_data})
 
 
+@transaction.atomic
 def spl_bus_data_entry_add(request):
     if request.method == "POST":
         special_bus_sending_depot = request.POST.get('special_bus_sending_depot')
         special_bus_reporting_depot = request.POST.get('special_bus_reporting_depot')
-        bus_type = request.POST.get('bus_type')
-        bus_number = request.POST.get('bus_number')
+        # bus_type means operation_type
+        # bus_number means vechicle_no
+        bus_type = request.POST.get('opt_type')
+        bus_number = request.POST.get('vehicle_number')
         log_sheet_no = request.POST.get('log_sheet_no')
         driver1_name = request.POST.get('driver1_name')
-        drive1_staff_name = request.POST.get('drive1_staff_name')
+        driver1_staff_no = request.POST.get('driver1_staff_no')
         driver1_phone_number = request.POST.get('driver1_phone_number')
         driver2_name = request.POST.get('driver2_name')
-        drive2_staff_name = request.POST.get('drive2_staff_name')
-        drive2_phone_number = request.POST.get('drive2_phone_number')
+        driver2_staff_no = request.POST.get('driver2_staff_no')
+        driver2_phone_number = request.POST.get('driver2_phone_number')
         incharge_name = request.POST.get('incharge_name')
         incharge_phone_number = request.POST.get('incharge_phone_number')
-        status = request.POST.get('status')
+        status = 0
         try:
             sending_depot_data = Depot.objects.get(id=special_bus_sending_depot)
             reporting_depot_data = Depot.objects.get(id=special_bus_reporting_depot)
-            bus_type_data = OperationType.objects.get(name=bus_type)
-            bus_number_data = Vehicle.objects.get(bus_number=bus_number)
+            bus_type_data = OperationType.objects.get(id=bus_type)
+            bus_number_data = VehicleDetails.objects.get(bus_number=bus_number)
 
             user_data = User.objects.get(id=request.session['user_id'])
             spl_bus_data_entry = SpecialBusDataEntry.objects.create(special_bus_sending_depot=sending_depot_data,
                                                                     special_bus_reporting_depot=reporting_depot_data,
                                                                     bus_type=bus_type_data, bus_number=bus_number_data,
-                                                                    log_sheet_no=log_sheet_no, driver1_name=driver1_name,
-                                                                    drive1_staff_name=drive1_staff_name,
+                                                                    log_sheet_no=log_sheet_no,
+                                                                    driver1_name=driver1_name,
+                                                                    driver1_staff_no=driver1_staff_no,
                                                                     driver1_phone_number=driver1_phone_number,
                                                                     driver2_name=driver2_name,
-                                                                    drive2_staff_name=drive2_staff_name,
-                                                                    drive2_phone_number=drive2_phone_number,
+                                                                    driver2_staff_no=driver2_staff_no,
+                                                                    driver2_phone_number=driver2_phone_number,
                                                                     incharge_name=incharge_name,
                                                                     incharge_phone_number=incharge_phone_number,
-                                                                    status=status,created_by=user_data,)
+                                                                    status=status, created_by=user_data)
             spl_bus_data_entry.save()
             messages.success(request, 'Special bus data entry details saved Successfully')
         except Exception as e:
@@ -573,8 +578,6 @@ def spl_bus_data_entry_add(request):
         return redirect("app:spl_bus_data_entry_list")
     try:
         depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
-        # reporting_depot_data = Vehicle.objects.filter(Q(status=0) | Q(status=1))
-        # depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
         operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'spl_bus_data_entry/add.html', {'depot_data': depot_data,
                                                                'operation_type_data': operation_type_data})
@@ -591,64 +594,92 @@ def get_depot_vehicle_number(request):
 
 
 def spl_bus_data_entry_edit(request):
-    vehicle_detail_id = request.GET.get('id')
-    if vehicle_detail_id:
-        vehicle_detail_data = VehicleDetails.objects.get(id=vehicle_detail_id)
-        operation_type_id_list = []
-        depot_id_list = []
-        vehicle_id_list = []
-        if vehicle_detail_data.depot:
-            depot_id_list.append(vehicle_detail_data.depot.id)
-        if vehicle_detail_data.opt_type:
-            operation_type_id_list.append(vehicle_detail_data.opt_type.id)
-        if vehicle_detail_data.vehicle_name:
-            vehicle_id_list.append(vehicle_detail_data.vehicle_name.id)
+    spl_bus_data_entry_id = request.GET.get('id')
+    if spl_bus_data_entry_id:
+        spl_bus_data_entry_data = SpecialBusDataEntry.objects.get(id=spl_bus_data_entry_id)
+        depot_sending_list = []
+        depot_reporting_list = []
+        bus_type_id_list = []
+
+        if spl_bus_data_entry_data.special_bus_sending_depot:
+            depot_sending_list.append(spl_bus_data_entry_data.special_bus_sending_depot.id)
+        if spl_bus_data_entry_data.special_bus_reporting_depot:
+            depot_reporting_list.append(spl_bus_data_entry_data.special_bus_reporting_depot.id)
+        if spl_bus_data_entry_data.bus_type:
+            bus_type_id_list.append(spl_bus_data_entry_data.bus_type.id)
+
     try:
-        vehicle_data = Vehicle.objects.filter(Q(status=0) | Q(status=1))
-        depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
+        depot_sending_data = Depot.objects.filter(Q(status=0) | Q(status=1))
+        depot_reporting_data = Depot.objects.filter(Q(status=0) | Q(status=1))
         operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
-        return render(request, 'vehicle_details/edit.html', {"vehicle_data": vehicle_data, 'depot_data': depot_data,
-                                                             'operation_type_data': operation_type_data,
-                                                             'operation_type_id_list': operation_type_id_list,
-                                                             'depot_id_list': depot_id_list,
-                                                             'vehicle_id_list': vehicle_id_list,
-                                                             'vehicle_detail': vehicle_detail_data})
+
+        return render(request, 'spl_bus_data_entry/edit.html',
+                      {'depot_sending_data': depot_sending_data,
+                       'depot_reporting_data': depot_reporting_data,
+                       'depot_sending_list': depot_sending_list,
+                       'depot_reporting_list': depot_reporting_list,
+                       'operation_type_data': operation_type_data,
+                       'bus_type_id_list': bus_type_id_list,
+                       'spl_bus_data_entry_data': spl_bus_data_entry_data})
     except Exception as e:
         print(e)
-        return render(request, 'vehicle_details/edit.html', {})
+        return render(request, 'spl_bus_data_entry/edit.html', {})
 
 
 def spl_bus_data_entry_update(request):
-    vehicle_detail_id = request.POST.get('id')
-    vehicle_id = request.POST.get('vehicle_id')
-    depot_id = request.POST.get('depot_id')
-    bus_number = request.POST.get('bus_number')
-    opt_type_id = request.POST.get('opt_type')
-    vehicle_owner = request.POST.get('vehicle_owner')
-    vehicle_detail_status = request.POST.get('status')
-    if vehicle_detail_id:
+    spl_bus_data_entry_id = request.POST.get('id')
+    special_bus_sending_depot = request.POST.get('special_bus_sending_depot')
+    special_bus_reporting_depot = request.POST.get('special_bus_reporting_depot')
+    bus_type = request.POST.get('opt_type')
+    bus_number = request.POST.get('vehicle_number')
+    log_sheet_no = request.POST.get('log_sheet_no')
+    driver1_name = request.POST.get('driver1_name')
+    driver1_staff_name = request.POST.get('driver1_staff_name')
+    driver1_phone_number = request.POST.get('driver1_phone_number')
+    driver2_name = request.POST.get('driver2_name')
+    driver2_staff_name = request.POST.get('driver2_staff_name')
+    driver2_phone_number = request.POST.get('driver2_phone_number')
+    incharge_name = request.POST.get('incharge_name')
+    incharge_phone_number = request.POST.get('incharge_phone_number')
+    status = 0
+    if spl_bus_data_entry_id:
         try:
-            vehicle_detail_data = VehicleDetails.objects.get(id=vehicle_detail_id)
-            vehicle_detail_data.bus_number = bus_number
-            vehicle_detail_data.vehicle_owner = vehicle_owner
-            vehicle_detail_data.status = vehicle_detail_status
-            vehicle_data = Vehicle.objects.get(id=vehicle_id)
-            vehicle_detail_data.vehicle_name = vehicle_data
-            depot_data = Depot.objects.get(id=depot_id)
-            vehicle_detail_data.depot = depot_data
-            operation_type_data = OperationType.objects.get(id=opt_type_id)
-            vehicle_detail_data.opt_type = operation_type_data
+            spl_bus_data_entry_data = SpecialBusDataEntry.objects.get(id=spl_bus_data_entry_id)
+
+            sending_depot_data = Depot.objects.get(id=special_bus_sending_depot)
+            spl_bus_data_entry_data.depot = sending_depot_data
+
+            reporting_depot_data = Depot.objects.get(id=special_bus_reporting_depot)
+            spl_bus_data_entry_data.depot = reporting_depot_data
+
+            operation_type_data = OperationType.objects.get(id=bus_type)
+            spl_bus_data_entry_data.opt_type = operation_type_data
+
+            vehicle_number = VehicleDetails.objects.get(bus_number=bus_number)
+            spl_bus_data_entry_data.bus_number = vehicle_number
+
+            spl_bus_data_entry_data.log_sheet_no = log_sheet_no
+            spl_bus_data_entry_data.driver1_name = driver1_name
+            spl_bus_data_entry_data.driver1_staff_name = driver1_staff_name
+            spl_bus_data_entry_data.driver1_phone_number = driver1_phone_number
+            spl_bus_data_entry_data.driver2_name = driver2_name
+            spl_bus_data_entry_data.driver2_staff_name = driver2_staff_name
+            spl_bus_data_entry_data.driver2_phone_number = driver2_phone_number
+            spl_bus_data_entry_data.incharge_name = incharge_name
+            spl_bus_data_entry_data.incharge_phone_number = incharge_phone_number
+            spl_bus_data_entry_data.status = status
             user_data = User.objects.get(id=request.session['user_id'])
-            vehicle_detail_data.updated_by = user_data
-            vehicle_detail_data.save()
-            messages.success(request, 'Vehicle Details updated  successfully!!')
-            return redirect("app:vehicle_details_list")
+            spl_bus_data_entry_data.updated_by = user_data
+            spl_bus_data_entry_data.save()
+            messages.success(request, 'Special bus data entry updated  successfully!!')
+            return redirect("app:spl_bus_data_entry_list")
         except Exception as e:
             print(e)
-            messages.error(request, 'Vehicle Details update  failed!!')
-            return redirect("app:vehicle_details_list")
+            messages.error(request, 'Special bus data entry update  failed!!')
+            return redirect("app:spl_bus_data_entry_list")
     else:
-        return redirect("app:vehicle_details_list")
+        return redirect("app:spl_bus_data_entry_list")
+
 
 @transaction.atomic
 def vehicle_names_import(request):
@@ -665,7 +696,8 @@ def vehicle_names_import(request):
                     name = row[0]
                     vehicle_exist = Vehicle.objects.filter(name=name).count()
                     if vehicle_exist == 0:
-                        vehicle = Vehicle.objects.create(name=name, vehicle_owner=row[1], status=0, created_by=user_data)
+                        vehicle = Vehicle.objects.create(name=name, vehicle_owner=row[1], status=0,
+                                                         created_by=user_data)
                         vehicle.save()
                     else:
                         pass
@@ -685,7 +717,7 @@ def depot_import(request):
     if request.method == "POST":
         file = request.FILES.get('depot_list')
         try:
-            user_data = User.objects.get(id=request.session['user_id'])
+            # user_data = User.objects.get(id=request.session['user_id'])
             df = pd.read_excel(file)
             row_iter = df.iterrows()
             for i, row in row_iter:
@@ -694,7 +726,7 @@ def depot_import(request):
                     name = row[0]
                     depot_exist = Depot.objects.filter(name=name).count()
                     if depot_exist == 0:
-                        depot = Depot.objects.create(name=name, depot_code=row[1], status=0, created_by=user_data)
+                        depot = Depot.objects.create(name=name, depot_code=row[1], status=0)
                         depot.save()
                     else:
                         pass
@@ -741,4 +773,3 @@ def vehicle_details_import(request):
             messages.error(request, 'Vehicle Details import failed!!')
         return redirect("app:vehicle_details_list")
     return render(request, 'vehicle_details/import.html', {})
-
