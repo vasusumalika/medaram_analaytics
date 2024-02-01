@@ -12,7 +12,7 @@
 <!--	<link rel="shortcut icon" type="image/x-icon" href="{% static 'images/brand/favicon.ico' %}"/>-->
 
 	<!-- TITLE -->
-	<title>medaram</title>
+	<title>Medaram</title>
 
 	<!-- DataTables CSS -->
 	<link rel="stylesheet" href="{% static 'plugins/datatable/css/jquery.dataTables.min.css' %}">
@@ -197,7 +197,7 @@
             <div class="sticky">
                 <div class="app-sidebar__overlay" data-bs-toggle="sidebar"></div>
 				<div class="app-sidebar">
-					<div class="side-header"><b style="font-size:30px">medaram</b>
+					<div class="side-header"><b style="font-size:30px">Medaram</b>
 <!--						<a class="header-brand1" href="index.html">-->
 <!--							<img src="{% static 'images/brand/logo.png' %}" class="header-brand-img desktop-logo" alt="logo">-->
 <!--							<img src="{% static 'images/brand/logo-1.png' %}" class="header-brand-img toggle-logo" alt="logo">-->
@@ -264,6 +264,14 @@
 									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:vehicle_details_list'%}">
 										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
 										<span class="side-menu__label">Vehicle Details</span>
+									</a>
+								</li>
+
+
+								<li class="sub-slide">
+									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:spl_bus_data_entry_list'%}">
+										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
+										<span class="side-menu__label">Special Bus Data Entry</span>
 									</a>
 								</li>
 

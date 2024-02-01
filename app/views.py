@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails
+from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.contrib.auth.hashers import check_password
+
 
 # Create your views here.
 
@@ -100,7 +101,8 @@ def user_add(request):
             user_type_data = UserType.objects.get(id=user_type)
             depot_data = Depot.objects.get(id=depot)
             encrypted_password = make_password(password)
-            user = User.objects.create(name=name, email=email, password=encrypted_password, phone_number=phone, status=user_status,
+            user = User.objects.create(name=name, email=email, password=encrypted_password, phone_number=phone,
+                                       status=user_status,
                                        user_type=user_type_data, depot=depot_data)
             user.save()
             messages.success(request, 'User Created Successfully')
@@ -461,6 +463,124 @@ def vehicle_detail_edit(request):
 
 
 def vehicle_detail_update(request):
+    vehicle_detail_id = request.POST.get('id')
+    vehicle_id = request.POST.get('vehicle_id')
+    depot_id = request.POST.get('depot_id')
+    bus_number = request.POST.get('bus_number')
+    opt_type_id = request.POST.get('opt_type')
+    vehicle_owner = request.POST.get('vehicle_owner')
+    vehicle_detail_status = request.POST.get('status')
+    if vehicle_detail_id:
+        try:
+            vehicle_detail_data = VehicleDetails.objects.get(id=vehicle_detail_id)
+            vehicle_detail_data.bus_number = bus_number
+            vehicle_detail_data.vehicle_owner = vehicle_owner
+            vehicle_detail_data.status = vehicle_detail_status
+            vehicle_data = Vehicle.objects.get(id=vehicle_id)
+            vehicle_detail_data.vehicle_name = vehicle_data
+            depot_data = Depot.objects.get(id=depot_id)
+            vehicle_detail_data.depot = depot_data
+            operation_type_data = OperationType.objects.get(id=opt_type_id)
+            vehicle_detail_data.opt_type = operation_type_data
+            user_data = User.objects.get(id=request.session['user_id'])
+            vehicle_detail_data.updated_by = user_data
+            vehicle_detail_data.save()
+            messages.success(request, 'Vehicle Details updated  successfully!!')
+            return redirect("app:vehicle_details_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Vehicle Details update  failed!!')
+            return redirect("app:vehicle_details_list")
+    else:
+        return redirect("app:vehicle_details_list")
+
+
+def spl_bus_data_entry_list(request):
+    spl_bus_data_entry_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
+    return render(request, 'spl_bus_data_entry/list.html', {"spl_bus_data_entry_data": spl_bus_data_entry_data})
+
+
+def spl_bus_data_entry_add(request):
+    if request.method == "POST":
+        special_bus_sending_depot = request.POST.get('special_bus_sending_depot')
+        special_bus_reporting_depot = request.POST.get('special_bus_reporting_depot')
+        bus_type = request.POST.get('bus_type')
+        bus_number = request.POST.get('bus_number')
+        log_sheet_no = request.POST.get('log_sheet_no')
+        driver1_name = request.POST.get('driver1_name')
+        drive1_staff_name = request.POST.get('drive1_staff_name')
+        driver1_phone_number = request.POST.get('driver1_phone_number')
+        driver2_name = request.POST.get('driver2_name')
+        drive2_staff_name = request.POST.get('drive2_staff_name')
+        drive2_phone_number = request.POST.get('drive2_phone_number')
+        incharge_name = request.POST.get('incharge_name')
+        incharge_phone_number = request.POST.get('incharge_phone_number')
+        status = request.POST.get('status')
+        try:
+            sending_depot_data = Depot.objects.get(id=special_bus_sending_depot)
+            reporting_depot_data = Depot.objects.get(id=special_bus_reporting_depot)
+            bus_type_data = OperationType.objects.get(name=bus_type)
+            bus_number_data = Vehicle.objects.get(bus_number=bus_number)
+
+            user_data = User.objects.get(id=request.session['user_id'])
+            spl_bus_data_entry = SpecialBusDataEntry.objects.create(special_bus_sending_depot=sending_depot_data,
+                                                                    special_bus_reporting_depot=reporting_depot_data,
+                                                                    bus_type=bus_type_data, bus_number=bus_number_data,
+                                                                    log_sheet_no=log_sheet_no, driver1_name=driver1_name,
+                                                                    drive1_staff_name=drive1_staff_name,
+                                                                    driver1_phone_number=driver1_phone_number,
+                                                                    driver2_name=driver2_name,
+                                                                    drive2_staff_name=drive2_staff_name,
+                                                                    drive2_phone_number=drive2_phone_number,
+                                                                    incharge_name=incharge_name,
+                                                                    incharge_phone_number=incharge_phone_number,
+                                                                    status=status,created_by=user_data,)
+            spl_bus_data_entry.save()
+            messages.success(request, 'Special bus data entry details saved Successfully')
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Special bus data entry details creation Failed!!')
+        return redirect("app:spl_bus_data_entry_list")
+    try:
+        vehicle_data = Vehicle.objects.filter(Q(status=0) | Q(status=1))
+        depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
+        operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'vehicle_details/add.html', {'vehicle_data': vehicle_data, "depot_data": depot_data,
+                                                            'operation_type_data': operation_type_data})
+    except Exception as e:
+        print(e)
+        return render(request, 'vehicle_details/add.html', {})
+
+
+def spl_bus_data_entry_edit(request):
+    vehicle_detail_id = request.GET.get('id')
+    if vehicle_detail_id:
+        vehicle_detail_data = VehicleDetails.objects.get(id=vehicle_detail_id)
+        operation_type_id_list = []
+        depot_id_list = []
+        vehicle_id_list = []
+        if vehicle_detail_data.depot:
+            depot_id_list.append(vehicle_detail_data.depot.id)
+        if vehicle_detail_data.opt_type:
+            operation_type_id_list.append(vehicle_detail_data.opt_type.id)
+        if vehicle_detail_data.vehicle_name:
+            vehicle_id_list.append(vehicle_detail_data.vehicle_name.id)
+    try:
+        vehicle_data = Vehicle.objects.filter(Q(status=0) | Q(status=1))
+        depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
+        operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'vehicle_details/edit.html', {"vehicle_data": vehicle_data, 'depot_data': depot_data,
+                                                             'operation_type_data': operation_type_data,
+                                                             'operation_type_id_list': operation_type_id_list,
+                                                             'depot_id_list': depot_id_list,
+                                                             'vehicle_id_list': vehicle_id_list,
+                                                             'vehicle_detail': vehicle_detail_data})
+    except Exception as e:
+        print(e)
+        return render(request, 'vehicle_details/edit.html', {})
+
+
+def spl_bus_data_entry_update(request):
     vehicle_detail_id = request.POST.get('id')
     vehicle_id = request.POST.get('vehicle_id')
     depot_id = request.POST.get('depot_id')
