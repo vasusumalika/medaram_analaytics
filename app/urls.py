@@ -22,4 +22,8 @@ urlpatterns = [
     path('depot/add', views.depot_add, name='depot_add'),
     path('depot/edit', views.depot_edit, name='depot_edit'),
     path('depot/update', views.depot_update, name='depot_update'),
+    path('vehicle_details/list', views.vehicle_details_list, name='vehicle_details_list'),
+    path('vehicle_details/add', views.vehicle_detail_add, name='vehicle_detail_add'),
+    path('vehicle_details/edit', views.vehicle_detail_edit, name='vehicle_detail_edit'),
+    path('vehicle_details/update', views.vehicle_detail_update, name='vehicle_detail_update'),
 ]
