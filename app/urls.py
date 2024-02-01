@@ -25,6 +25,7 @@ urlpatterns = [
     path('depot/add', views.depot_add, name='depot_add'),
     path('depot/edit', views.depot_edit, name='depot_edit'),
     path('depot/update', views.depot_update, name='depot_update'),
+    path('depot/import', views.depot_import, name='depot_import'),
 
     path('operation/type/list', views.operation_type_list, name='operation_type_list'),
     path('operation/type/add', views.operation_type_add, name='operation_type_add'),
@@ -36,14 +37,17 @@ urlpatterns = [
     path('vehicle/add', views.vehicle_add, name='vehicle_add'),
     path('vehicle/edit', views.vehicle_edit, name='vehicle_edit'),
     path('vehicle/update', views.vehicle_update, name='vehicle_update'),
+    path('vehicle/import', views.vehicle_names_import, name='vehicle_names_import'),
 
     path('vehicle/details/list', views.vehicle_details_list, name='vehicle_details_list'),
     path('vehicle/details/add', views.vehicle_detail_add, name='vehicle_detail_add'),
     path('vehicle/details/edit', views.vehicle_detail_edit, name='vehicle_detail_edit'),
     path('vehicle/details/update', views.vehicle_detail_update, name='vehicle_detail_update'),
+    path('vehicle_details/import', views.vehicle_details_import, name='vehicle_details_import'),
 
     path('spl/bus/data/entry/list', views.spl_bus_data_entry_list, name='spl_bus_data_entry_list'),
     path('spl/bus/data/entry/add', views.spl_bus_data_entry_add, name='spl_bus_data_entry_add'),
     path('spl/bus/data/entry/edit', views.spl_bus_data_entry_edit, name='spl_bus_data_entry_edit'),
     path('spl/bus/data/entry/update', views.spl_bus_data_entry_update, name='spl_bus_data_entry_update'),
+
 ]

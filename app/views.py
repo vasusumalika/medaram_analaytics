@@ -640,3 +640,96 @@ def spl_bus_data_entry_update(request):
             return redirect("app:vehicle_details_list")
     else:
         return redirect("app:vehicle_details_list")
+
+@transaction.atomic
+def vehicle_names_import(request):
+    print("Called")
+    if request.method == "POST":
+        file = request.FILES.get('vehicle_names_list')
+        try:
+            user_data = User.objects.get(id=request.session['user_id'])
+            df = pd.read_excel(file)
+            row_iter = df.iterrows()
+            for i, row in row_iter:
+                print(row)
+                try:
+                    name = row[0]
+                    vehicle_exist = Vehicle.objects.filter(name=name).count()
+                    if vehicle_exist == 0:
+                        vehicle = Vehicle.objects.create(name=name, vehicle_owner=row[1], status=0, created_by=user_data)
+                        vehicle.save()
+                    else:
+                        pass
+                except Exception as e:
+                    print(e)
+            return redirect("app:vehicle_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Vehicle import failed!!')
+        return redirect("app:vehicle_list")
+    return render(request, 'vehicle/import.html', {})
+
+
+@transaction.atomic
+def depot_import(request):
+    print("Called")
+    if request.method == "POST":
+        file = request.FILES.get('depot_list')
+        try:
+            user_data = User.objects.get(id=request.session['user_id'])
+            df = pd.read_excel(file)
+            row_iter = df.iterrows()
+            for i, row in row_iter:
+                print(row)
+                try:
+                    name = row[0]
+                    depot_exist = Depot.objects.filter(name=name).count()
+                    if depot_exist == 0:
+                        depot = Depot.objects.create(name=name, depot_code=row[1], status=0, created_by=user_data)
+                        depot.save()
+                    else:
+                        pass
+                except Exception as e:
+                    print(e)
+            return redirect("app:depots_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Deport import failed!!')
+        return redirect("app:depots_list")
+    return render(request, 'depot/import.html', {})
+
+
+@transaction.atomic
+def vehicle_details_import(request):
+    print("Called")
+    if request.method == "POST":
+        file = request.FILES.get('vehicle_details_list')
+        try:
+            user_data = User.objects.get(id=request.session['user_id'])
+            df = pd.read_excel(file)
+            row_iter = df.iterrows()
+            for i, row in row_iter:
+                print(row)
+                try:
+                    bus_number = row[2]
+                    vehicle_detail_exist = VehicleDetails.objects.filter(bus_number=bus_number).count()
+                    if vehicle_detail_exist == 0:
+                        vehicle_name_data = Vehicle.objects.get(name=row[4])
+                        depot_data = Depot.objects.get(depot_code=row[1])
+                        opt_type_data = OperationType.objects.get(name=row[3])
+                        vehicle_detail = VehicleDetails.objects.create(vehicle_name=vehicle_name_data, depot=depot_data,
+                                                                       opt_type=opt_type_data, vehicle_owner=row[5],
+                                                                       status=0, created_by=user_data,
+                                                                       bus_number=bus_number)
+                        vehicle_detail.save()
+                    else:
+                        pass
+                except Exception as e:
+                    print(e)
+            return redirect("app:vehicle_details_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Vehicle Details import failed!!')
+        return redirect("app:vehicle_details_list")
+    return render(request, 'vehicle_details/import.html', {})
+
