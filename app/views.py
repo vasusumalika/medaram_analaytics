@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.contrib.auth.hashers import check_password
+import pandas as pd
 
 # Create your views here.
 
@@ -491,3 +492,34 @@ def vehicle_detail_update(request):
             return redirect("app:vehicle_details_list")
     else:
         return redirect("app:vehicle_details_list")
+
+
+@transaction.atomic
+def operation_type_import(request):
+    print("Called")
+    if request.method == "POST":
+        file = request.FILES.get('operation_type_list')
+        try:
+            user_data = User.objects.get(id=request.session['user_id'])
+            df = pd.read_excel(file)
+            row_iter = df.iterrows()
+            for i, row in row_iter:
+                print(row)
+                try:
+                    name = row[1]
+                    operation_type_exist = OperationType.objects.filter(name=name).count()
+                    if operation_type_exist == 0:
+                        operation_type = OperationType.objects.create(name=name, description=row[2], status=0,
+                                                                      created_by=user_data)
+                        operation_type.save()
+                    else:
+                        pass
+                except Exception as e:
+                    print(e)
+            return redirect("app:operation_type_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Operation Type import failed!!')
+        return redirect("app:operation_type_list")
+    return render(request, 'operation_type/import.html', {})
+
