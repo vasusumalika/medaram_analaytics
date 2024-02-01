@@ -16,7 +16,7 @@ urlpatterns = [
     path('users/edit', views.user_edit, name='user_edit'),
     path('users/update', views.user_update, name='user_update'),
 
-    path('user_types/list', views.user_types_list, name='user_types_list'),
+    path('user_type/list', views.user_type_list, name='user_type_list'),
     path('user_type/add', views.user_type_add, name='user_type_add'),
     path('user_type/edit', views.user_type_edit, name='user_type_edit'),
     path('user_type/update', views.user_type_update, name='user_type_update'),

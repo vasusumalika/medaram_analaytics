@@ -171,9 +171,9 @@ def user_update(request):
 
 
 @transaction.atomic
-def user_types_list(request):
-    user_types_data = UserType.objects.filter(~Q(status=2))
-    return render(request, 'user_type/list.html', {"user_types": user_types_data})
+def user_type_list(request):
+    user_type_data = UserType.objects.filter(~Q(status=2))
+    return render(request, 'user_type/list.html', {"user_type_data": user_type_data})
 
 
 def user_type_add(request):
@@ -188,7 +188,7 @@ def user_type_add(request):
         except Exception as e:
             print(e)
             messages.error(request, 'User Type Creation Failed!!')
-        return redirect("app:user_types_list")
+        return redirect("app:user_type_list")
     return render(request, 'user_type/add.html')
 
 
@@ -216,13 +216,13 @@ def user_type_update(request):
             user_type_data.updated_by = user_data
             user_type_data.save()
             messages.success(request, 'User Type updated  successfully!!')
-            return redirect("app:user_types_list")
+            return redirect("app:user_type_list")
         except Exception as e:
             print(e)
             messages.error(request, 'User Type update  failed!!')
-            return redirect("app:user_types_list")
+            return redirect("app:user_type_list")
     else:
-        return redirect("app:user_types_list")
+        return redirect("app:user_type_list")
 
 
 def depots_list(request):
@@ -291,9 +291,9 @@ def operation_type_add(request):
         description = request.POST.get('description')
         status = request.POST.get('status')
         try:
-            user = User.objects.filter(id=request.session['user_id'])
+            user = User.objects.get(id=request.session['user_id'])
             operation_type = OperationType.objects.create(name=name, description=description, status=status,
-                                                          created_by=user, updated_by=user)
+                                                          created_by=user)
             operation_type.save()
             messages.success(request, 'Operation Type Created Successfully')
         except Exception as e:
@@ -324,6 +324,8 @@ def operation_type_update(request):
             operation_type_data.name = name
             operation_type_data.description = description
             operation_type_data.status = status
+            user_data = User.objects.get(id=request.session['user_id'])
+            operation_type_data.updated_by = user_data
             operation_type_data.save()
             messages.success(request, 'Operation Type updated  successfully!!')
             return redirect("app:operation_type_list")
@@ -345,8 +347,8 @@ def vehicle_add(request):
         name = request.POST.get('name')
         status = request.POST.get('status')
         try:
-            user = User.objects.filter(id=request.session['user_id'])
-            vehicle = Vehicle.objects.create(name=name, status=status, created_by=user, updated_by=user)
+            user = User.objects.get(id=request.session['user_id'])
+            vehicle = Vehicle.objects.create(name=name, status=status, created_by=user)
             vehicle.save()
             messages.success(request, 'Vehicle  Created Successfully')
         except Exception as e:
@@ -375,6 +377,8 @@ def vehicle_update(request):
             vehicle_data = Vehicle.objects.get(id=vehicle_id)
             vehicle_data.name = name
             vehicle_data.status = status
+            user_data = User.objects.get(id=request.session['user_id'])
+            vehicle_data.updated_by = user_data
             vehicle_data.save()
             messages.success(request, 'Vehicle  updated  successfully!!')
             return redirect("app:vehicle_list")

@@ -21,8 +21,10 @@ class UserType(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_type_created_user", null=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_type_updated_user", null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_type_created_user', default="",
+                                   null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_type_updated_user', null=True,
+                                   blank=True, default="")
 
 
 class Depot(models.Model):
@@ -32,8 +34,10 @@ class Depot(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="depot_created_user", null=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="depot_updated_user", null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='depot_created_user', default="",
+                                   null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='depot_updated_user', null=True,
+                                   blank=True, default="")
 
 
 class Vehicle(models.Model):
@@ -42,8 +46,10 @@ class Vehicle(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="vehicle_created_user")
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="vehicle_updated_user")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vehicle_created_user', default="",
+                                   null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vehicle_updated_user', null=True,
+                                   blank=True, default="")
 
 
 class OperationType(models.Model):
@@ -53,21 +59,25 @@ class OperationType(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="opt_type_created_user")
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="opt_type_updated_user")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='opt_type_created_user', default="",
+                                   null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='opt_type_updated_user', null=True,
+                                   blank=True, default="")
 
 
 class VehicleDetails(models.Model):
     id = models.AutoField(primary_key=True)
-    depot_id = models.ForeignKey(Depot, on_delete=models.CASCADE, related_name="vehicle_details_depot")
+    depot = models.ForeignKey(Depot, on_delete=models.CASCADE, related_name="vehicle_details_depot")
     bus_number = models.CharField(max_length=256)
     opt_type = models.ForeignKey(OperationType, on_delete=models.CASCADE, related_name="vehicle_details_opt_type")
     vehicle_name = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name="vehicle_details_vehicle")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="vehicle_details_created_user")
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="vehicle_details_updated_user")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vehicle_details_created_user',
+                                   default="", null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vehicle_details_updated_user',
+                                   null=True, blank=True, default="")
 
 
 class SpecialBusDataEntry(models.Model):
@@ -90,5 +100,7 @@ class SpecialBusDataEntry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="special_bus_created_user")
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="special_bus_updated_user")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='special_bus_created_user',
+                                   default="", null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='special_bus_updated_user',
+                                   null=True, blank=True, default="")
