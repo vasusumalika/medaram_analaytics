@@ -30,6 +30,7 @@ urlpatterns = [
     path('operation/type/add', views.operation_type_add, name='operation_type_add'),
     path('operation/type/edit', views.operation_type_edit, name='operation_type_edit'),
     path('operation/type/update', views.operation_type_update, name='operation_type_update'),
+    path('operation/type/import', views.operation_type_import, name='operation_type_import'),
 
     path('vehicle/list', views.vehicle_list, name='vehicle_list'),
     path('vehicle/add', views.vehicle_add, name='vehicle_add'),
