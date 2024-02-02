@@ -439,7 +439,26 @@
                     });
                 }
             });
+
+			$('#listing-table').DataTable({
+         	language: {
+            	searchPlaceholder: 'Search...',
+            	sSearch: '',
+        	},
+        	pageLength: 10,
+         	});
+
           });
+
+         $(document).ready(function() {
+         	$('#listing-table').DataTable({
+         	language: {
+            	searchPlaceholder: 'Search...',
+            	sSearch: '',
+        	},
+        	pageLength: 10,
+         	});
+ 		});
 
 
 	</script>
