@@ -74,19 +74,39 @@ WSGI_APPLICATION = 'medaram_analytics.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# DATABASES = {
+
+#     'default': {
+
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+
+#         'NAME': 'medaram',
+
+#         'USER': 'postgres',
+
+#         'PASSWORD': 'postgress',
+
+#         'HOST': 'localhost',
+
+#         'PORT': '5432',
+
+#     }
+
+# }
+
 DATABASES = {
 
     'default': {
 
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 
-        'NAME': 'medaram',
+        'NAME': 'medaram_analaytics_db',
 
-        'USER': 'postgres',
+        'USER': 'medaram_analaytics_db',
 
-        'PASSWORD': 'postgress',
+        'PASSWORD': 'bvQrozq2X3AWIyNEPT7ENxG92BAOwiIr',
 
-        'HOST': 'localhost',
+        'HOST': 'dpg-cmuesbug1b2c73ehm3fg-a.singapore-postgres.render.com',
 
         'PORT': '5432',
 

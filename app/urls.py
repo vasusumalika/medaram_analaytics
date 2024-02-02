@@ -52,6 +52,16 @@ urlpatterns = [
 
     path('get/depot/vehicle/number', views.get_depot_vehicle_number, name='get_depot_vehicle_number'),
 
+    path('statistics/up/journey/list', views.statistics_up_journey_list, name='statistics_up_journey_list'),
+    path('statistics/up/journey/add', views.statistics_up_journey_add, name='statistics_up_journey_add'),
+    path('statistics/up/journey/edit', views.statistics_up_journey_edit, name='statistics_up_journey_edit'),
+    path('statistics/up/journey/update', views.statistics_up_journey_update, name='statistics_up_journey_update'),
+
+    path('statistics/down/journey/list', views.statistics_down_journey_list, name='statistics_down_journey_list'),
+    path('statistics/down/journey/add', views.statistics_down_journey_add, name='statistics_down_journey_add'),
+    path('statistics/down/journey/edit', views.statistics_down_journey_edit, name='statistics_down_journey_edit'),
+    path('statistics/down/journey/update', views.statistics_down_journey_update, name='statistics_down_journey_update'),
+
     path('out/depo/buses/receive/form', views.out_depo_buses_receive_form, name='out_depo_buses_receive_form'),
     path('out/depo/buses/receive/list', views.out_depo_buses_receive_list, name='out_depo_buses_receive_list'),
     path('out/depo/buses/receive/add', views.out_depo_buses_receive_add, name='out_depo_buses_receive_add'),

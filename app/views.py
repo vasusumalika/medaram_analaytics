@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, OutDepotVehicleReceive
+from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, StatisticsDateEntry, OutDepotVehicleReceive
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -802,6 +802,192 @@ def vehicle_details_import(request):
     return render(request, 'vehicle_details/import.html', {})
 
 
+@custom_login_required
+def statistics_up_journey_list(request):
+    statistics_up_journey_data = StatisticsDateEntry.objects.filter(~Q(status=2)).filter(entry_type='up')
+    return render(request, 'statistics_date_entry/up_journey/list.html', {"statistics_up_journey_data": statistics_up_journey_data})
+
+
+@custom_login_required
+def statistics_up_journey_add(request):
+    if request.method == "POST":
+        bus_unique_code = request.POST.get('bus_unique_code')
+        total_ticket_amount = request.POST.get('total_ticket_amount')
+        total_adult_passengers = request.POST.get('total_adult_passengers')
+        total_child_passengers = request.POST.get('total_child_passengers')
+        mhl_adult_passengers = request.POST.get('mhl_adult_passengers')
+        mhl_child_passengers = request.POST.get('mhl_child_passengers')
+        mhl_adult_amount = request.POST.get('mhl_adult_amount')
+        mhl_child_amount = request.POST.get('mhl_child_amount')
+        entry_type = 'up'
+        service_operated_date = request.POST.get('service_operated_date')
+        status = 0
+
+        try:
+            user_data = User.objects.get(id=request.session['user_id'])
+            statistics_data_entry = StatisticsDateEntry.objects.create(bus_unique_code=bus_unique_code,
+                                                                       total_ticket_amount=total_ticket_amount,
+                                                                       total_adult_passengers=total_adult_passengers,
+                                                                       total_child_passengers=total_child_passengers,
+                                                                       mhl_adult_passengers=mhl_adult_passengers,
+                                                                       mhl_child_passengers=mhl_child_passengers,
+                                                                       mhl_adult_amount=mhl_adult_amount,
+                                                                       mhl_child_amount=mhl_child_amount,
+                                                                       entry_type=entry_type,
+                                                                       service_operated_date=service_operated_date,
+                                                                       status=status, created_by=user_data)
+            statistics_data_entry.save()
+            messages.success(request, 'Statistics Data Entry Up Journey Created Successfully')
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Statistics Data Entry Up Journey Creation Failed!!')
+        return redirect("app:statistics_up_journey_list")
+    else:
+        return render(request, 'statistics_date_entry/up_journey/add.html', {})
+
+
+@custom_login_required
+def statistics_up_journey_edit(request):
+    statistics_up_journey_id = request.GET.get('id')
+    if statistics_up_journey_id:
+        statistics_up_journey_data = StatisticsDateEntry.objects.get(id=statistics_up_journey_id)
+        return render(request, 'statistics_date_entry/up_journey/edit.html', {"statistics_up_journey_data": statistics_up_journey_data})
+    else:
+        return render(request, 'statistics_date_entry/up_journey/edit.html', {})
+
+
+@custom_login_required
+def statistics_up_journey_update(request):
+    statistics_up_journey_id = request.POST.get('id')
+    bus_unique_code = request.POST.get('bus_unique_code')
+    total_ticket_amount = request.POST.get('total_ticket_amount')
+    total_adult_passengers = request.POST.get('total_adult_passengers')
+    total_child_passengers = request.POST.get('total_child_passengers')
+    mhl_adult_passengers = request.POST.get('mhl_adult_passengers')
+    mhl_child_passengers = request.POST.get('mhl_child_passengers')
+    mhl_adult_amount = request.POST.get('mhl_adult_amount')
+    mhl_child_amount = request.POST.get('mhl_child_amount')
+    service_operated_date = request.POST.get('service_operated_date')
+    status = 0
+    if statistics_up_journey_id:
+        try:
+            statistics_up_journey_data = StatisticsDateEntry.objects.get(id=statistics_up_journey_id)
+            statistics_up_journey_data.bus_unique_code = bus_unique_code
+            statistics_up_journey_data.total_ticket_amount = total_ticket_amount
+            statistics_up_journey_data.total_adult_passengers = total_adult_passengers
+            statistics_up_journey_data.total_child_passengers = total_child_passengers
+            statistics_up_journey_data.mhl_adult_passengers = mhl_adult_passengers
+            statistics_up_journey_data.mhl_child_passengers = mhl_child_passengers
+            statistics_up_journey_data.mhl_adult_amount = mhl_adult_amount
+            statistics_up_journey_data.mhl_child_amount = mhl_child_amount
+            statistics_up_journey_data.service_operated_date = service_operated_date
+            statistics_up_journey_data.status = status
+            user_data = User.objects.get(id=request.session['user_id'])
+            statistics_up_journey_data.updated_by = user_data
+            statistics_up_journey_data.save()
+            messages.success(request, 'Statistics Date Entry Up Journey updated successfully!!')
+            return redirect("app:statistics_up_journey_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Statistics Data Entry Up Journey update  failed!!')
+            return redirect("app:statistics_up_journey_list")
+    else:
+        return redirect("app:statistics_up_journey_list")
+
+
+@custom_login_required
+def statistics_down_journey_list(request):
+    statistics_down_journey_data = StatisticsDateEntry.objects.filter(~Q(status=2)).filter(entry_type='down')
+    return render(request, 'statistics_date_entry/down_journey/list.html', {"statistics_down_journey_data": statistics_down_journey_data})
+
+
+@custom_login_required
+def statistics_down_journey_add(request):
+    if request.method == "POST":
+        bus_unique_code = request.POST.get('bus_unique_code')
+        total_ticket_amount = request.POST.get('total_ticket_amount')
+        total_adult_passengers = request.POST.get('total_adult_passengers')
+        total_child_passengers = request.POST.get('total_child_passengers')
+        mhl_adult_passengers = request.POST.get('mhl_adult_passengers')
+        mhl_child_passengers = request.POST.get('mhl_child_passengers')
+        mhl_adult_amount = request.POST.get('mhl_adult_amount')
+        mhl_child_amount = request.POST.get('mhl_child_amount')
+        entry_type = 'down'
+        service_operated_date = request.POST.get('service_operated_date')
+        status = 0
+
+        try:
+            user_data = User.objects.get(id=request.session['user_id'])
+            statistics_data_entry = StatisticsDateEntry.objects.create(bus_unique_code=bus_unique_code,
+                                                                       total_ticket_amount=total_ticket_amount,
+                                                                       total_adult_passengers=total_adult_passengers,
+                                                                       total_child_passengers=total_child_passengers,
+                                                                       mhl_adult_passengers=mhl_adult_passengers,
+                                                                       mhl_child_passengers=mhl_child_passengers,
+                                                                       mhl_adult_amount=mhl_adult_amount,
+                                                                       mhl_child_amount=mhl_child_amount,
+                                                                       entry_type=entry_type,
+                                                                       service_operated_date=service_operated_date,
+                                                                       status=status, created_by=user_data)
+            statistics_data_entry.save()
+            messages.success(request, 'Statistics Date Entry down Journey Created Successfully')
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Statistics Date Entry down Journey Creation Failed!!')
+        return redirect("app:statistics_down_journey_list")
+    else:
+        return render(request, 'statistics_date_entry/down_journey/add.html', {})
+
+
+@custom_login_required
+def statistics_down_journey_edit(request):
+    statistics_down_journey_id = request.GET.get('id')
+    if statistics_down_journey_id:
+        statistics_down_journey_data = StatisticsDateEntry.objects.get(id=statistics_down_journey_id)
+        return render(request, 'statistics_date_entry/down_journey/edit.html', {"statistics_down_journey_data": statistics_down_journey_data})
+    else:
+        return render(request, 'statistics_date_entry/down_journey/edit.html', {})
+
+
+@custom_login_required
+def statistics_down_journey_update(request):
+    statistics_down_journey_id = request.POST.get('id')
+    bus_unique_code = request.POST.get('bus_unique_code')
+    total_ticket_amount = request.POST.get('total_ticket_amount')
+    total_adult_passengers = request.POST.get('total_adult_passengers')
+    total_child_passengers = request.POST.get('total_child_passengers')
+    mhl_adult_passengers = request.POST.get('mhl_adult_passengers')
+    mhl_child_passengers = request.POST.get('mhl_child_passengers')
+    mhl_adult_amount = request.POST.get('mhl_adult_amount')
+    mhl_child_amount = request.POST.get('mhl_child_amount')
+    service_operated_date = request.POST.get('service_operated_date')
+    status = 0
+    if statistics_down_journey_id:
+        try:
+            statistics_up_journey_data = StatisticsDateEntry.objects.get(id=statistics_down_journey_id)
+            statistics_up_journey_data.bus_unique_code = bus_unique_code
+            statistics_up_journey_data.total_ticket_amount = total_ticket_amount
+            statistics_up_journey_data.total_adult_passengers = total_adult_passengers
+            statistics_up_journey_data.total_child_passengers = total_child_passengers
+            statistics_up_journey_data.mhl_adult_passengers = mhl_adult_passengers
+            statistics_up_journey_data.mhl_child_passengers = mhl_child_passengers
+            statistics_up_journey_data.mhl_adult_amount = mhl_adult_amount
+            statistics_up_journey_data.mhl_child_amount = mhl_child_amount
+            statistics_up_journey_data.service_operated_date = service_operated_date
+            statistics_up_journey_data.status = status
+            user_data = User.objects.get(id=request.session['user_id'])
+            statistics_up_journey_data.updated_by = user_data
+            statistics_up_journey_data.save()
+            messages.success(request, 'Statistics Date Entry down Journey updated successfully!!')
+            return redirect("app:statistics_down_journey_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Statistics Date Entry down Journey update  failed!!')
+            return redirect("app:statistics_down_journey_list")
+    else:
+        return redirect("app:statistics_down_journey_list")
+
+
 def out_depo_buses_receive_list(request):
     out_depo_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(~Q(status=2))
     return render(request, 'out_depo_vehicle_receive/list.html',
@@ -851,5 +1037,4 @@ def out_depo_buses_receive_add(request):
         return redirect("app:out_depo_buses_receive_list")
 
     return render(request, 'out_depo_vehicle_receive/list.html', {})
-
 
