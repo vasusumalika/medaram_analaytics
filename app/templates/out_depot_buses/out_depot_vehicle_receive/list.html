@@ -15,12 +15,12 @@
 							<!-- PAGE-HEADER -->
 							<div class="page-header">
 								<div>
-									<h1 class="page-title">Manage Out Depo Vehicles Receive</h1>
+									<h1 class="page-title">Manage Out Depot Vehicles Receive</h1>
 								</div>
 								<div class="ms-auto pageheader-btn">
 									<ol class="breadcrumb">
-										<li class="breadcrumb-item"><a href="javascript:void(0);">Manage Out Depo Vehicles Receive</a></li>
-										<li class="breadcrumb-item active" aria-current="page">Out Depo Vehicles Receive List</li>
+										<li class="breadcrumb-item"><a href="javascript:void(0);">Manage Out Depot Vehicles Receive</a></li>
+										<li class="breadcrumb-item active" aria-current="page">Out Depot Vehicles Receive List</li>
 									</ol>
 								</div>
 							</div>
@@ -49,7 +49,7 @@
 											{% endfor %}
 										{% endif %}
 										<div class="card-header border-bottom">
-											<h3 class="card-title">Out Depo Vehicles Receive List</h3>
+											<h3 class="card-title">Out Depot Vehicles Receive List</h3>
 										</div>
 										<div class="card-body">
 											<div class="table-responsive export-table">
@@ -63,36 +63,18 @@
 															<th class="border-bottom-0">MTS No</th>
 															<th class="border-bottom-0">Bus Reported Date</th>
 															<th class="border-bottom-0">Bus Reported Time</th>
-															<th class="border-bottom-0">Status</th>
-															<th class="border-bottom-0">Actions</th>
 														</tr>
 													</thead>
 													<tbody>
-														{% for spl_bus_data_entry in spl_bus_data_entry_data %}
+														{% for out_depot_vehicle_receive in out_depot_vehicle_receive_data %}
                                                           <tr>
-															  <td>{{ spl_bus_data_entry.special_bus_sending_depot.name }}</td>
-															  <td>{{ spl_bus_data_entry.special_bus_reporting_depot.name }}</td>
-															  <td>{{ spl_bus_data_entry.bus_type.name }}</td>
-															  <td>{{ spl_bus_data_entry.bus_number.bus_number }}</td>
-															  <td>{{ spl_bus_data_entry.log_sheet_no }}</td>
-															  <td>{{ spl_bus_data_entry.driver1_name }}</td>
-															  <td>{{ spl_bus_data_entry.driver1_staff_no }}</td>
-															  <td>{{ spl_bus_data_entry.driver1_phone_number }}</td>
-															  <td>{{ spl_bus_data_entry.driver2_name }}</td>
-															  <td>{{ spl_bus_data_entry.driver2_staff_no }}</td>
-															  <td>{{ spl_bus_data_entry.driver2_phone_number }}</td>
-															  <td>{{ spl_bus_data_entry.incharge_name }}</td>
-															  <td>{{ spl_bus_data_entry.incharge_phone_number }}</td>
-															  {% if spl_bus_data_entry.status == 0 %}
-															  	<td>Active</td>
-															  {% endif %}
-															  {% if spl_bus_data_entry.status == 1 %}
-															  	<td>In Active</td>
-															  {% endif %}
-															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:spl_bus_data_entry_edit' %}?id={{ spl_bus_data_entry.id }}">
-																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
-															   		</a>
-															  </td>
+															  <td>{{ out_depot_vehicle_receive.bus_number.bus_number }}</td>
+															  <td>{{ out_depot_vehicle_receive.unique_no }}</td>
+															  <td>{{ out_depot_vehicle_receive.new_log_sheet_no }}</td>
+															  <td>{{ out_depot_vehicle_receive.hsd_top_oil_liters }}</td>
+															  <td>{{ out_depot_vehicle_receive.mts_no }}</td>
+															  <td>{{ out_depot_vehicle_receive.bus_reported_date }}</td>
+															  <td>{{ out_depot_vehicle_receive.bus_reported_time }}</td>
 														  </tr>
                                                         {% endfor %}
 													</tbody>

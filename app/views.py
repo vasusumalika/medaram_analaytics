@@ -988,14 +988,14 @@ def statistics_down_journey_update(request):
         return redirect("app:statistics_down_journey_list")
 
 
-def out_depo_buses_receive_list(request):
-    out_depo_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(~Q(status=2))
-    return render(request, 'out_depo_vehicle_receive/list.html',
-                  {'out_depo_vehicle_receive_data': out_depo_vehicle_receive_data})
+def out_depot_buses_receive_list(request):
+    out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(~Q(status=2))
+    return render(request, 'out_depot_buses/out_depot_vehicle_receive/list.html',
+                  {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
 
 
-def out_depo_buses_receive_form(request):
-    return render(request, 'out_depo_vehicle_receive/add.html')
+def out_depot_buses_receive_form(request):
+    return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html')
 
 
 def search_special_bus_data(request):
@@ -1004,10 +1004,10 @@ def search_special_bus_data(request):
         if bus_number:
             vehicle_detail = VehicleDetails.objects.get(bus_number=bus_number)
             special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail)
-    return render(request, 'out_depo_vehicle_receive/add.html', {'special_bus_data': special_bus_data})
+    return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html', {'special_bus_data': special_bus_data})
 
 
-def out_depo_buses_receive_add(request):
+def out_depot_buses_receive_add(request):
     if request.method == "POST":
         bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
         unique_no = request.POST.get('unique_no')
@@ -1030,11 +1030,11 @@ def out_depo_buses_receive_add(request):
                                                                                  bus_reported_time=bus_reported_time,
                                                                                  created_by=user_data)
             out_depo_buse_receive_detail.save()
-            messages.success(request, 'Out Depo Vehicle Receive Details saved Successfully')
+            messages.success(request, 'Out Depot Vehicle Receive Details saved Successfully')
         except Exception as e:
             print(e)
-            messages.error(request, 'Out Depo Vehicle Receive Details Creation Failed!!')
-        return redirect("app:out_depo_buses_receive_list")
+            messages.error(request, 'Out Depot Vehicle Receive Details Creation Failed!!')
+        return redirect("app:out_depot_buses_receive_list")
 
-    return render(request, 'out_depo_vehicle_receive/list.html', {})
+    return render(request, 'out_depot_buses/out_depot_vehicle_receive/list.html', {})
 
