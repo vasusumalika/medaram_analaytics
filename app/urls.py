@@ -62,4 +62,10 @@ urlpatterns = [
     path('statistics/down/journey/edit', views.statistics_down_journey_edit, name='statistics_down_journey_edit'),
     path('statistics/down/journey/update', views.statistics_down_journey_update, name='statistics_down_journey_update'),
 
+    path('out/depo/buses/receive/form', views.out_depo_buses_receive_form, name='out_depo_buses_receive_form'),
+    path('out/depo/buses/receive/list', views.out_depo_buses_receive_list, name='out_depo_buses_receive_list'),
+    path('out/depo/buses/receive/add', views.out_depo_buses_receive_add, name='out_depo_buses_receive_add'),
+
+    path('search/special/bus/data', views.search_special_bus_data, name='search_special_bus_data'),
+
 ]

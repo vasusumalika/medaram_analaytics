@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, StatisticsDateEntry
+from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, StatisticsDateEntry, OutDepotVehicleReceive
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -986,3 +986,55 @@ def statistics_down_journey_update(request):
             return redirect("app:statistics_down_journey_list")
     else:
         return redirect("app:statistics_down_journey_list")
+
+
+def out_depo_buses_receive_list(request):
+    out_depo_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(~Q(status=2))
+    return render(request, 'out_depo_vehicle_receive/list.html',
+                  {'out_depo_vehicle_receive_data': out_depo_vehicle_receive_data})
+
+
+def out_depo_buses_receive_form(request):
+    return render(request, 'out_depo_vehicle_receive/add.html')
+
+
+def search_special_bus_data(request):
+    if request.method == "POST":
+        bus_number = request.POST.get('bus_number')
+        if bus_number:
+            vehicle_detail = VehicleDetails.objects.get(bus_number=bus_number)
+            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail)
+    return render(request, 'out_depo_vehicle_receive/add.html', {'special_bus_data': special_bus_data})
+
+
+def out_depo_buses_receive_add(request):
+    if request.method == "POST":
+        bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
+        unique_no = request.POST.get('unique_no')
+        new_log_sheet_no = request.POST.get('new_log_sheet_no')
+        hsd_top_oil_liters = request.POST.get('hsd_top_oil_liters')
+        mts_no = request.POST.get('mts_no')
+        bus_reported_date = request.POST.get('bus_reported_date')
+        bus_reported_time = request.POST.get('bus_reported_time')
+        try:
+            vehicle_detail_data = VehicleDetails.objects.get(bus_number=bus_number)
+            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail_data)
+            user_data = User.objects.get(id=request.session['user_id'])
+            out_depo_buse_receive_detail = OutDepotVehicleReceive.objects.create(bus_number=vehicle_detail_data,
+                                                                                 special_bus_data_entry=special_bus_data,
+                                                                                 unique_no=unique_no,
+                                                                                 new_log_sheet_no=new_log_sheet_no,
+                                                                                 hsd_top_oil_liters=hsd_top_oil_liters,
+                                                                                 mts_no=mts_no,
+                                                                                 bus_reported_date=bus_reported_date,
+                                                                                 bus_reported_time=bus_reported_time,
+                                                                                 created_by=user_data)
+            out_depo_buse_receive_detail.save()
+            messages.success(request, 'Out Depo Vehicle Receive Details saved Successfully')
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Out Depo Vehicle Receive Details Creation Failed!!')
+        return redirect("app:out_depo_buses_receive_list")
+
+    return render(request, 'out_depo_vehicle_receive/list.html', {})
+

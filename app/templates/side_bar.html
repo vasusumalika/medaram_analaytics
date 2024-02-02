@@ -272,6 +272,17 @@
 									</a>
 								</li>
 
+								<li class="sub-slide">
+   									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="">
+         								<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+         								<span class="sub-side-menu__label">Out Depot Buses</span>
+										<iclass="sub-angle fa fa-angle-right"></i>
+									</a>
+         							<ul class="sub-slide-menu">
+            							<li><a class="sub-slide-item" href="{% url 'app:out_depo_buses_receive_form'%}">Out depot vehicle receive</a></li>
+            							<li><a class="sub-slide-item" href="{% url 'app:spl_bus_data_entry_list'%}">Out depot vehicle send back</a></li>
+         							</ul>
+								</li>
 
 								<li class="sub-slide">
 									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="">
@@ -429,7 +440,32 @@
 				},
 				pageLength: 10,
          	});
+
+
+
         });
+
+        function validateInput() {
+        	var inputField = document.getElementById('unique_no');
+        	var validationMessage = document.getElementById('validationMessage');
+
+        	if (inputField.checkValidity()) {
+            	validationMessage.innerHTML = '';
+        	} else {
+            	validationMessage.innerHTML = 'Please enter exactly four digits.';
+        	}
+    	}
+
+    	function validate_hsd_top_oilInput() {
+        	var inputField = document.getElementById('hsd_top_oil_liters');
+        	var validation_message = document.getElementById('validation_message');
+
+        	if (inputField.checkValidity()) {
+            	validation_message.innerHTML = '';
+        	} else {
+            	validation_message.innerHTML = 'Please enter exactly three digits.';
+        	}
+    	}
 
 
 	</script>
