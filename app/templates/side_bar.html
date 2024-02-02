@@ -272,6 +272,20 @@
 									</a>
 								</li>
 
+
+								<li class="sub-slide">
+									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="">
+										<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+										<span class="sub-side-menu__label">Statistics Data Entry</span><i
+													class="sub-angle fa fa-angle-right"></i></a>
+											<ul class="sub-slide-menu">
+												<li><a class="sub-slide-item" href="{% url 'app:statistics_up_journey_list'%}">Up Journey</a></li>
+												<li><a class="sub-slide-item" href="{% url 'app:statistics_down_journey_list'%}">Down Journey</a></li>
+											</ul>
+
+								</li>
+
+
 							</div>
 
 						</ul>
@@ -327,12 +341,6 @@
 
 	<!-- INTERNAL SELECT2 JS -->
 	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
-
-<!--	<script type="module" src="{% static 'js/tableau.embedding.3.1.0.min.js' %}"></script>-->
-
-	<!-- CHART-CIRCLE JS-->
-<!--	<script src="{% static 'js/circle-progress.min.js' %}"></script>-->
-
 	<!-- DATA TABLE JS-->
 	<script src="{% static 'plugins/datatable/js/jquery.dataTables.min.js' %}"></script>
 	<script src="{% static 'plugins/datatable/js/dataTables.bootstrap5.js' %}"></script>
@@ -346,18 +354,6 @@
 	<script src="{% static 'plugins/datatable/js/buttons.colVis.min.js' %}"></script>
 	<script src="{% static 'plugins/datatable/dataTables.responsive.min.js' %}"></script>
 	<script src="{% static 'plugins/datatable/responsive.bootstrap5.min.js' %}"></script>
-<!--	<script src="{% static 'js/table-data.js' %}"></script>-->
-
-	<!-- INDEX JS -->
-<!--	<script src="{% static 'js/index1.js' %}"></script>-->
-
-	<!-- REPLY JS-->
-<!--	<script src="{% static 'js/reply.js' %}"></script>-->
-
-	<!-- PERFECT SCROLLBAR JS-->
-<!--	<script src="{% static 'plugins/p-scroll/perfect-scrollbar.js' %}"></script>-->
-<!--	<script src="{% static 'plugins/p-scroll/pscroll.js' %}"></script>-->
-
     <!-- STICKY JS -->
     <script src="{% static 'js/sticky.js' %}"></script>
 
@@ -367,24 +363,12 @@
 	<!-- CUSTOM JS -->
 	<script src="{% static 'js/custom.js' %}"></script>
 
-	<!-- bootstrap-datepicker js -->
-<!--	<script src="{% static 'plugins/bootstrap-datepicker/js/datepicker.js' %}"></script>-->
-
-	<!-- TASK EDIT JS-->
-<!--	<script src="{% static 'js/task-edit.js' %}"></script>-->
-
-	<!-- INTERNAL Summernote Editor js -->
 	<script src="{% static 'plugins/summernote-editor/summernote1.js' %}"></script>
 	<script src="{% static 'js/summernote.js' %}"></script>
 
 	<!-- SELECT2 JS -->
 	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
 
-	<!-- PROJECT-DETAILS JS-->
-<!--	<script src="{% static 'js/project-details.js' %}"></script>-->
-
-	<!-- TASKS LIST JS-->
-<!--	<script src="{% static 'js/tasks-list.js' %}"></script>-->
 
 	<script>
 		$(function(){
