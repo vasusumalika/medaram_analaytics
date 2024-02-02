@@ -110,3 +110,22 @@ class SpecialBusDataEntry(models.Model):
                                    default="", null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='special_bus_updated_user',
                                    null=True, blank=True, default="")
+
+
+class OutDepotVehicleReceive(models.Model):
+    bus_number = models.ForeignKey(VehicleDetails, on_delete=models.CASCADE, related_name="out_depot_bus_vehicle")
+    special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,
+                                               related_name="out_depot_special_bus")
+    unique_no = models.IntegerField()
+    new_log_sheet_no = models.IntegerField()
+    hsd_top_oil_liters = models.IntegerField()
+    mts_no = models.IntegerField()
+    bus_reported_date = models.DateField()
+    bus_reported_time = models.TimeField()
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='out_depot_vehicle_created_user',
+                                   null=True, blank=True, default="")
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='out_depot_vehicle_updated_user',
+                                   null=True, blank=True, default="")

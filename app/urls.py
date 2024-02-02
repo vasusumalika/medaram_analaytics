@@ -52,4 +52,10 @@ urlpatterns = [
 
     path('get/depot/vehicle/number', views.get_depot_vehicle_number, name='get_depot_vehicle_number'),
 
+    path('out/depo/buses/receive/form', views.out_depo_buses_receive_form, name='out_depo_buses_receive_form'),
+    path('out/depo/buses/receive/list', views.out_depo_buses_receive_list, name='out_depo_buses_receive_list'),
+    path('out/depo/buses/receive/add', views.out_depo_buses_receive_add, name='out_depo_buses_receive_add'),
+
+    path('search/special/bus/data', views.search_special_bus_data, name='search_special_bus_data'),
+
 ]
