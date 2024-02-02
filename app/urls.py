@@ -49,23 +49,22 @@ urlpatterns = [
     path('spl/bus/data/entry/add', views.spl_bus_data_entry_add, name='spl_bus_data_entry_add'),
     path('spl/bus/data/entry/edit', views.spl_bus_data_entry_edit, name='spl_bus_data_entry_edit'),
     path('spl/bus/data/entry/update', views.spl_bus_data_entry_update, name='spl_bus_data_entry_update'),
-
     path('get/depot/vehicle/number', views.get_depot_vehicle_number, name='get_depot_vehicle_number'),
-
-    path('statistics/up/journey/list', views.statistics_up_journey_list, name='statistics_up_journey_list'),
-    path('statistics/up/journey/add', views.statistics_up_journey_add, name='statistics_up_journey_add'),
-    path('statistics/up/journey/edit', views.statistics_up_journey_edit, name='statistics_up_journey_edit'),
-    path('statistics/up/journey/update', views.statistics_up_journey_update, name='statistics_up_journey_update'),
-
-    path('statistics/down/journey/list', views.statistics_down_journey_list, name='statistics_down_journey_list'),
-    path('statistics/down/journey/add', views.statistics_down_journey_add, name='statistics_down_journey_add'),
-    path('statistics/down/journey/edit', views.statistics_down_journey_edit, name='statistics_down_journey_edit'),
-    path('statistics/down/journey/update', views.statistics_down_journey_update, name='statistics_down_journey_update'),
 
     path('out/depot/buses/receive/form', views.out_depot_buses_receive_form, name='out_depot_buses_receive_form'),
     path('out/depot/buses/receive/list', views.out_depot_buses_receive_list, name='out_depot_buses_receive_list'),
     path('out/depot/buses/receive/add', views.out_depot_buses_receive_add, name='out_depot_buses_receive_add'),
     path('search/special/bus/data', views.search_special_bus_data, name='search_special_bus_data'),
+
+    path('own/depot/bus/details/entry/list', views.own_depot_bus_details_entry_list, name='own_depot_bus_details_entry_list'),
+    path('own/depot/bus/details/entry/add', views.own_depot_bus_details_entry_add, name='own_depot_bus_details_entry_add'),
+    path('own/depot/bus/details/entry/edit', views.own_depot_bus_details_entry_edit, name='own_depot_bus_details_entry_edit'),
+    path('own/depot/bus/details/entry/update', views.own_depot_bus_details_entry_update, name='own_depot_bus_details_entry_update'),
+
+    path('statistics/up/journey/list', views.statistics_up_journey_list, name='statistics_up_journey_list'),
+    path('statistics/up/journey/add', views.statistics_up_journey_add, name='statistics_up_journey_add'),
+    path('statistics/up/journey/edit', views.statistics_up_journey_edit, name='statistics_up_journey_edit'),
+    path('statistics/up/journey/update', views.statistics_up_journey_update, name='statistics_up_journey_update'),
 
     path('statistics/down/journey/list', views.statistics_down_journey_list, name='statistics_down_journey_list'),
     path('statistics/down/journey/add', views.statistics_down_journey_add, name='statistics_down_journey_add'),

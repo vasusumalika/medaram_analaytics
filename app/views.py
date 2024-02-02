@@ -2,7 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, StatisticsDateEntry, OutDepotVehicleReceive
+from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, \
+    StatisticsDateEntry, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -805,7 +806,8 @@ def vehicle_details_import(request):
 @custom_login_required
 def statistics_up_journey_list(request):
     statistics_up_journey_data = StatisticsDateEntry.objects.filter(~Q(status=2)).filter(entry_type='up')
-    return render(request, 'statistics_date_entry/up_journey/list.html', {"statistics_up_journey_data": statistics_up_journey_data})
+    return render(request, 'statistics_date_entry/up_journey/list.html',
+                  {"statistics_up_journey_data": statistics_up_journey_data})
 
 
 @custom_login_required
@@ -851,7 +853,8 @@ def statistics_up_journey_edit(request):
     statistics_up_journey_id = request.GET.get('id')
     if statistics_up_journey_id:
         statistics_up_journey_data = StatisticsDateEntry.objects.get(id=statistics_up_journey_id)
-        return render(request, 'statistics_date_entry/up_journey/edit.html', {"statistics_up_journey_data": statistics_up_journey_data})
+        return render(request, 'statistics_date_entry/up_journey/edit.html',
+                      {"statistics_up_journey_data": statistics_up_journey_data})
     else:
         return render(request, 'statistics_date_entry/up_journey/edit.html', {})
 
@@ -898,7 +901,8 @@ def statistics_up_journey_update(request):
 @custom_login_required
 def statistics_down_journey_list(request):
     statistics_down_journey_data = StatisticsDateEntry.objects.filter(~Q(status=2)).filter(entry_type='down')
-    return render(request, 'statistics_date_entry/down_journey/list.html', {"statistics_down_journey_data": statistics_down_journey_data})
+    return render(request, 'statistics_date_entry/down_journey/list.html',
+                  {"statistics_down_journey_data": statistics_down_journey_data})
 
 
 @custom_login_required
@@ -944,7 +948,8 @@ def statistics_down_journey_edit(request):
     statistics_down_journey_id = request.GET.get('id')
     if statistics_down_journey_id:
         statistics_down_journey_data = StatisticsDateEntry.objects.get(id=statistics_down_journey_id)
-        return render(request, 'statistics_date_entry/down_journey/edit.html', {"statistics_down_journey_data": statistics_down_journey_data})
+        return render(request, 'statistics_date_entry/down_journey/edit.html',
+                      {"statistics_down_journey_data": statistics_down_journey_data})
     else:
         return render(request, 'statistics_date_entry/down_journey/edit.html', {})
 
@@ -1038,3 +1043,90 @@ def out_depot_buses_receive_add(request):
 
     return render(request, 'out_depot_buses/out_depot_vehicle_receive/list.html', {})
 
+
+def own_depot_bus_details_entry_list(request):
+    own_depot_bus_detail_entry_data = OwnDepotBusDetailsEntry.objects.filter(~Q(status=2))
+    return render(request, 'own_depot_buses/own_depot_bus_details_entry/list.html',
+                  {'own_depot_bus_detail_entry_data': own_depot_bus_detail_entry_data})
+
+
+def own_depot_bus_details_entry_add(request):
+    if request.method == "POST":
+        bus_number = request.POST.get('bus_number')
+        unique_no = request.POST.get('unique_no')
+        bus_type = request.POST.get('bus_type')
+        log_sheet_no = request.POST.get('log_sheet_no')
+        driver1_name = request.POST.get('driver1_name')
+        driver1_phone_number = request.POST.get('driver1_phone_number')
+        driver2_name = request.POST.get('driver2_name')
+        driver2_phone_number = request.POST.get('driver2_phone_number')
+        status = 0
+        try:
+            user_data = User.objects.get(id=request.session['user_id'])
+            own_depot_bus_detail_entry = OwnDepotBusDetailsEntry.objects.create(bus_number=bus_number,
+                                                                                bus_type=bus_type,
+                                                                                unique_no=unique_no,
+                                                                                log_sheet_no=log_sheet_no,
+                                                                                driver1_name=driver1_name,
+                                                                                driver1_phone_number=driver1_phone_number,
+                                                                                driver2_name=driver2_name,
+                                                                                driver2_phone_number=driver2_phone_number,
+                                                                                status=status,
+                                                                                created_by=user_data)
+            own_depot_bus_detail_entry.save()
+            messages.success(request, 'Own Depot Bus Detail Entry Saved Successfully')
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Own Depot Bus Detail Entry Creation Failed!!')
+        return redirect("app:own_depot_bus_details_entry_list")
+
+    return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', {})
+
+
+
+@custom_login_required
+def own_depot_bus_details_entry_edit(request):
+    own_depot_bus_details_entry_id = request.GET.get('id')
+    if own_depot_bus_details_entry_id:
+        own_depot_bus_details_entry_data = OwnDepotBusDetailsEntry.objects.get(id=own_depot_bus_details_entry_id)
+        return render(request, 'own_depot_buses/own_depot_bus_details_entry/edit.html',
+                      {"own_depot_bus_details_entry_data": own_depot_bus_details_entry_data})
+    else:
+        return render(request, 'own_depot_buses/own_depot_bus_details_entry/edit.html', {})
+
+
+@custom_login_required
+def own_depot_bus_details_entry_update(request):
+    own_depot_bus_details_entry_id = request.POST.get('id')
+    bus_number = request.POST.get('bus_number')
+    unique_no = request.POST.get('unique_no')
+    bus_type = request.POST.get('bus_type')
+    log_sheet_no = request.POST.get('log_sheet_no')
+    driver1_name = request.POST.get('driver1_name')
+    driver1_phone_number = request.POST.get('driver1_phone_number')
+    driver2_name = request.POST.get('driver2_name')
+    driver2_phone_number = request.POST.get('driver2_phone_number')
+    status = 0
+    if own_depot_bus_details_entry_id:
+        try:
+            own_depot_bus_details_entry_data = OwnDepotBusDetailsEntry.objects.get(id=own_depot_bus_details_entry_id)
+            own_depot_bus_details_entry_data.bus_number = bus_number
+            own_depot_bus_details_entry_data.unique_no = unique_no
+            own_depot_bus_details_entry_data.bus_type = bus_type
+            own_depot_bus_details_entry_data.log_sheet_no = log_sheet_no
+            own_depot_bus_details_entry_data.driver1_name = driver1_name
+            own_depot_bus_details_entry_data.driver1_phone_number = driver1_phone_number
+            own_depot_bus_details_entry_data.driver2_name = driver2_name
+            own_depot_bus_details_entry_data.driver2_phone_number = driver2_phone_number
+            own_depot_bus_details_entry_data.status = status
+            user_data = User.objects.get(id=request.session['user_id'])
+            own_depot_bus_details_entry_data.updated_by = user_data
+            own_depot_bus_details_entry_data.save()
+            messages.success(request, 'Own Depot Bus Detail Entry updated successfully!!')
+            return redirect("app:own_depot_bus_details_entry_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Own Depot Bus Detail Entry update  failed!!')
+            return redirect("app:own_depot_bus_details_entry_list")
+    else:
+        return redirect("app:own_depot_bus_details_entry_list")

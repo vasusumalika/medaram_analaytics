@@ -128,9 +128,11 @@ class StatisticsDateEntry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_created_user', default="",
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_created_user',
+                                   default="",
                                    null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_updated_user', null=True,
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_updated_user',
+                                   null=True,
                                    blank=True, default="")
 
 
@@ -142,12 +144,45 @@ class OutDepotVehicleReceive(models.Model):
     new_log_sheet_no = models.IntegerField()
     hsd_top_oil_liters = models.IntegerField()
     mts_no = models.IntegerField()
-    bus_reported_date = models.DateField()
-    bus_reported_time = models.TimeField()
-    status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
+    bus_reported_date = models.DateField(null=True, blank=True)
+    bus_reported_time = models.TimeField(null=True, blank=True)
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='out_depot_vehicle_created_user',
                                    null=True, blank=True, default="")
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='out_depot_vehicle_updated_user',
+                                   null=True, blank=True, default="")
+
+
+class OwnDepotBusDetailsEntry(models.Model):
+    bus_number = models.CharField(max_length=256, null=True, blank=True)
+    unique_no = models.CharField(max_length=256, null=True, blank=True)
+    bus_type = models.CharField(max_length=256, null=True, blank=True)
+    log_sheet_no = models.CharField(max_length=256, null=True, blank=True)
+    driver1_name = models.CharField(max_length=256, null=True, blank=True)
+    driver1_phone_number = models.CharField(max_length=256, null=True, blank=True)
+    driver2_name = models.CharField(max_length=256, null=True, blank=True)
+    driver2_phone_number = models.CharField(max_length=256, null=True, blank=True)
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='own_depot_bus_details_entry_created_user',
+                                   null=True, blank=True, default="")
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='own_depot_bus_details_entry_updated_user',
+                                   null=True, blank=True, default="")
+
+
+class OwnDepotBusWithdraw(models.Model):
+    bus_number = models.CharField(max_length=256, null=True, blank=True)
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='own_depot_bus_withdraw_created_user',
+                                   null=True, blank=True, default="")
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='own_depot_bus_withdraw_updated_user',
                                    null=True, blank=True, default="")
