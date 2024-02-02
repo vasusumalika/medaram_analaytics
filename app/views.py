@@ -8,9 +8,22 @@ from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.contrib.auth.hashers import check_password
 import pandas as pd
+from functools import wraps
 
 
-# Create your views here.
+def custom_login_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        # Check if the specific session data exists
+        user_id = request.session.get('user_id')
+
+        if user_id is None:
+            # Session data does not exist, redirect to login
+            return redirect('app:index')
+
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped_view
 
 
 def index(request):
@@ -41,33 +54,14 @@ def do_login(request):
     else:
         messages.error(request, 'Login failed. Try again!!')
         return redirect("app:index")
-    # print("here")
-    # username = request.POST.get('username')
-    # password = request.POST.get('password')
-    # # user_type = request.GET.get('user_type')
-    # print(username)
-    # print(password)
-    # print(request.user)
-    # if not (username and password):
-    #     messages.error(request, "Please provide all the details!!")
-    #     return redirect("app:index")
-    #
-    # user = authenticate(username=username, password=password)
-    # if not user:
-    #     messages.error(request, 'Invalid Login Credentials!!')
-    #     return redirect("app:index")
-    #
-    # login(request, user)
-    #
-    # request.session['user_id'] = request.user.id
-    #
-    # return redirect("app:dashboard")
 
 
+@custom_login_required
 def dashboard(request):
     return render(request, 'dashboard.html')
 
 
+@custom_login_required
 def logout_user(request):
     logout(request)
     try:
@@ -77,11 +71,13 @@ def logout_user(request):
     return HttpResponseRedirect('/')
 
 
+@custom_login_required
 def users_list(request):
     users_data = User.objects.filter(~Q(status=2))
     return render(request, 'users/list.html', {"users": users_data})
 
 
+@custom_login_required
 def user_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -121,6 +117,7 @@ def user_add(request):
         return render(request, 'users/add.html', {})
 
 
+@custom_login_required
 def user_edit(request):
     user_id = request.GET.get('id')
     if user_id:
@@ -142,6 +139,7 @@ def user_edit(request):
         return render(request, 'users/edit.html', {})
 
 
+@custom_login_required
 def user_update(request):
     user_id = request.POST.get('id')
     name = request.POST.get('name')
@@ -175,11 +173,13 @@ def user_update(request):
 
 
 @transaction.atomic
+@custom_login_required
 def user_type_list(request):
     user_type_data = UserType.objects.filter(~Q(status=2))
     return render(request, 'user_type/list.html', {"user_type_data": user_type_data})
 
 
+@custom_login_required
 def user_type_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -196,6 +196,7 @@ def user_type_add(request):
     return render(request, 'user_type/add.html')
 
 
+@custom_login_required
 def user_type_edit(request):
     user_type_id = request.GET.get('id')
     if user_type_id:
@@ -207,6 +208,7 @@ def user_type_edit(request):
         return render(request, 'user_type/edit.html', {})
 
 
+@custom_login_required
 def user_type_update(request):
     user_type_id = request.POST.get('id')
     name = request.POST.get('name')
@@ -229,11 +231,13 @@ def user_type_update(request):
         return redirect("app:user_type_list")
 
 
+@custom_login_required
 def depots_list(request):
     depot_data = Depot.objects.filter(~Q(status=2))
     return render(request, 'depot/list.html', {"depots": depot_data})
 
 
+@custom_login_required
 def depot_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -252,6 +256,7 @@ def depot_add(request):
     return render(request, 'depot/add.html', {})
 
 
+@custom_login_required
 def depot_edit(request):
     depot_id = request.GET.get('id')
     if depot_id:
@@ -259,6 +264,7 @@ def depot_edit(request):
     return render(request, 'depot/edit.html', {"depot": depot_data})
 
 
+@custom_login_required
 def depot_update(request):
     depot_id = request.POST.get('id')
     name = request.POST.get('name')
@@ -283,11 +289,13 @@ def depot_update(request):
         return redirect("app:depots_list")
 
 
+@custom_login_required
 def operation_type_list(request):
     operation_type_data = OperationType.objects.filter(~Q(status=2))
     return render(request, 'operation_type/list.html', {"operation_type": operation_type_data})
 
 
+@custom_login_required
 def operation_type_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -307,6 +315,7 @@ def operation_type_add(request):
         return render(request, 'operation_type/add.html', {})
 
 
+@custom_login_required
 def operation_type_edit(request):
     operation_type_id = request.GET.get('id')
     if operation_type_id:
@@ -316,6 +325,7 @@ def operation_type_edit(request):
         return render(request, 'operation_type/edit.html', {})
 
 
+@custom_login_required
 def operation_type_update(request):
     operation_type_id = request.POST.get('id')
     name = request.POST.get('name')
@@ -340,11 +350,13 @@ def operation_type_update(request):
         return redirect("app:operation_type_list")
 
 
+@custom_login_required
 def vehicle_list(request):
     vehicle_data = Vehicle.objects.filter(~Q(status=2))
     return render(request, 'vehicle/list.html', {"vehicle_data": vehicle_data})
 
 
+@custom_login_required
 def vehicle_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -363,6 +375,7 @@ def vehicle_add(request):
         return render(request, 'vehicle/add.html', {})
 
 
+@custom_login_required
 def vehicle_edit(request):
     vehicle_id = request.GET.get('id')
     if vehicle_id:
@@ -372,6 +385,7 @@ def vehicle_edit(request):
         return render(request, 'vehicle/edit.html', {})
 
 
+@custom_login_required
 def vehicle_update(request):
     vehicle_id = request.POST.get('id')
     name = request.POST.get('name')
@@ -396,11 +410,13 @@ def vehicle_update(request):
         return redirect("app:vehicle_list")
 
 
+@custom_login_required
 def vehicle_details_list(request):
     vehicle_details_data = VehicleDetails.objects.filter(~Q(status=2))
     return render(request, 'vehicle_details/list.html', {"vehicle_details": vehicle_details_data})
 
 
+@custom_login_required
 def vehicle_detail_add(request):
     if request.method == "POST":
         vehicle_id = request.POST.get('vehicle_id')
@@ -435,6 +451,7 @@ def vehicle_detail_add(request):
         return render(request, 'vehicle_details/add.html', {})
 
 
+@custom_login_required
 def vehicle_detail_edit(request):
     vehicle_detail_id = request.GET.get('id')
     if vehicle_detail_id:
@@ -463,6 +480,7 @@ def vehicle_detail_edit(request):
         return render(request, 'vehicle_details/edit.html', {})
 
 
+@custom_login_required
 def vehicle_detail_update(request):
     vehicle_detail_id = request.POST.get('id')
     vehicle_id = request.POST.get('vehicle_id')
@@ -497,6 +515,7 @@ def vehicle_detail_update(request):
 
 
 @transaction.atomic
+@custom_login_required
 def operation_type_import(request):
     print("Called")
     if request.method == "POST":
@@ -526,12 +545,14 @@ def operation_type_import(request):
     return render(request, 'operation_type/import.html', {})
 
 
+@custom_login_required
 def spl_bus_data_entry_list(request):
     spl_bus_data_entry_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
     return render(request, 'spl_bus_data_entry/list.html', {"spl_bus_data_entry_data": spl_bus_data_entry_data})
 
 
 @transaction.atomic
+@custom_login_required
 def spl_bus_data_entry_add(request):
     if request.method == "POST":
         special_bus_sending_depot = request.POST.get('special_bus_sending_depot')
@@ -586,6 +607,7 @@ def spl_bus_data_entry_add(request):
         return render(request, 'spl_bus_data_entry/add.html', {})
 
 
+@custom_login_required
 def get_depot_vehicle_number(request):
     depot_id = request.GET.get('depot_id')
     vehicle_details_data = VehicleDetails.objects.filter(depot=depot_id).values('id', 'bus_number')
@@ -593,6 +615,7 @@ def get_depot_vehicle_number(request):
     return JsonResponse({'vehicle_details': vehicle_details})
 
 
+@custom_login_required
 def spl_bus_data_entry_edit(request):
     spl_bus_data_entry_id = request.GET.get('id')
     if spl_bus_data_entry_id:
@@ -626,6 +649,7 @@ def spl_bus_data_entry_edit(request):
         return render(request, 'spl_bus_data_entry/edit.html', {})
 
 
+@custom_login_required
 def spl_bus_data_entry_update(request):
     spl_bus_data_entry_id = request.POST.get('id')
     special_bus_sending_depot = request.POST.get('special_bus_sending_depot')
@@ -682,6 +706,7 @@ def spl_bus_data_entry_update(request):
 
 
 @transaction.atomic
+@custom_login_required
 def vehicle_names_import(request):
     print("Called")
     if request.method == "POST":
@@ -712,6 +737,7 @@ def vehicle_names_import(request):
 
 
 @transaction.atomic
+@custom_login_required
 def depot_import(request):
     print("Called")
     if request.method == "POST":
@@ -741,6 +767,7 @@ def depot_import(request):
 
 
 @transaction.atomic
+@custom_login_required
 def vehicle_details_import(request):
     print("Called")
     if request.method == "POST":
