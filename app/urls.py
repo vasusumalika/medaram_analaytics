@@ -61,6 +61,11 @@ urlpatterns = [
     path('own/depot/bus/details/entry/edit', views.own_depot_bus_details_entry_edit, name='own_depot_bus_details_entry_edit'),
     path('own/depot/bus/details/entry/update', views.own_depot_bus_details_entry_update, name='own_depot_bus_details_entry_update'),
 
+    path('own/depot/bus/withdraw/list', views.own_depot_bus_withdraw_list, name='own_depot_bus_withdraw_list'),
+    path('own/depot/bus/withdraw/add', views.own_depot_bus_withdraw_add, name='own_depot_bus_withdraw_add'),
+    path('own/depot/bus/withdraw/edit', views.own_depot_bus_withdraw_edit, name='own_depot_bus_withdraw_edit'),
+    path('own/depot/bus/withdraw/update', views.own_depot_bus_withdraw_update, name='own_depot_bus_withdraw_update'),
+
     path('statistics/up/journey/list', views.statistics_up_journey_list, name='statistics_up_journey_list'),
     path('statistics/up/journey/add', views.statistics_up_journey_add, name='statistics_up_journey_add'),
     path('statistics/up/journey/edit', views.statistics_up_journey_edit, name='statistics_up_journey_edit'),

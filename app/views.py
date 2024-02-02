@@ -1083,7 +1083,6 @@ def own_depot_bus_details_entry_add(request):
     return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', {})
 
 
-
 @custom_login_required
 def own_depot_bus_details_entry_edit(request):
     own_depot_bus_details_entry_id = request.GET.get('id')
@@ -1130,3 +1129,62 @@ def own_depot_bus_details_entry_update(request):
             return redirect("app:own_depot_bus_details_entry_list")
     else:
         return redirect("app:own_depot_bus_details_entry_list")
+
+
+def own_depot_bus_withdraw_list(request):
+    own_depot_bus_withdraw_data = OwnDepotBusWithdraw.objects.filter(~Q(status=2))
+    return render(request, 'own_depot_buses/own_depot_bus_withdraw/list.html',
+                  {'own_depot_bus_withdraw_data': own_depot_bus_withdraw_data})
+
+
+def own_depot_bus_withdraw_add(request):
+    if request.method == "POST":
+        bus_number = request.POST.get('bus_number')
+        status = 0
+        try:
+            user_data = User.objects.get(id=request.session['user_id'])
+            own_depot_bus_withdraw = OwnDepotBusWithdraw.objects.create(bus_number=bus_number,
+                                                                        status=status,
+                                                                        created_by=user_data)
+            own_depot_bus_withdraw.save()
+            messages.success(request, 'Own Depot Bus Withdraw Saved Successfully')
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Own Depot Bus withdraw Creation Failed!!')
+        return redirect("app:own_depot_bus_withdraw_list")
+
+    return render(request, 'own_depot_buses/own_depot_bus_withdraw/add.html', {})
+
+
+@custom_login_required
+def own_depot_bus_withdraw_edit(request):
+    own_depot_bus_withdraw_id = request.GET.get('id')
+    if own_depot_bus_withdraw_id:
+        own_depot_bus_withdraw_data = OwnDepotBusWithdraw.objects.get(id=own_depot_bus_withdraw_id)
+        return render(request, 'own_depot_buses/own_depot_bus_withdraw/edit.html',
+                      {"own_depot_bus_withdraw_data": own_depot_bus_withdraw_data})
+    else:
+        return render(request, 'own_depot_buses/own_depot_bus_withdraw/edit.html', {})
+
+
+@custom_login_required
+def own_depot_bus_withdraw_update(request):
+    own_depot_bus_withdraw_id = request.POST.get('id')
+    bus_number = request.POST.get('bus_number')
+    status = 0
+    if own_depot_bus_withdraw_id:
+        try:
+            own_depot_bus_withdraw_data = OwnDepotBusWithdraw.objects.get(id=own_depot_bus_withdraw_id)
+            own_depot_bus_withdraw_data.bus_number = bus_number
+            own_depot_bus_withdraw_data.status = status
+            user_data = User.objects.get(id=request.session['user_id'])
+            own_depot_bus_withdraw_data.updated_by = user_data
+            own_depot_bus_withdraw_data.save()
+            messages.success(request, 'Own Depot Bus Withdraw updated successfully!!')
+            return redirect("app:own_depot_bus_withdraw_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Own Depot Bus Withdraw update  failed!!')
+            return redirect("app:own_depot_bus_withdraw_list")
+    else:
+        return redirect("app:own_depot_bus_withdraw_list")
