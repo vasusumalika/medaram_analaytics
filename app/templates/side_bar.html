@@ -15,10 +15,10 @@
 	<title>Medaram</title>
 
 	<!-- DataTables CSS -->
-	<link rel="stylesheet" href="{% static 'plugins/datatable/css/jquery.dataTables.min.css' %}">
+<!--	<link rel="stylesheet" href="{% static 'plugins/datatable/css/jquery.dataTables.min.css' %}">-->
 
 	<!-- DATATABLE BUTTONS CSS -->
-    <link rel="stylesheet" href="{% static 'plugins/datatable/css/buttons.dataTables.min.css' %}" type="text/css"/>
+<!--    <link rel="stylesheet" href="{% static 'plugins/datatable/css/buttons.dataTables.min.css' %}" type="text/css"/>-->
 
 	<!-- BOOTSTRAP CSS -->
 	<link id="style" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
@@ -29,9 +29,6 @@
 
 	<!--- FONT-ICONS CSS -->
 	<link href="{% static 'css/icons.css' %}" rel="stylesheet" />
-
-	<script type="module" src="https://public.tableau.com/javascripts/api/tableau.embedding.3.1.0.min.js"></script>
-<!--	<script type="module" src="https://tableau.payufin.io/javascripts/api/tableau.embedding.3.latest.min.js"></script>-->
 
 
 </head>
@@ -390,29 +387,29 @@
 <!--	<script src="{% static 'js/tasks-list.js' %}"></script>-->
 
 	<script>
-
-			$(function(){
+		$(function(){
 			var current = location.pathname;
 			console.log(current);
-				$('.main-sidemenu li a').each(function(){
-					var $this = $(this);
-					console.log($this.attr('href').indexOf(current));
+			$('.main-sidemenu li a').each(function(){
+				var $this = $(this);
+				console.log($this.attr('href').indexOf(current));
 
-					// if the current path is like this link, make it active
-					if($this.attr('href').indexOf(current) !== -1){
-						$this.closest(".slide").addClass('is-expanded');
-						$this.closest(".sub-slide").addClass('is-expanded');
-						$this.closest(".slide-menu").addClass('open');
-						$this.closest(".sub-slide-menu").addClass('open');
-						$this.closest(".sub-slide2").addClass('is-expanded');
-						$this.closest('.nav-link').addClass('active');
-						$this.addClass('active');
-					}else{
-						$this.removeClass('active');
-					}
-				});
+				// if the current path is like this link, make it active
+				if($this.attr('href').indexOf(current) !== -1){
+					$this.closest(".slide").addClass('is-expanded');
+					$this.closest(".sub-slide").addClass('is-expanded');
+					$this.closest(".slide-menu").addClass('open');
+					$this.closest(".sub-slide-menu").addClass('open');
+					$this.closest(".sub-slide2").addClass('is-expanded');
+					$this.closest('.nav-link').addClass('active');
+					$this.addClass('active');
+				}else{
+					$this.removeClass('active');
+				}
 			});
+		});
 
+		$(document).ready(function() {
 			// Select2 by showing the search
 			$('.select2-show-search').select2({
 				minimumResultsForSearch: '',
@@ -420,45 +417,35 @@
 			})
 
 			setTimeout(function() {
-			$("#alert_message").hide();
+				$("#alert_message").hide();
 			}, 5000);
 
 
 			$("#special_bus_sending_depot").change(function() {
-            var selectedDepotId = $(this).val();
-            console.log(selectedDepotId);
-            $.ajax({
-                url: '{% url "app:get_depot_vehicle_number" %}',
-                data: { depot_id: selectedDepotId },
-                dataType: 'json',
-                success: function(data) {
-                    var vehicle_number_select = $('#vehicle_number');
-                    vehicle_number_select.empty();
-                    $.each(data.vehicle_details, function(index, vehicle_detail) {
-                        vehicle_number_select.append('<option value="' + vehicle_detail.bus_number + '">' + vehicle_detail.bus_number + '</option>');
-                    });
-                }
-            });
+            	var selectedDepotId = $(this).val();
+            	console.log(selectedDepotId);
+				$.ajax({
+					url: '{% url "app:get_depot_vehicle_number" %}',
+					data: { depot_id: selectedDepotId },
+					dataType: 'json',
+					success: function(data) {
+						var vehicle_number_select = $('#vehicle_number');
+						vehicle_number_select.empty();
+						$.each(data.vehicle_details, function(index, vehicle_detail) {
+							vehicle_number_select.append('<option value="' + vehicle_detail.bus_number + '">' + vehicle_detail.bus_number + '</option>');
+						});
+					}
+				});
+			});
 
 			$('#listing-table').DataTable({
-         	language: {
-            	searchPlaceholder: 'Search...',
-            	sSearch: '',
-        	},
-        	pageLength: 10,
+				language: {
+					searchPlaceholder: 'Search...',
+					sSearch: '',
+				},
+				pageLength: 10,
          	});
-
-          });
-
-         $(document).ready(function() {
-         	$('#listing-table').DataTable({
-         	language: {
-            	searchPlaceholder: 'Search...',
-            	sSearch: '',
-        	},
-        	pageLength: 10,
-         	});
- 		});
+        });
 
 
 	</script>
