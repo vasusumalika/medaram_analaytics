@@ -83,4 +83,12 @@ urlpatterns = [
     path('spl/bus/search/sending/bus/depot', views.search_for_spl_sending_bus_depot,
          name='search_for_spl_sending_bus_depot'),
 
+    # Medaram REST API STARTS FROM HERE
+    path("api/login/", views.LoginAPIView.as_view()),
+    path("api/get-all-depot/", views.DepotAPIView.as_view()),
+    path("api/get-all-operation-type/", views.OperationTypeAPIView.as_view()),
+    path("api/get-all-special-bus-entry/", views.AllSplBusEntryAPIView.as_view()),
+    path("api/get-depot-vehicle/", views.DepotVehicleAPIView.as_view()),
+    path("api/special-bus-entry/", views.SplBusEntryAPIView.as_view()),
+
 ]
