@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, \
-    StatisticsDateEntry, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw, OutDepotVehicleSentBack
+    StatisticsDateEntry, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw, OutDepotVehicleSentBack,\
+    HsdOilSubmission, BusesOnHand
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -1047,7 +1048,7 @@ def out_depot_buses_receive_add(request):
             messages.error(request, 'Out Depot Vehicle Receive Details Creation Failed!!')
         return redirect("app:out_depot_buses_receive_list")
 
-    return render(request, 'out_depot_buses/out_depot_vehicle_receive/list.html', {})
+    return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html', {})
 
 
 def own_depot_bus_details_entry_list(request):
@@ -1245,3 +1246,88 @@ def search_for_spl_sending_bus_depot(request):
     else:
         context = {'code': "Fail", 'message': "Depots fetched unsuccessful", "result": {}}
         return JsonResponse(context, status=400)
+
+
+def hsd_oil_submission_list(request):
+    hsd_oil_submission_data = HsdOilSubmission.objects.filter(~Q(status=2))
+    return render(request, 'hsd_oil_submission/list.html',
+                  {'hsd_oil_submission_data': hsd_oil_submission_data})
+
+
+@custom_login_required
+def hsd_oil_submission_form(request):
+    return render(request, 'hsd_oil_submission/add.html')
+
+
+@custom_login_required
+def search_unique_no_bus_no_special_bus_data(request):
+    if request.method == "POST":
+        unique_no_bus_no = request.POST.get('unique_no_bus_no')
+        if unique_no_bus_no.isdigit():
+            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_no_bus_no)
+            special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
+        else:
+            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=unique_no_bus_no)
+    return render(request, 'hsd_oil_submission/add.html', {'special_bus_data': special_bus_data,
+                                                           'unique_bus_no': unique_no_bus_no})
+
+
+@custom_login_required
+def hsd_oil_submission_add(request):
+    if request.method == "POST":
+        bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
+        hsd_liters = request.POST.get('hsd_top_oil_liters')
+        mts_no = request.POST.get('mts_no')
+        point_name = request.POST.get('point_name')
+        unique_no_bus_no = request.POST.get('unique_bus_no')
+        hsd_oil_submission_status = 0
+        try:
+            vehicle_detail_data = VehicleDetails.objects.get(bus_number=bus_number)
+            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail_data)
+            user_data = User.objects.get(id=request.session['user_id'])
+            hsd_oil_submission_detail = HsdOilSubmission.objects.create(special_bus_data_entry=special_bus_data,
+                                                                        hsd_liters=hsd_liters,
+                                                                        mts_no=mts_no, point_name=point_name,
+                                                                        created_by=user_data,
+                                                                        unique_no_bus_no=unique_no_bus_no,
+                                                                        status=hsd_oil_submission_status)
+            hsd_oil_submission_detail.save()
+            messages.success(request, 'HSD Oil Submission Details saved Successfully')
+        except Exception as e:
+            print(e)
+            messages.error(request, 'HSD Oil Submission Details Creation Failed!!')
+        return redirect("app:hsd_oil_submission_list")
+
+    return render(request, 'hsd_oil_submission/add.html', {})
+
+
+@custom_login_required
+def buses_on_hand_list(request):
+    buses_on_hand_data = BusesOnHand.objects.filter(~Q(status=2))
+    return render(request, 'buses_on_hand/list.html',
+                  {'buses_on_hand_data': buses_on_hand_data})
+
+
+@custom_login_required
+def buses_on_hand_add(request):
+    if request.method == "POST":
+        unique_code = request.POST.get('unique_code')
+        point_name = request.POST.get('point_name')
+        bus_in_out = request.POST.get('bus_in_out')
+        buses_on_hand_status = 0
+        try:
+            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_code)
+            special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
+            user_data = User.objects.get(id=request.session['user_id'])
+            buses_on_hand_detail = BusesOnHand.objects.create(unique_code=unique_code, status=buses_on_hand_status,
+                                                              special_bus_data_entry=special_bus_data,
+                                                              created_by=user_data, bus_in_out=bus_in_out,
+                                                              point_name=point_name)
+            buses_on_hand_detail.save()
+            messages.success(request, 'Buses on hand Details saved Successfully')
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Buses On Hand Details Creation Failed!!')
+        return redirect("app:buses_on_hand_list")
+
+    return render(request, 'buses_on_hand/add.html', {})

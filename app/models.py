@@ -205,3 +205,38 @@ class OutDepotVehicleSentBack(models.Model):
                                    related_name='out_depot_vehicle_sent_updated_user',
                                    null=True, blank=True, default="")
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
+
+
+class HsdOilSubmission(models.Model):
+    mts_no = models.IntegerField(null=True, blank=True)
+    hsd_liters = models.IntegerField(null=True, blank=True)
+    unique_no_bus_no = models.CharField(max_length=256, null=True, blank=True)
+    point_name = models.CharField(max_length=256, null=True, blank=True)
+    special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,
+                                               related_name="hsd_oil_submission_special_bus")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='hsd_oil_submission_created_user',
+                                   null=True, blank=True, default="")
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='hsd_oil_submission_updated_user',
+                                   null=True, blank=True, default="")
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
+
+
+class BusesOnHand(models.Model):
+    point_name = models.CharField(max_length=256, null=True, blank=True)
+    unique_code = models.CharField(max_length=256, null=True, blank=True)
+    bus_in_out = models.CharField(max_length=256, null=True, blank=True)
+    special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,
+                                               related_name="buses_on_hand_special_bus")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='buses_on_hand_created_user',
+                                   null=True, blank=True, default="")
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='buses_on_hand_updated_user',
+                                   null=True, blank=True, default="")
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
