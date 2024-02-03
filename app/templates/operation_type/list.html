@@ -62,7 +62,6 @@
 														<tr>
 															<th class="border-bottom-0">Name</th>
 															<th class="border-bottom-0">description</th>
-															<th class="border-bottom-0">Status</th>
                                                             <th class="border-bottom-0">Created At</th>
 															<th class="border-bottom-0">Actions</th>
 
@@ -73,15 +72,6 @@
                                                           <tr>
 															  <td>{{ operation.name }}</td>
 															  <td>{{ operation.description }}</td>
-															  {% if operation.status == 0 %}
-															  	<td>Active</td>
-															  {% endif %}
-															  {% if operation.status == 1 %}
-															  	<td>In Active</td>
-															  {% endif %}
-															  {% if operation.status == 2 %}
-															  	<td>Delete</td>
-															  {% endif %}
                                                               <td>{{ operation.created_at }}</td>
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:operation_type_edit' %}?id={{ operation.id }}">
 																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
@@ -101,13 +91,5 @@
 					</div>
 				</div>
 				<!-- CONTAINER CLOSED -->
-
-				<!-- JQUERY JS -->
-				<script src="{% static 'js/jquery.min.js' %}"></script>
-
-				<!-- DATA TABLE JS-->
-				<script src="{% static 'plugins/datatable/js/jquery.dataTables.min.js' %}"></script>
-				<script src="{% static 'plugins/datatable/js/dataTables.bootstrap5.js' %}"></script>
-
 
 {% endblock %}

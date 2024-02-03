@@ -60,8 +60,6 @@
 														<tr>
 															<th class="border-bottom-0">Name</th>
                                                             <th class="border-bottom-0">Created At</th>
-                                                            <th class="border-bottom-0">Created By</th>
-															<th class="border-bottom-0">Status</th>
 															<th class="border-bottom-0">Actions</th>
 
 														</tr>
@@ -71,13 +69,6 @@
                                                           <tr>
 															  <td>{{ user_type.name }}</td>
 															  <td>{{ user_type.created_at }}</td>
-															  <td>{{ user_type.created_by.name }}</td>
-															  {% if user_type.status == 0 %}
-															  	<td>Active</td>
-															  {% endif %}
-															  {% if user_type.status == 1 %}
-															  	<td>In Active</td>
-															  {% endif %}
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:user_type_edit' %}?id={{ user_type.id }}">
 																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
 															   		</a>
@@ -96,30 +87,5 @@
 					</div>
 				</div>
 				<!-- CONTAINER CLOSED -->
-
-				<!-- JQUERY JS -->
-				<script src="{% static 'js/jquery.min.js' %}"></script>
-
-				<!-- DATA TABLE JS-->
-				<script src="{% static 'plugins/datatable/js/jquery.dataTables.min.js' %}"></script>
-				<script src="{% static 'plugins/datatable/js/dataTables.bootstrap5.js' %}"></script>
-
-<!--<script>-->
-<!--	$(document).ready(function () {-->
-<!--        var dataTable = $('#users_list-table').DataTable({-->
-<!--            language: {-->
-<!--                searchPlaceholder: 'Search...',-->
-<!--                sSearch: '',-->
-<!--            },-->
-<!--            pageLength: 10,-->
-<!--            dom: 'Bfrtip', // Add the 'B' button for export-->
-<!--            buttons: [-->
-<!--                'copy', 'csv', 'excel', 'pdf', 'print'-->
-<!--            ],-->
-<!--        });-->
-<!--    });-->
-<!--</script>-->
-
-
 
 {% endblock %}

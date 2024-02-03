@@ -49,15 +49,6 @@
                                                     <input type="text" id="depot_code" name="depot_code" class="form-control" value="{{depot.depot_code}}" required>
 												</div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="status">Status</label>
-                                                    <select class="form-control custom-select" id="status" name="status" required>
-														<option>Select one</option>
-														<option value=0{% if depot.status == 0 %} selected {% endif %}>Active</option>
-														<option value=1{% if depot.status == 1 %} selected {% endif %}>Inactive</option>
-													</select>
-												</div>
-
 												<div class="form-group mt-3">
 													<div>
 														<button type="submit" class="btn btn-primary">Submit</button>
@@ -77,17 +68,4 @@
 				</div>
 				<!-- CONTAINER CLOSED -->
 
-	<!-- JQUERY JS -->
-	<script src="{% static 'js/jquery.min.js' %}"></script>
-	<!-- SELECT2 JS -->
-	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
-
-<script>
-    $(document).ready(function() {
-        //Select2 on the dropdown
-        $('#depot_id').select2();
-        $('#user_type_id').select2();
-        $('#status').select2();
-    });
-</script>
 {% endblock %}
