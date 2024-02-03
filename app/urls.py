@@ -76,4 +76,11 @@ urlpatterns = [
     path('statistics/down/journey/edit', views.statistics_down_journey_edit, name='statistics_down_journey_edit'),
     path('statistics/down/journey/update', views.statistics_down_journey_update, name='statistics_down_journey_update'),
 
+    path('out/depot/buses/send/back/list', views.out_depot_vehicle_send_back_list,
+         name='out_depot_vehicle_send_back_list'),
+    path('out/depot/buses/send/back/add', views.out_depot_vehicle_send_back_add, name='out_depot_vehicle_send_back_add'),
+
+    path('spl/bus/search/sending/bus/depot', views.search_for_spl_sending_bus_depot,
+         name='search_for_spl_sending_bus_depot'),
+
 ]

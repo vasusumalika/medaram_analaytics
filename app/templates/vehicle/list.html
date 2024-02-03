@@ -61,7 +61,6 @@
 													<thead>
 														<tr>
 															<th class="border-bottom-0">Name</th>
-															<th class="border-bottom-0">Status</th>
 															<th class="border-bottom-0">RTC/PHB</th>
                                                             <th class="border-bottom-0">Created At</th>
 															<th class="border-bottom-0">Actions</th>
@@ -72,15 +71,6 @@
 														{% for vehicle in vehicle_data %}
                                                           <tr>
 															  <td>{{ vehicle.name }}</td>
-															  {% if vehicle.status == 0 %}
-															  	<td>Active</td>
-															  {% endif %}
-															  {% if vehicle.status == 1 %}
-															  	<td>In Active</td>
-															  {% endif %}
-															  {% if vehicle.status == 2 %}
-															  	<td>Delete</td>
-															  {% endif %}
 															  <td>{{ vehicle.vehicle_owner }}</td>
                                                               <td>{{ vehicle.created_at }}</td>
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:vehicle_edit' %}?id={{ vehicle.id }}">

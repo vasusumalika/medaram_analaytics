@@ -280,7 +280,7 @@
 									</a>
          							<ul class="sub-slide-menu">
             							<li><a class="sub-slide-item" href="{% url 'app:out_depot_buses_receive_form'%}">Out depot vehicle receive</a></li>
-            							<li><a class="sub-slide-item" href="{% url 'app:spl_bus_data_entry_list'%}">Out depot vehicle send back</a></li>
+            							<li><a class="sub-slide-item" href="{% url 'app:out_depot_vehicle_send_back_list'%}">Out depot vehicle send back</a></li>
          							</ul>
 								</li>
 
@@ -454,7 +454,30 @@
 				pageLength: 10,
          	});
 
+			$('#special_bus_sending_depot').select2({
+            	ajax: {
+                	url: "{% url 'app:search_for_spl_sending_bus_depot' %}",
+                	dataType: 'json',
+                	type: 'POST',
+                	delay: 250,
+                	data: function (params) {
+                    	return {
+                    		csrfmiddlewaretoken: '{{ csrf_token }}',
+                        	search_text: params.term,
+                    	};
+                	},
+                	processResults: function (data) {
+                    	var options = data.result.map(function (item) {
+                        	return { id: item.id, text: item.name };
+                    	});
 
+                    	return {
+                        	results: options,
+                    	};
+                	},
+                	cache: true
+            	},
+        	});
 
         });
 

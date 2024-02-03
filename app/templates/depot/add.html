@@ -61,15 +61,6 @@
                                                     <input type="text" id="depot_code" name="depot_code" class="form-control" required>
 												</div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="status">Status</label>
-                                                    <select class="form-control custom-select" id="status" name="status" required>
-														<option value="">Select Option</option>
-															<option value=0>Active</option>
-															<option value=1>In Active</option>
-													</select>
-												</div>
-
 												<div class="form-group mt-3">
 													<div>
 														<button type="submit" class="btn btn-primary">Save Depot Info</button>
@@ -91,16 +82,5 @@
 					</div>
 				</div>
 				<!-- CONTAINER CLOSED -->
-	<!-- JQUERY JS -->
-	<script src="{% static 'js/jquery.min.js' %}"></script>
-	<!-- SELECT2 JS -->
-	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
-
-<script>
-    $(document).ready(function() {
-        //Select2 on the dropdown
-        $('#status').select2();
-    });
-</script>
 
 {% endblock %}

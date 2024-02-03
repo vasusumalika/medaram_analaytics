@@ -71,9 +71,12 @@ class OperationType(models.Model):
 class VehicleDetails(models.Model):
     id = models.AutoField(primary_key=True)
     depot = models.ForeignKey(Depot, on_delete=models.CASCADE, related_name="vehicle_details_depot")
+    depot_name = models.CharField(max_length=256, null=True, blank=True)
     bus_number = models.CharField(max_length=256, null=True, blank=True)
     opt_type = models.ForeignKey(OperationType, on_delete=models.CASCADE, related_name="vehicle_details_opt_type")
     vehicle_name = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name="vehicle_details_vehicle")
+    region_name = models.CharField(max_length=256, null=True, blank=True)
+    zone_name = models.CharField(max_length=256, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     vehicle_owner = models.CharField(max_length=256, null=True, blank=True)
@@ -186,3 +189,19 @@ class OwnDepotBusWithdraw(models.Model):
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
                                    related_name='own_depot_bus_withdraw_updated_user',
                                    null=True, blank=True, default="")
+
+
+class OutDepotVehicleSentBack(models.Model):
+    unique_no_bus_no = models.CharField(max_length=256, null=True, blank=True)
+    log_sheet_no = models.CharField(max_length=256, null=True, blank=True)
+    special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,
+                                               related_name="out_depot_vehicle_sent_special_bus")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='out_depot_vehicle_sent_created_user',
+                                   null=True, blank=True, default="")
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='out_depot_vehicle_sent_updated_user',
+                                   null=True, blank=True, default="")
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)

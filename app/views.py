@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, \
-    StatisticsDateEntry, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw
+    StatisticsDateEntry, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw, OutDepotVehicleSentBack
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -85,7 +85,7 @@ def user_add(request):
         phone = request.POST.get('phone')
         email = request.POST.get('email')
         password = request.POST.get('password')
-        user_status = request.POST.get('status')
+        user_status = 0
         user_type = request.POST.get('user_type')
         depot = request.POST.get('depot_id')
         try:
@@ -147,7 +147,7 @@ def user_update(request):
     phone = request.POST.get('phone')
     email = request.POST.get('email')
     password = request.POST.get('password')
-    user_status = request.POST.get('status')
+    user_status = 0
     user_type = request.POST.get('user_type_id')
     depot = request.POST.get('depot_id')
     if user_id:
@@ -184,7 +184,7 @@ def user_type_list(request):
 def user_type_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
-        user_status = request.POST.get('status')
+        user_status = 0
         try:
             # user_data = User.objects.get(id=request.session['user_id'])
             user_type = UserType.objects.create(name=name, status=user_status)
@@ -213,7 +213,7 @@ def user_type_edit(request):
 def user_type_update(request):
     user_type_id = request.POST.get('id')
     name = request.POST.get('name')
-    user_status = request.POST.get('status')
+    user_status = 0
     if user_type_id:
         try:
             user_type_data = UserType.objects.get(id=user_type_id)
@@ -243,7 +243,7 @@ def depot_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
         depot_code = request.POST.get('depot_code')
-        depot_status = request.POST.get('status')
+        depot_status = 0
         try:
             # user_data = User.objects.get(id=request.session['user_id'])
             depot = Depot.objects.create(name=name, depot_code=depot_code, status=depot_status)
@@ -270,7 +270,7 @@ def depot_update(request):
     depot_id = request.POST.get('id')
     name = request.POST.get('name')
     depot_code = request.POST.get('depot_code')
-    depot_status = request.POST.get('status')
+    depot_status = 0
     if depot_id:
         try:
             depot_data = Depot.objects.get(id=depot_id)
@@ -301,7 +301,7 @@ def operation_type_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
         description = request.POST.get('description')
-        status = request.POST.get('status')
+        status = 0
         try:
             user = User.objects.get(id=request.session['user_id'])
             operation_type = OperationType.objects.create(name=name, description=description, status=status,
@@ -331,7 +331,7 @@ def operation_type_update(request):
     operation_type_id = request.POST.get('id')
     name = request.POST.get('name')
     description = request.POST.get('description')
-    status = request.POST.get('status')
+    status = 0
     if operation_type_id:
         try:
             operation_type_data = OperationType.objects.get(id=operation_type_id)
@@ -362,7 +362,7 @@ def vehicle_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
         vehicle_owner = request.POST.get('vehicle_owner')
-        status = request.POST.get('status')
+        status = 0
         try:
             user = User.objects.get(id=request.session['user_id'])
             vehicle = Vehicle.objects.create(name=name, status=status, created_by=user, vehicle_owner=vehicle_owner)
@@ -391,7 +391,7 @@ def vehicle_update(request):
     vehicle_id = request.POST.get('id')
     name = request.POST.get('name')
     vehicle_owner = request.POST.get('vehicle_owner')
-    status = request.POST.get('status')
+    status = 0
     if vehicle_id:
         try:
             vehicle_data = Vehicle.objects.get(id=vehicle_id)
@@ -425,7 +425,7 @@ def vehicle_detail_add(request):
         bus_number = request.POST.get('bus_number')
         opt_type_id = request.POST.get('opt_type')
         vehicle_owner = request.POST.get('vehicle_owner')
-        vehicle_detail_status = request.POST.get('status')
+        vehicle_detail_status = 0
         try:
             vehicle_data = Vehicle.objects.get(id=vehicle_id)
             depot_data = Depot.objects.get(id=depot_id)
@@ -489,7 +489,7 @@ def vehicle_detail_update(request):
     bus_number = request.POST.get('bus_number')
     opt_type_id = request.POST.get('opt_type')
     vehicle_owner = request.POST.get('vehicle_owner')
-    vehicle_detail_status = request.POST.get('status')
+    vehicle_detail_status = 0
     if vehicle_detail_id:
         try:
             vehicle_detail_data = VehicleDetails.objects.get(id=vehicle_detail_id)
@@ -599,10 +599,9 @@ def spl_bus_data_entry_add(request):
             messages.error(request, 'Special bus data entry details creation Failed!!')
         return redirect("app:spl_bus_data_entry_list")
     try:
-        depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
+        # depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
         operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
-        return render(request, 'spl_bus_data_entry/add.html', {'depot_data': depot_data,
-                                                               'operation_type_data': operation_type_data})
+        return render(request, 'spl_bus_data_entry/add.html', {'operation_type_data': operation_type_data})
     except Exception as e:
         print(e)
         return render(request, 'spl_bus_data_entry/add.html', {})
@@ -744,16 +743,16 @@ def depot_import(request):
     if request.method == "POST":
         file = request.FILES.get('depot_list')
         try:
-            # user_data = User.objects.get(id=request.session['user_id'])
+            user_data = User.objects.get(id=request.session['user_id'])
             df = pd.read_excel(file)
             row_iter = df.iterrows()
             for i, row in row_iter:
                 print(row)
                 try:
-                    name = row[0]
+                    name = row[1]
                     depot_exist = Depot.objects.filter(name=name).count()
                     if depot_exist == 0:
-                        depot = Depot.objects.create(name=name, depot_code=row[1], status=0)
+                        depot = Depot.objects.create(name=name, depot_code=row[0], status=0, created_by=user_data)
                         depot.save()
                     else:
                         pass
@@ -787,9 +786,10 @@ def vehicle_details_import(request):
                         depot_data = Depot.objects.get(depot_code=row[1])
                         opt_type_data = OperationType.objects.get(name=row[3])
                         vehicle_detail = VehicleDetails.objects.create(vehicle_name=vehicle_name_data, depot=depot_data,
-                                                                       opt_type=opt_type_data, vehicle_owner=row[5],
+                                                                       opt_type=opt_type_data,
                                                                        status=0, created_by=user_data,
-                                                                       bus_number=bus_number)
+                                                                       bus_number=bus_number, depot_name=row[5],
+                                                                       region_name=row[6], zone_name=row[7])
                         vehicle_detail.save()
                     else:
                         pass
@@ -993,16 +993,19 @@ def statistics_down_journey_update(request):
         return redirect("app:statistics_down_journey_list")
 
 
+@custom_login_required
 def out_depot_buses_receive_list(request):
     out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(~Q(status=2))
     return render(request, 'out_depot_buses/out_depot_vehicle_receive/list.html',
                   {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
 
 
+@custom_login_required
 def out_depot_buses_receive_form(request):
     return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html')
 
 
+@custom_login_required
 def search_special_bus_data(request):
     if request.method == "POST":
         bus_number = request.POST.get('bus_number')
@@ -1012,6 +1015,7 @@ def search_special_bus_data(request):
     return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html', {'special_bus_data': special_bus_data})
 
 
+@custom_login_required
 def out_depot_buses_receive_add(request):
     if request.method == "POST":
         bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
@@ -1021,6 +1025,7 @@ def out_depot_buses_receive_add(request):
         mts_no = request.POST.get('mts_no')
         bus_reported_date = request.POST.get('bus_reported_date')
         bus_reported_time = request.POST.get('bus_reported_time')
+        out_depot_buses_receive_status = 0
         try:
             vehicle_detail_data = VehicleDetails.objects.get(bus_number=bus_number)
             special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail_data)
@@ -1033,7 +1038,8 @@ def out_depot_buses_receive_add(request):
                                                                                  mts_no=mts_no,
                                                                                  bus_reported_date=bus_reported_date,
                                                                                  bus_reported_time=bus_reported_time,
-                                                                                 created_by=user_data)
+                                                                                 created_by=user_data,
+                                                                                 status=out_depot_buses_receive_status)
             out_depo_buse_receive_detail.save()
             messages.success(request, 'Out Depot Vehicle Receive Details saved Successfully')
         except Exception as e:
@@ -1188,3 +1194,54 @@ def own_depot_bus_withdraw_update(request):
             return redirect("app:own_depot_bus_withdraw_list")
     else:
         return redirect("app:own_depot_bus_withdraw_list")
+
+
+@custom_login_required
+def out_depot_vehicle_send_back_list(request):
+    out_depot_vehicle_send_back_data = OutDepotVehicleSentBack.objects.filter(~Q(status=2))
+    return render(request, 'out_depot_buses/out_depot_vehicle_send_back/list.html',
+                  {'out_depot_vehicle_send_back_data': out_depot_vehicle_send_back_data})
+
+
+@custom_login_required
+def out_depot_vehicle_send_back_add(request):
+    if request.method == "POST":
+        unique_no_bus_no = request.POST.get('unique_no_bus_no')
+        log_sheet_no = request.POST.get('log_sheet_no')
+        out_depot_buses_send_back_status = 0
+        try:
+            special_bus_data = SpecialBusDataEntry.objects.get(log_sheet_no=log_sheet_no)
+            user_data = User.objects.get(id=request.session['user_id'])
+            out_depo_buse_send_back_detail = OutDepotVehicleSentBack.objects.create(unique_no_bus_no=unique_no_bus_no,
+                                                                                    log_sheet_no=log_sheet_no,
+                                                                                    special_bus_data_entry=
+                                                                                    special_bus_data,
+                                                                                    created_by=user_data,
+                                                                                    status=
+                                                                                    out_depot_buses_send_back_status)
+            out_depo_buse_send_back_detail.save()
+            messages.success(request, 'Out Depot Vehicle Send Back Details saved Successfully')
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Out Depot Vehicle Send Back Details Creation Failed!!')
+        return redirect("app:out_depot_vehicle_send_back_list")
+
+    return render(request, 'out_depot_buses/out_depot_vehicle_send_back/add.html', {})
+
+
+def search_for_spl_sending_bus_depot(request):
+    if request.method == "POST":
+        search_text = request.POST.get('search_text', '')
+        depot_details = Depot.objects.filter(Q(name__istartswith=search_text) & ~(Q(status=2)))
+        if depot_details.count() > 0:
+            fields_to_include = ['id', 'name']
+            result_data = list(depot_details.values(*fields_to_include))
+            context = {'code': "Success", 'message': "Depots fetched successfully",
+                       "result": result_data}
+            return JsonResponse(context, status=200)
+        else:
+            context = {'code': "Fail", 'message': "There are no such depots", "result": {}}
+            return JsonResponse(context, status=400)
+    else:
+        context = {'code': "Fail", 'message': "Depots fetched unsuccessful", "result": {}}
+        return JsonResponse(context, status=400)
