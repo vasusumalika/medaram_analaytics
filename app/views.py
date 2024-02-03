@@ -11,6 +11,12 @@ from django.contrib.auth.hashers import check_password
 import pandas as pd
 from functools import wraps
 
+#RESTAPI IMPORT STARTS HERE
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from app import serializers as app_serializers
+
 
 def custom_login_required(view_func):
     @wraps(view_func)
@@ -1245,3 +1251,171 @@ def search_for_spl_sending_bus_depot(request):
     else:
         context = {'code': "Fail", 'message': "Depots fetched unsuccessful", "result": {}}
         return JsonResponse(context, status=400)
+    
+#REST API STARTS FROM HERE
+
+class LoginAPIView(APIView):
+    def post(self, request):
+        serializer_instance = app_serializers.LoginSerializer(data=request.data)
+
+        if not serializer_instance.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
+        
+        serialized_data = serializer_instance.validated_data
+
+        
+        user_login_data = User.objects.filter(
+            Q(email=serialized_data.get("user_email_phone")) | Q(phone_number=serialized_data.get("user_email_phone"))
+        ).filter(password=serialized_data.get("user_password")).last()
+
+        if user_login_data: #and check_password(serialized_data.get("user_password"), user_login_data.password) this needs to be implementd.
+            return Response(status=status.HTTP_200_OK, data={
+                "code":"Success",
+                "message":"User Login Successful.",
+                "result":user_login_data.get_details()
+            })
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                "code":"Fail",
+                "message":"Something Went Wrong. Login unsuccessful.",
+                "result":[]
+            })
+        
+
+class DepotAPIView(APIView):
+    def get(self, request):
+        depot_instances = Depot.objects.all()
+        depot_details = [depot.get_details() for depot in depot_instances]
+        return Response(status=status.HTTP_200_OK, data={
+            "code":"Success",
+            "message":"All Depot Fetched Successfully.",
+            "result": depot_details
+        })
+    
+class OperationTypeAPIView(APIView):
+    def get(self, request):
+        operation_type_instances = OperationType.objects.all()
+        operation_details = [opt_type.get_details() for opt_type in operation_type_instances]
+        return Response(status=status.HTTP_200_OK, data={
+            "code":"Success",
+            "message":"All Opeartion Type Fetched Successfully.",
+            "result": operation_details
+        })
+    
+class DepotVehicleAPIView(APIView):
+    def get(self, request):
+        special_bus_sending_depot = request.GET.get("special_bus_sending_depot")
+        serializer_instance = app_serializers.DepotVehicleSerializer(
+            data={"special_bus_sending_depot":special_bus_sending_depot}
+        )
+
+        if not serializer_instance.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
+        
+        serialized_data = serializer_instance.validated_data
+        try:
+            depot_instance= Depot.objects.get(
+                id=serialized_data.get("special_bus_sending_depot")
+            )
+            vehicle_instances = VehicleDetails.objects.filter(depot=depot_instance)
+            vehicle_details = [vehicle.get_details() for vehicle in vehicle_instances]
+            return Response(status=status.HTTP_200_OK, data={
+                "code":"Success",
+                "message":"All Opeartion Type Fetched Successfully.",
+                "result": vehicle_details
+            })
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                "code":"Fail",
+                "message":"Something Went Wrong.",
+                "result":[]
+            })
+        
+class AllSplBusEntryAPIView(APIView):
+    def get(self, request):
+        spl_bus_entry_instances = SpecialBusDataEntry.objects.all()
+        spl_buses_details = [bus.get_basic_details() for bus in spl_bus_entry_instances]
+        return Response(status=status.HTTP_200_OK, data={
+            "code":"Success",
+            "message":"All Special Bus Entry Data Fetched Successfully.",
+            "result": spl_buses_details
+        })
+class SplBusEntryAPIView(APIView):
+    def get(self, request):
+        special_bus_data_id = request.GET.get("special_bus_data_id")
+        serializer_instance = app_serializers.GetSplBusDataEntrySerializer(
+            data={"special_bus_data_id":special_bus_data_id}
+        )
+        if not serializer_instance.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
+        
+        serialized_data = serializer_instance.validated_data
+        
+        try:
+            spl_bus_entry_instance = SpecialBusDataEntry.objects.get(
+                id=serialized_data.get("special_bus_data_id")
+            )
+            return Response(status=status.HTTP_200_OK, data={
+                "code":"Success",
+                "message":"Special Bus Entry Data Fetched Successfully.",
+                "result": spl_bus_entry_instance.get_complete_detail()
+            })
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                "code":"Fail",
+                "message":"Something Went Wrong.",
+                "result":[]
+            })
+    
+    def post(self, request):
+        serializer_instance = app_serializers.SplBusEntrySerializer(data=request.data)
+
+        if not serializer_instance.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
+        
+        serialized_data = serializer_instance.validated_data
+
+        try:
+            special_bus_sending_depot_instance = Depot.objects.get(
+                id=serialized_data.get("bus_sending_depot")
+            )
+            special_bus_reporting_depot_instance = Depot.objects.get(
+                id=serialized_data.get("bus_reporting_depot")
+            )
+            operation_type_instance = OperationType.objects.get(
+                id=serialized_data.get("bus_type")
+            )
+            vehicle_instance = VehicleDetails.objects.get(
+                id=serialized_data.get("bus_number")
+            )
+
+            spl_bus_entry_instance = SpecialBusDataEntry.objects.create(
+                special_bus_sending_depot = special_bus_sending_depot_instance,
+                special_bus_reporting_depot = special_bus_reporting_depot_instance,
+                bus_type = operation_type_instance,
+                bus_number = vehicle_instance,
+                log_sheet_no = serialized_data.get("log_sheet_no"),
+                driver1_name = serialized_data.get("driver1_name"),
+                driver1_staff_no = serialized_data.get("driver1_staff_no"),
+                driver1_phone_number = serialized_data.get("driver1_phone_number"),
+                driver2_name = serialized_data.get("driver2_name"),
+                driver2_staff_no = serialized_data.get("driver2_staff_no"),
+                driver2_phone_number = serialized_data.get("driver2_phone_number"),
+                incharge_name = serialized_data.get("incharge_name"),
+                incharge_phone_number = serialized_data.get("incharge_phone_no"),
+                status = 0,
+                # created_by = request.user,
+                # updated_by = request.user
+            )
+
+            return Response(status=status.HTTP_200_OK, data={
+                "code":"Success",
+                "message":"Special Bus Entry Data Added Successfully.",
+                "result": []
+            })
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                "code":"Fail",
+                "message":"Something Went Wrong.",
+                "result":[]
+            })

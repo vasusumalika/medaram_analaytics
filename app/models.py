@@ -14,6 +14,15 @@ class User(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
 
+    def get_details(self):
+        return{
+            "id":self.id,
+            "name":self.name,
+            "email":self.email,
+            "phone":self.phone_number,
+            "user_type":self.user_type
+        }
+
 
 class UserType(models.Model):
     id = models.AutoField(primary_key=True)
@@ -38,6 +47,13 @@ class Depot(models.Model):
                                    null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='depot_updated_user', null=True,
                                    blank=True, default="")
+    
+    def get_details(self):
+        return{
+            "id":self.id,
+            "name":self.name,
+            "depot_code":self.depot_code
+        }
 
 
 class Vehicle(models.Model):
@@ -64,6 +80,12 @@ class OperationType(models.Model):
                                    null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='opt_type_updated_user', null=True,
                                    blank=True, default="")
+    
+    def get_details(self):
+        return{
+            "id":self.id,
+            "name":self.name
+        }
 
 
 # bus_number means vechicle_no
@@ -85,6 +107,12 @@ class VehicleDetails(models.Model):
                                    default="", null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vehicle_details_updated_user',
                                    null=True, blank=True, default="")
+    
+    def get_details(self):
+        return{
+            "id":self.id,
+            "bus_number":self.bus_number
+        }
 
 
 # bus_type means operation_type
@@ -114,6 +142,32 @@ class SpecialBusDataEntry(models.Model):
                                    default="", null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='special_bus_updated_user',
                                    null=True, blank=True, default="")
+    
+    def get_basic_details(self):
+        return{
+            "id":self.id,
+            "bus_sending_depot":self.special_bus_sending_depot.name,
+            "bus_reporting_depot":self.special_bus_reporting_depot.name,
+            "bus_type":self.bus_type.name,
+            "bus_number":self.bus_number.bus_number,
+        }
+    
+    def get_complete_detail(self):
+        return{
+            "bus_sending_depot":self.special_bus_sending_depot.name,
+            "bus_reporting_depot":self.special_bus_reporting_depot.name,
+            "bus_type":self.bus_type.name,
+            "bus_number":self.bus_number.bus_number,
+            "log_sheet_no":self.log_sheet_no,
+            "driver1_name":self.driver1_name,
+            "driver1_staff_no":self.driver1_staff_no,
+            "driver1_phone_number":self.driver1_phone_number,
+            "driver2_name":self.driver2_name,
+            "driver2_staff_no":self.driver2_staff_no,
+            "driver2_phone_number":self.driver2_phone_number,
+            "incharge_name":self.incharge_name,
+            "incharge_phone_no":self.incharge_phone_number,
+        }
 
 
 class StatisticsDateEntry(models.Model):
