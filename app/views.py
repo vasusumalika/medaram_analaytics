@@ -250,10 +250,12 @@ def depot_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
         depot_code = request.POST.get('depot_code')
+        buses_allotted = request.POST.get('buses_allotted')
         depot_status = 0
         try:
             # user_data = User.objects.get(id=request.session['user_id'])
-            depot = Depot.objects.create(name=name, depot_code=depot_code, status=depot_status)
+            depot = Depot.objects.create(name=name, depot_code=depot_code, status=depot_status,
+                                         buses_allotted=buses_allotted)
             depot.save()
             messages.success(request, 'Depot Created Successfully')
         except Exception as e:
@@ -277,6 +279,7 @@ def depot_update(request):
     depot_id = request.POST.get('id')
     name = request.POST.get('name')
     depot_code = request.POST.get('depot_code')
+    buses_allotted = request.POST.get('buses_allotted')
     depot_status = 0
     if depot_id:
         try:
@@ -284,6 +287,7 @@ def depot_update(request):
             depot_data.name = name
             depot_data.depot_code = depot_code
             depot_data.status = depot_status
+            depot_data.buses_allotted = buses_allotted
             user_data = User.objects.get(id=request.session['user_id'])
             depot_data.updated_by = user_data
             depot_data.save()

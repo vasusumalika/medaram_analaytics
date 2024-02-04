@@ -52,6 +52,7 @@
 											</div>
 											{% endfor %}
 										{% endif %}
+
 										<div class="card-header border-bottom">
 											<h3 class="card-title">Depots List</h3>
 										</div>
@@ -62,6 +63,7 @@
 														<tr>
 															<th class="border-bottom-0">Name</th>
 															<th class="border-bottom-0">Code</th>
+															<th class="border-bottom-0">Buses Allotted</th>
 															<th class="border-bottom-0">Actions</th>
 
 														</tr>
@@ -71,6 +73,7 @@
                                                           <tr>
 															  <td>{{ depot.name }}</td>
 															  <td>{{ depot.depot_code }}</td>
+															  <td>{{ depot.buses_allotted }}</td>
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:depot_edit' %}?id={{ depot.id }}">
 																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
 															   		</a>

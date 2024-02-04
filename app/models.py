@@ -40,6 +40,7 @@ class Depot(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256, null=True, blank=True)
     depot_code = models.CharField(max_length=256, null=True, blank=True)
+    buses_allotted = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
