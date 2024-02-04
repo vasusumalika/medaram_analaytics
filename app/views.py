@@ -250,10 +250,12 @@ def depot_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
         depot_code = request.POST.get('depot_code')
+        buses_allotted = request.POST.get('buses_allotted')
         depot_status = 0
         try:
             # user_data = User.objects.get(id=request.session['user_id'])
-            depot = Depot.objects.create(name=name, depot_code=depot_code, status=depot_status)
+            depot = Depot.objects.create(name=name, depot_code=depot_code, status=depot_status,
+                                         buses_allotted=buses_allotted)
             depot.save()
             messages.success(request, 'Depot Created Successfully')
         except Exception as e:
@@ -277,6 +279,7 @@ def depot_update(request):
     depot_id = request.POST.get('id')
     name = request.POST.get('name')
     depot_code = request.POST.get('depot_code')
+    buses_allotted = request.POST.get('buses_allotted')
     depot_status = 0
     if depot_id:
         try:
@@ -284,6 +287,7 @@ def depot_update(request):
             depot_data.name = name
             depot_data.depot_code = depot_code
             depot_data.status = depot_status
+            depot_data.buses_allotted = buses_allotted
             user_data = User.objects.get(id=request.session['user_id'])
             depot_data.updated_by = user_data
             depot_data.save()
@@ -1273,7 +1277,8 @@ def search_unique_no_bus_no_special_bus_data(request):
             out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_no_bus_no)
             special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
         else:
-            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=unique_no_bus_no)
+            vehicle_details = VehicleDetails.objects.get(bus_number=unique_no_bus_no)
+            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_details)
     return render(request, 'hsd_oil_submission/add.html', {'special_bus_data': special_bus_data,
                                                            'unique_bus_no': unique_no_bus_no})
 
