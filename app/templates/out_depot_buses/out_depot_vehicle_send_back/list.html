@@ -34,7 +34,7 @@
 									<div class="row">
                                         <div class="col-md-12">
                                           	<a  href="{% url 'app:out_depot_vehicle_send_back_add' %}">
-                                            <input type="button" value="Add Out Depot Vehicle Send Back" class="btn btn-primary float-right" style="float:right;width: 15%;margin: 0 20px 20px 0;"></a>
+                                            <input type="button" value="Add Out Depot Vehicle Send Back" class="btn btn-primary float-right" style="float:right;margin: 0 20px 20px 0;"></a>
                                         </div>
                                       </div>
 									<div class="card">
@@ -60,7 +60,6 @@
 														<tr>
 															<th class="border-bottom-0">Unique No/Bus Number</th>
 															<th class="border-bottom-0">Log Sheet Number</th>
-															<th class="border-bottom-0">Special Bus Number</th>
                                                             <th class="border-bottom-0">Created At</th>
                                                             <th class="border-bottom-0">Created By</th>
 
@@ -71,7 +70,6 @@
                                                           <tr>
 															  <td>{{ out_depot_vehicle.unique_no_bus_no }}</td>
 															  <td>{{ out_depot_vehicle.log_sheet_no }}</td>
-															  <td>{{ out_depot_vehicle.special_bus_data_entry.bus_number.bus_number }}</td>
 															  <td>{{ out_depot_vehicle.created_at }}</td>
 															  <td>{{ out_depot_vehicle.created_by.name }}</td>
 														  </tr>

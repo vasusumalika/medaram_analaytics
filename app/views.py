@@ -1277,7 +1277,8 @@ def search_unique_no_bus_no_special_bus_data(request):
             out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_no_bus_no)
             special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
         else:
-            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=unique_no_bus_no)
+            vehicle_details = VehicleDetails.objects.get(bus_number=unique_no_bus_no)
+            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_details)
     return render(request, 'hsd_oil_submission/add.html', {'special_bus_data': special_bus_data,
                                                            'unique_bus_no': unique_no_bus_no})
 
