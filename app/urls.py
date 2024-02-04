@@ -43,7 +43,7 @@ urlpatterns = [
     path('vehicle/details/add', views.vehicle_detail_add, name='vehicle_detail_add'),
     path('vehicle/details/edit', views.vehicle_detail_edit, name='vehicle_detail_edit'),
     path('vehicle/details/update', views.vehicle_detail_update, name='vehicle_detail_update'),
-    path('vehicle_details/import', views.vehicle_details_import, name='vehicle_details_import'),
+    path('vehicle/details/import', views.vehicle_details_import, name='vehicle_details_import'),
 
     path('spl/bus/data/entry/list', views.spl_bus_data_entry_list, name='spl_bus_data_entry_list'),
     path('spl/bus/data/entry/add', views.spl_bus_data_entry_add, name='spl_bus_data_entry_add'),
@@ -82,6 +82,16 @@ urlpatterns = [
 
     path('spl/bus/search/sending/bus/depot', views.search_for_spl_sending_bus_depot,
          name='search_for_spl_sending_bus_depot'),
+
+    path('hsd/oil/submission/list', views.hsd_oil_submission_list, name='hsd_oil_submission_list'),
+    path('hsd/oil/submission/form', views.hsd_oil_submission_form, name='hsd_oil_submission_form'),
+    path('hsd/oil/submission/add', views.hsd_oil_submission_add, name='hsd_oil_submission_add'),
+    path('search/unique/bus/number/special/bus/data', views.search_unique_no_bus_no_special_bus_data,
+         name='search_unique_no_bus_no_special_bus_data'),
+
+    path('buses/on/hand/list', views.buses_on_hand_list, name='buses_on_hand_list'),
+    path('buses/on/hand/add', views.buses_on_hand_add, name='buses_on_hand_add'),
+
 
     # Medaram REST API STARTS FROM HERE
     path("api/login/", views.LoginAPIView.as_view()),
