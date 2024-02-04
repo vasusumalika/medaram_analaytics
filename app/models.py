@@ -15,12 +15,12 @@ class User(models.Model):
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
 
     def get_details(self):
-        return{
-            "id":self.id,
-            "name":self.name,
-            "email":self.email,
-            "phone":self.phone_number,
-            "user_type":self.user_type
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "phone": self.phone_number,
+            "user_type": self.user_type
         }
 
 
@@ -40,7 +40,7 @@ class Depot(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256, null=True, blank=True)
     depot_code = models.CharField(max_length=256, null=True, blank=True)
-    buses_allotted = models.IntegerField(null=True, blank=True)
+    buses_allotted = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
@@ -48,12 +48,12 @@ class Depot(models.Model):
                                    null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='depot_updated_user', null=True,
                                    blank=True, default="")
-    
+
     def get_details(self):
-        return{
-            "id":self.id,
-            "name":self.name,
-            "depot_code":self.depot_code
+        return {
+            "id": self.id,
+            "name": self.name,
+            "depot_code": self.depot_code
         }
 
 
@@ -81,11 +81,11 @@ class OperationType(models.Model):
                                    null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='opt_type_updated_user', null=True,
                                    blank=True, default="")
-    
+
     def get_details(self):
-        return{
-            "id":self.id,
-            "name":self.name
+        return {
+            "id": self.id,
+            "name": self.name
         }
 
 
@@ -108,11 +108,11 @@ class VehicleDetails(models.Model):
                                    default="", null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vehicle_details_updated_user',
                                    null=True, blank=True, default="")
-    
+
     def get_details(self):
-        return{
-            "id":self.id,
-            "bus_number":self.bus_number
+        return {
+            "id": self.id,
+            "bus_number": self.bus_number
         }
 
 
@@ -143,61 +143,42 @@ class SpecialBusDataEntry(models.Model):
                                    default="", null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='special_bus_updated_user',
                                    null=True, blank=True, default="")
-    
+
     def get_basic_details(self):
-        return{
-            "id":self.id,
-            "bus_sending_depot":self.special_bus_sending_depot.name,
-            "bus_reporting_depot":self.special_bus_reporting_depot.name,
-            "bus_type":self.bus_type.name,
-            "bus_number":self.bus_number.bus_number,
+        return {
+            "id": self.id,
+            "bus_sending_depot": self.special_bus_sending_depot.name,
+            "bus_reporting_depot": self.special_bus_reporting_depot.name,
+            "bus_type": self.bus_type.name,
+            "bus_number": self.bus_number.bus_number,
         }
-    
+
     def get_complete_detail(self):
-        return{
-            "bus_sending_depot":self.special_bus_sending_depot.name,
-            "bus_reporting_depot":self.special_bus_reporting_depot.name,
-            "bus_type":self.bus_type.name,
-            "bus_number":self.bus_number.bus_number,
-            "log_sheet_no":self.log_sheet_no,
-            "driver1_name":self.driver1_name,
-            "driver1_staff_no":self.driver1_staff_no,
-            "driver1_phone_number":self.driver1_phone_number,
-            "driver2_name":self.driver2_name,
-            "driver2_staff_no":self.driver2_staff_no,
-            "driver2_phone_number":self.driver2_phone_number,
-            "incharge_name":self.incharge_name,
-            "incharge_phone_no":self.incharge_phone_number,
+        return {
+            "bus_sending_depot": self.special_bus_sending_depot.name,
+            "bus_reporting_depot": self.special_bus_reporting_depot.name,
+            "bus_type": self.bus_type.name,
+            "bus_number": self.bus_number.bus_number,
+            "log_sheet_no": self.log_sheet_no,
+            "driver1_name": self.driver1_name,
+            "driver1_staff_no": self.driver1_staff_no,
+            "driver1_phone_number": self.driver1_phone_number,
+            "driver2_name": self.driver2_name,
+            "driver2_staff_no": self.driver2_staff_no,
+            "driver2_phone_number": self.driver2_phone_number,
+            "incharge_name": self.incharge_name,
+            "incharge_phone_no": self.incharge_phone_number,
         }
-
-
-class StatisticsDateEntry(models.Model):
-    id = models.AutoField(primary_key=True)
-    bus_unique_code = models.CharField(max_length=256, null=True, blank=True)
-    total_ticket_amount = models.CharField(max_length=256, null=True, blank=True)
-    total_adult_passengers = models.CharField(max_length=256, null=True, blank=True)
-    total_child_passengers = models.CharField(max_length=256, null=True, blank=True)
-    mhl_adult_passengers = models.CharField(max_length=256, null=True, blank=True)
-    mhl_child_passengers = models.CharField(max_length=256, null=True, blank=True)
-    mhl_adult_amount = models.CharField(max_length=256, null=True, blank=True)
-    mhl_child_amount = models.CharField(max_length=256, null=True, blank=True)
-    entry_type = models.CharField(max_length=256, null=True, blank=True)
-    service_operated_date = models.DateField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_created_user',
-                                   default="",
-                                   null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_updated_user',
-                                   null=True,
-                                   blank=True, default="")
 
 
 class OutDepotVehicleReceive(models.Model):
     bus_number = models.ForeignKey(VehicleDetails, on_delete=models.CASCADE, related_name="out_depot_bus_vehicle")
     special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,
                                                related_name="out_depot_special_bus")
+    out_depot_bus_sending_depot = models.ForeignKey(Depot, on_delete=models.CASCADE,
+                                                    related_name="out_depot_bus_sending_depot", null=True, blank=True)
+    out_depot_bus_reporting_depot = models.ForeignKey(Depot, on_delete=models.CASCADE,
+                                                      related_name="out_depot_bus_reporting_depot", null=True, blank=True)
     unique_no = models.IntegerField()
     new_log_sheet_no = models.IntegerField()
     hsd_top_oil_liters = models.IntegerField()
@@ -211,6 +192,22 @@ class OutDepotVehicleReceive(models.Model):
                                    null=True, blank=True, default="")
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='out_depot_vehicle_updated_user',
                                    null=True, blank=True, default="")
+
+
+class OutDepotVehicleSentBack(models.Model):
+    unique_no_bus_no = models.CharField(max_length=256, null=True, blank=True)
+    log_sheet_no = models.CharField(max_length=256, null=True, blank=True)
+    special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,
+                                               related_name="out_depot_vehicle_sent_special_bus")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='out_depot_vehicle_sent_created_user',
+                                   null=True, blank=True, default="")
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='out_depot_vehicle_sent_updated_user',
+                                   null=True, blank=True, default="")
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
 
 
 class OwnDepotBusDetailsEntry(models.Model):
@@ -246,20 +243,27 @@ class OwnDepotBusWithdraw(models.Model):
                                    null=True, blank=True, default="")
 
 
-class OutDepotVehicleSentBack(models.Model):
-    unique_no_bus_no = models.CharField(max_length=256, null=True, blank=True)
-    log_sheet_no = models.CharField(max_length=256, null=True, blank=True)
-    special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,
-                                               related_name="out_depot_vehicle_sent_special_bus")
+class StatisticsDateEntry(models.Model):
+    id = models.AutoField(primary_key=True)
+    bus_unique_code = models.CharField(max_length=256, null=True, blank=True)
+    total_ticket_amount = models.CharField(max_length=256, null=True, blank=True)
+    total_adult_passengers = models.CharField(max_length=256, null=True, blank=True)
+    total_child_passengers = models.CharField(max_length=256, null=True, blank=True)
+    mhl_adult_passengers = models.CharField(max_length=256, null=True, blank=True)
+    mhl_child_passengers = models.CharField(max_length=256, null=True, blank=True)
+    mhl_adult_amount = models.CharField(max_length=256, null=True, blank=True)
+    mhl_child_amount = models.CharField(max_length=256, null=True, blank=True)
+    entry_type = models.CharField(max_length=256, null=True, blank=True)
+    service_operated_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
-                                   related_name='out_depot_vehicle_sent_created_user',
-                                   null=True, blank=True, default="")
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
-                                   related_name='out_depot_vehicle_sent_updated_user',
-                                   null=True, blank=True, default="")
-    status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_created_user',
+                                   default="",
+                                   null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_updated_user',
+                                   null=True,
+                                   blank=True, default="")
 
 
 class HsdOilSubmission(models.Model):

@@ -52,8 +52,8 @@
 											<form class="form-horizontal row" action="{% url 'app:spl_bus_data_entry_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
 											    <div class="form-group col-md-6">
-                                                    <label class="form-label" for="special_bus_sending_depot">SPL Bus Sending Depot</label>
-													<select class="form-control custom-select" name="search_special_bus_sending_depot" id="special_bus_sending_depot" multiple="multiple" required>
+                                                    <label class="form-label" for="special_bus_sending_depot">Special Bus Sending Depot</label>
+													<select class="form-control custom-select" name="special_bus_sending_depot" id="special_bus_sending_depot" required>
                                                      	<option value="">Select Option</option>
                                                         	{% for depo in depot_data %}
                                                             	<option value="{{ depo.id }}">
