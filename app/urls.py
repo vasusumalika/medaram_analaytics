@@ -95,9 +95,17 @@ urlpatterns = [
     path('buses/on/hand/update', views.buses_on_hand_update, name='buses_on_hand_update'),
 
     path('reports/summary/sending/buses/list', views.summary_sending_buses_list, name='summary_sending_buses_list'),
+
     path('reports/buses/dispatched/list', views.buses_dispatched_list, name='buses_dispatched_list'),
+    path('reports/buses/dispatched/display/details', views.buses_dispatched_display_details, name='buses_dispatched_display_details'),
+
     path('reports/buses/reached/list', views.buses_reached_list, name='buses_reached_list'),
-    path('reports/display/bus/details', views.display_bus_details, name='display_bus_details'),
+    path('reports/buses/reached/display/details', views.buses_reached_display_details, name='buses_reached_display_details'),
+
+    path('reports/buses/not/reached/list', views.buses_not_reached_list, name='buses_not_reached_list'),
+    path('reports/buses/not/reached/display/details', views.buses_not_reached_display_details,
+         name='buses_not_reached_display_details'),
+
     path('reports/performance/of/buses/list', views.performance_of_buses_list, name='performance_of_buses_list'),
     path('reports/display/operating/depot/list', views.display_operating_depot_list, name='display_operating_depot_list'),
     path('reports/status/return/back/buses/list', views.status_return_back_buses_list,
@@ -112,5 +120,28 @@ urlpatterns = [
     path("api/get-all-special-bus-entry/", views.AllSplBusEntryAPIView.as_view()),
     path("api/get-depot-vehicle/", views.DepotVehicleAPIView.as_view()),
     path("api/special-bus-entry/", views.SplBusEntryAPIView.as_view()),
+
+    path("api/search-bus-number/", views.SearchBusNumberAPI.as_view()),
+
+    path("api/get-all-out-depot-vehicle-receive/", views.GetAllOutDepotVehicleReceiveAPIView.as_view()),
+    path("api/out-depot-vehicle-receive/", views.OutDepotVehicleReceiveAPIView.as_view()),
+
+    path("api/get-all-out-depot-vehicle-send-back/", views.GetAllOutDepotVehicleSendBackAPIView.as_view()),
+    path("api/out-depot-vehicle-send-back/", views.OutDepotVehicleSendBackAPIView.as_view()),
+
+    path("api/get-all-own-depot-bus-detail/", views.GetAllOwnDepotBusDetailAPIView.as_view()),
+    path("api/own-depot-bus-detail/", views.OwnDepotBusDetailAPIView.as_view()),
+
+    path("api/get-all-own-depot-bus-withdraw/", views.GetAllOwnDepotBusWithdrawAPIView.as_view()),
+    path("api/own-depot-bus-withdraw/", views.OwnDepotBusWithdrawAPIView.as_view()),
+
+    path("api/get-all-up-journey/", views.GetAllUpJourneyAPIView.as_view()),
+    path("api/up-journey/", views.UpJourneyAPIView.as_view()),
+
+    path("api/get-all-down-journey/", views.GetAllDownJourneyAPIView.as_view()),
+    path("api/down-journey/", views.DownJourneyAPIView.as_view()),
+
+    path("api/get-all-hsd-oil-submission/", views.GetAllHSDOilSubmissionAPIView.as_view()),
+    path("api/hsd-oil-submission/", views.HSDOilSubmissionAPIView.as_view()),
 
 ]

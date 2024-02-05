@@ -215,140 +215,95 @@
 
 							<div data-kt-menu-trigger="click" class="menu-item menu-accordion">
 
-								<li class="sub-slide">
-									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:dashboard'%}">
+								<li class="slide">
+									<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:dashboard'%}">
 										<img alt="Logo" src="{% static 'images/sidebar/icons8-dashboard-100.png' %}" class="side-menu__icon"/>
 										<span class="side-menu__label">DashBoard</span>
 									</a>
 								</li>
 
-								<li class="sub-slide">
-									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="">
+								<li class="slide">
+									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
 										<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-										<span class="sub-side-menu__label">Configurations</span><i
-													class="sub-angle fa fa-angle-right"></i></a>
-											<ul class="sub-slide-menu">
-												<li><a class="sub-slide-item" href="{% url 'app:users_list'%}">Users</a></li>
-												<li><a class="sub-slide-item" href="{% url 'app:user_type_list'%}">User Type</a></li>
-												<li><a class="sub-slide-item" href="{% url 'app:depots_list'%}">Depots</a></li>
-												<li><a class="sub-slide-item" href="{% url 'app:operation_type_list'%}">Operation Type</a></li>
-												<li><a class="sub-slide-item" href="{% url 'app:vehicle_list'%}">Vehicle</a></li>
-												<li><a class="sub-slide-item" href="{% url 'app:vehicle_details_list'%}">Vehicle Details</a></li>
+										<span class="side-menu__label">Configurations</span><i
+													class="angle fa fa-angle-right"></i></a>
+											<ul class="slide-menu">
+												<li><a class="slide-item" href="{% url 'app:users_list'%}">Users</a></li>
+												<li><a class="slide-item" href="{% url 'app:user_type_list'%}">User Type</a></li>
+												<li><a class="slide-item" href="{% url 'app:depots_list'%}">Depots</a></li>
+												<li><a class="slide-item" href="{% url 'app:operation_type_list'%}">Operation Type</a></li>
+												<li><a class="slide-item" href="{% url 'app:vehicle_list'%}">Vehicle</a></li>
+												<li><a class="slide-item" href="{% url 'app:vehicle_details_list'%}">Vehicle Details</a></li>
 											</ul>
 								</li>
 
-<!--								<li class="sub-slide">-->
-<!--									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:users_list'%}">-->
-<!--										<img alt="Logo" src="{% static 'images/sidebar/icons8-users-90.png' %}" class="side-menu__icon"/>-->
-<!--										<span class="side-menu__label">Users</span>-->
-<!--									</a>-->
-<!--								</li>-->
-
-<!--								<li class="sub-slide">-->
-<!--									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:user_type_list'%}">-->
-<!--										<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>-->
-<!--										<span class="side-menu__label">User Type</span>-->
-<!--									</a>-->
-<!--								</li>-->
-
-<!--								<li class="sub-slide">-->
-<!--									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:depots_list'%}">-->
-<!--										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>-->
-<!--										<span class="side-menu__label">Depots</span>-->
-<!--									</a>-->
-<!--								</li>-->
-
-<!--								<li class="sub-slide">-->
-<!--									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:operation_type_list'%}">-->
-<!--										<img alt="Logo" src="{% static 'images/sidebar/icons8-users-90.png' %}" class="side-menu__icon"/>-->
-<!--										<span class="side-menu__label">Operation Type</span>-->
-<!--									</a>-->
-<!--								</li>-->
-
-<!--								<li class="sub-slide">-->
-<!--									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:vehicle_list'%}">-->
-<!--										<img alt="Logo" src="{% static 'images/sidebar/icons8-users-90.png' %}" class="side-menu__icon"/>-->
-<!--										<span class="side-menu__label">Vehicle</span>-->
-<!--									</a>-->
-<!--								</li>-->
-
-<!--								<li class="sub-slide">-->
-<!--									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:vehicle_details_list'%}">-->
-<!--										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>-->
-<!--										<span class="side-menu__label">Vehicle Details</span>-->
-<!--									</a>-->
-<!--								</li>-->
-
-
-								<li class="sub-slide">
-									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:spl_bus_data_entry_list'%}">
+								<li class="slide">
+									<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:spl_bus_data_entry_list'%}">
 										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
 										<span class="side-menu__label">Special Bus Data Entry</span>
 									</a>
 								</li>
 
-								<li class="sub-slide">
-   									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="">
+								<li class="slide">
+   									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
          								<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-         								<span class="sub-side-menu__label">Out Depot Buses</span>
-										<i class="sub-angle fa fa-angle-right"></i>
+         								<span class="side-menu__label">Out Depot Buses</span>
+										<i class="angle fa fa-angle-right"></i>
 									</a>
-         							<ul class="sub-slide-menu">
-            							<li><a class="sub-slide-item" href="{% url 'app:out_depot_buses_receive_form'%}">Out depot vehicle receive</a></li>
-            							<li><a class="sub-slide-item" href="{% url 'app:out_depot_vehicle_send_back_list'%}">Out depot vehicle send back</a></li>
+         							<ul class="slide-menu">
+            							<li><a class="slide-item" href="{% url 'app:out_depot_buses_receive_form'%}">Out depot vehicle receive</a></li>
+            							<li><a class="slide-item" href="{% url 'app:out_depot_vehicle_send_back_list'%}">Out depot vehicle send back</a></li>
          							</ul>
 								</li>
 
 
-								<li class="sub-slide">
-   									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="">
+								<li class="slide">
+   									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
          								<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-         								<span class="sub-side-menu__label">Own Depot Buses</span>
-										<i class="sub-angle fa fa-angle-right"></i>
+         								<span class="side-menu__label">Own Depot Buses</span>
+										<i class="angle fa fa-angle-right"></i>
 									</a>
-         							<ul class="sub-slide-menu">
-            							<li><a class="sub-slide-item" href="{% url 'app:own_depot_bus_details_entry_list'%}">Bus details entry</a></li>
-            							<li><a class="sub-slide-item" href="{% url 'app:own_depot_bus_withdraw_list'%}">Bus Withdraw</a></li>
+         							<ul class="slide-menu">
+            							<li><a class="slide-item" href="{% url 'app:own_depot_bus_details_entry_list'%}">Bus details entry</a></li>
+            							<li><a class="slide-item" href="{% url 'app:own_depot_bus_withdraw_list'%}">Bus Withdraw</a></li>
          							</ul>
 								</li>
 
-								<li class="sub-slide">
-									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="">
+								<li class="slide">
+									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
 										<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-										<span class="sub-side-menu__label">Statistics Date Entry</span><i
-													class="sub-angle fa fa-angle-right"></i></a>
-											<ul class="sub-slide-menu">
-												<li><a class="sub-slide-item" href="{% url 'app:statistics_up_journey_add'%}">Up Journey</a></li>
-												<li><a class="sub-slide-item" href="{% url 'app:statistics_down_journey_add'%}">Down Journey</a></li>
+										<span class="side-menu__label">Statistics Date Entry</span><i
+													class="angle fa fa-angle-right"></i></a>
+											<ul class="slide-menu">
+												<li><a class="slide-item" href="{% url 'app:statistics_up_journey_add'%}">Up Journey</a></li>
+												<li><a class="slide-item" href="{% url 'app:statistics_down_journey_add'%}">Down Journey</a></li>
 											</ul>
 								</li>
 
-								<li class="sub-slide">
-									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:hsd_oil_submission_form'%}">
+								<li class="slide">
+									<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:hsd_oil_submission_form'%}">
 										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
 										<span class="side-menu__label">HSD Oil Submission</span>
 									</a>
 								</li>
 
-								<li class="sub-slide">
-									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="{% url 'app:buses_on_hand_list'%}">
+								<li class="slide">
+									<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:buses_on_hand_list'%}">
 										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
 										<span class="side-menu__label">Buses On Hand</span>
 									</a>
 								</li>
 
 
-								<li class="sub-slide">
-									<a class="sub-side-menu__item has-link" data-bs-toggle="sub-slide" href="">
+								<li class="slide">
+									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
 										<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-										<span class="sub-side-menu__label">Reports</span><i
-													class="sub-angle fa fa-angle-right"></i></a>
-											<ul class="sub-slide-menu">
-												<li><a class="sub-slide-item" href="{% url 'app:summary_sending_buses_list'%}">Summary of Sending Buses</a></li>
-<!--												<li><a class="sub-slide-item" href="{% url 'app:statistics_down_journey_list'%}">Buses Dispatched</a></li>-->
-												<li><a class="sub-slide-item" href="{% url 'app:performance_of_buses_list'%}">Performance of Buses</a></li>
-												<li><a class="sub-slide-item" href="{% url 'app:status_return_back_buses_list'%}">Status of Return Back Buses</a></li>
-
+										<span class="side-menu__label">Reports</span><i
+													class="angle fa fa-angle-right"></i></a>
+											<ul class="slide-menu">
+												<li><a class="slide-item" href="{% url 'app:summary_sending_buses_list'%}">Summary of Sending Buses</a></li>
+												<li><a class="slide-item" href="{% url 'app:performance_of_buses_list'%}">Performance of Buses</a></li>
+												<li><a class="slide-item" href="{% url 'app:status_return_back_buses_list'%}">Status of Return Back Buses</a></li>
 											</ul>
 								</li>
 
@@ -442,13 +397,17 @@
 	<script>
 		$(function(){
 			var current = location.pathname;
-			console.log(current);
+
+			var currentPath = current.split('/').slice(0, -1).join('/');
+
 			$('.main-sidemenu li a').each(function(){
 				var $this = $(this);
-				console.log($this.attr('href').indexOf(current));
+				console.log(currentPath);
 
+				var hrefPath = $this.attr('href').split('/').slice(0, -1).join('/');
+				console.log(hrefPath);
 				// if the current path is like this link, make it active
-				if($this.attr('href').indexOf(current) !== -1){
+				if(currentPath == hrefPath){
 					$this.closest(".slide").addClass('is-expanded');
 					$this.closest(".sub-slide").addClass('is-expanded');
 					$this.closest(".slide-menu").addClass('open');
@@ -499,9 +458,30 @@
 				pageLength: 10,
          	});
 
+			$('#special_bus_sending_depot').select2({
+            	ajax: {
+                	url: "{% url 'app:search_for_spl_sending_bus_depot' %}",
+                	dataType: 'json',
+                	type: 'POST',
+                	delay: 250,
+                	data: function (params) {
+                    	return {
+                    		csrfmiddlewaretoken: '{{ csrf_token }}',
+                        	search_text: params.term,
+                    	};
+                	},
+                	processResults: function (data) {
+                    	var options = data.result.map(function (item) {
+                        	return { id: item.id, text: item.name };
+                    	});
 
-
-
+                    	return {
+                        	results: options,
+                    	};
+                	},
+                	cache: true
+            	},
+        	});
 
         });
 
@@ -523,7 +503,7 @@
         	if (inputField.checkValidity()) {
             	validation_message.innerHTML = '';
         	} else {
-            	validation_message.innerHTML = 'Please enter up to 3 digits only.';
+            	validation_message.innerHTML = 'Please enter exactly three digits.';
         	}
     	}
 

@@ -15,12 +15,12 @@
 							<!-- PAGE-HEADER -->
 							<div class="page-header">
 								<div>
-									<h1 class="page-title">Manage Buses Reached List</h1>
+									<h1 class="page-title">Manage Number of Buses Reached List</h1>
 								</div>
 								<div class="ms-auto pageheader-btn">
 									<ol class="breadcrumb">
-										<li class="breadcrumb-item"><a href="javascript:void(0);">Manage Buses Reached List</a></li>
-										<li class="breadcrumb-item active" aria-current="page">Buses Reached List</li>
+										<li class="breadcrumb-item"><a href="javascript:void(0);">Manage Number of Buses Reached List</a></li>
+										<li class="breadcrumb-item active" aria-current="page">Number of Buses Reached Listt</li>
 									</ol>
 								</div>
 							</div>
@@ -51,7 +51,7 @@
 											{% endfor %}
 										{% endif %}
 										<div class="card-header border-bottom">
-											<h3 class="card-title">Summary of Reached Buses List</h3>
+											<h3 class="card-title">Summary of Buses Reached List: {{depot_data.name}}</h3>
 										</div>
 										<div class="card-body">
 											<div class="table-responsive export-table">
@@ -69,7 +69,7 @@
 														{% for buses_reached in buses_reached_data %}
                                                           <tr>
 															  <td>{{ buses_reached.out_depot_bus_reporting_depot.name }}</td>
-															  <td><a style="text-decoration:underline" href="{% url 'app:display_bus_details' %}?id={{ buses_reached.bus_number.id }}">{{ buses_reached.bus_number.bus_number }}</a></td>
+															  <td><b><a target=_blank style="text-decoration:underline" href="{% url 'app:buses_reached_display_details' %}?id={{ buses_reached.bus_number.id }}">{{ buses_reached.bus_number.bus_number }}</a></b></td>
 															  <td>{{ buses_reached.special_bus_data_entry.driver1_name }}</td>
                                                               <td>{{ buses_reached.special_bus_data_entry.driver1_phone_number }}</td>
 														  </tr>

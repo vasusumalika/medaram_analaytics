@@ -15,12 +15,12 @@
 							<!-- PAGE-HEADER -->
 							<div class="page-header">
 								<div>
-									<h1 class="page-title">Manage Display Bus Details</h1>
+									<h1 class="page-title">Manage Buses Reached Display Details</h1>
 								</div>
 								<div class="ms-auto pageheader-btn">
 									<ol class="breadcrumb">
-										<li class="breadcrumb-item"><a href="javascript:void(0);">Manage Display Bus Details</a></li>
-										<li class="breadcrumb-item active" aria-current="page">Display Bus Details</li>
+										<li class="breadcrumb-item"><a href="javascript:void(0);">Manage Buses Reached Display Details</a></li>
+										<li class="breadcrumb-item active" aria-current="page">Buses Reached Display Details</li>
 									</ol>
 								</div>
 							</div>
@@ -51,7 +51,7 @@
 										{% endif %}
 
 										<div class="card-header border-bottom">
-											<h3 class="card-title">Special Bus Details</h3>
+											<h3 class="card-title">Buses Reached Display Details</h3>
 										</div>
 										<div class="card-body">
 											<form class="form-horizontal row" action="#" method="post" enctype="multipart/form-data"> {% csrf_token %}
@@ -59,38 +59,48 @@
 
                                                 <div class="form-group col-md-6">
                                                     <label class="form-label">Bus Number</label>
-                                                    <input type="text" class="form-control" value="{{display_bus_data.bus_number.bus_number}}" readonly>
+                                                    <input type="text" class="form-control" value="{{buses_reached_display_data.bus_number.bus_number}}" readonly>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label">Dispatched Date</label>
-                                                    <input type="text" class="form-control" value="{{display_bus_data.bus_reported_date}}" readonly>
+                                                    <input type="text" class="form-control" value="{{date_part}}" readonly>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label">Dispatched Time</label>
-                                                    <input type="text" id="out_depo_bus_number" class="form-control" value="{{display_bus_data.bus_reported_time}}" readonly>
+                                                    <input type="text"  class="form-control" value="{{time_part}}" readonly>
+												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label">Reported Date</label>
+                                                    <input type="text" class="form-control" value="{{bus_reported_date}}" readonly>
+												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label">Reported Time</label>
+                                                    <input type="text"  class="form-control" value="{{bus_reported_time}}" readonly>
 												</div>
 
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" >Driver-1 Name</label>
-                                                    <input type="text" class="form-control" value="{{display_bus_data.special_bus_data_entry.driver1_name}}" readonly>
+                                                    <input type="text" class="form-control" value="{{buses_reached_display_data.driver1_name}}" readonly>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" >Driver-1 Phone no</label>
-                                                    <input type="text" class="form-control" value="{{display_bus_data.special_bus_data_entry.driver1_phone_number}}" readonly>
+                                                    <input type="text" class="form-control" value="{{buses_reached_display_data.driver1_phone_number}}" readonly>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" >Driver-2 Name</label>
-                                                    <input type="text" class="form-control" value="{{display_bus_data.special_bus_data_entry.driver2_name}}" readonly>
+                                                    <input type="text" class="form-control" value="{{buses_reached_display_data.driver2_name}}" readonly>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" >Driver-2 Phone no</label>
-                                                    <input type="text" class="form-control" value="{{display_bus_data.special_bus_data_entry.driver2_phone_number}}" readonly>
+                                                    <input type="text" class="form-control" value="{{buses_reached_display_data.driver2_phone_number}}" readonly>
 												</div>
 
 											</form>
