@@ -113,4 +113,27 @@ urlpatterns = [
     path("api/get-depot-vehicle/", views.DepotVehicleAPIView.as_view()),
     path("api/special-bus-entry/", views.SplBusEntryAPIView.as_view()),
 
+    path("api/search-bus-number/", views.SearchBusNumberAPI.as_view()),
+
+    path("api/get-all-out-depot-vehicle-receive/", views.GetAllOutDepotVehicleReceiveAPIView.as_view()),
+    path("api/out-depot-vehicle-receive/", views.OutDepotVehicleReceiveAPIView.as_view()),
+
+    path("api/get-all-out-depot-vehicle-send-back/", views.GetAllOutDepotVehicleSendBackAPIView.as_view()),
+    path("api/out-depot-vehicle-send-back/", views.OutDepotVehicleSendBackAPIView.as_view()),
+
+    path("api/get-all-own-depot-bus-detail/", views.GetAllOwnDepotBusDetailAPIView.as_view()),
+    path("api/own-depot-bus-detail/", views.OwnDepotBusDetailAPIView.as_view()),
+
+    path("api/get-all-own-depot-bus-withdraw/", views.GetAllOwnDepotBusWithdrawAPIView.as_view()),
+    path("api/own-depot-bus-withdraw/", views.OwnDepotBusWithdrawAPIView.as_view()),
+
+    path("api/get-all-up-journey/", views.GetAllUpJourneyAPIView.as_view()),
+    path("api/up-journey/", views.UpJourneyAPIView.as_view()),
+
+    path("api/get-all-down-journey/", views.GetAllDownJourneyAPIView.as_view()),
+    path("api/down-journey/", views.DownJourneyAPIView.as_view()),
+
+    path("api/get-all-hsd-oil-submission/", views.GetAllHSDOilSubmissionAPIView.as_view()),
+    path("api/hsd-oil-submission/", views.HSDOilSubmissionAPIView.as_view()),
+
 ]
