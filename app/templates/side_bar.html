@@ -458,31 +458,6 @@
 				pageLength: 10,
          	});
 
-			$('#special_bus_sending_depot').select2({
-            	ajax: {
-                	url: "{% url 'app:search_for_spl_sending_bus_depot' %}",
-                	dataType: 'json',
-                	type: 'POST',
-                	delay: 250,
-                	data: function (params) {
-                    	return {
-                    		csrfmiddlewaretoken: '{{ csrf_token }}',
-                        	search_text: params.term,
-                    	};
-                	},
-                	processResults: function (data) {
-                    	var options = data.result.map(function (item) {
-                        	return { id: item.id, text: item.name };
-                    	});
-
-                    	return {
-                        	results: options,
-                    	};
-                	},
-                	cache: true
-            	},
-        	});
-
         });
 
         function validateInput() {
@@ -503,7 +478,7 @@
         	if (inputField.checkValidity()) {
             	validation_message.innerHTML = '';
         	} else {
-            	validation_message.innerHTML = 'Please enter exactly three digits.';
+            	validation_message.innerHTML = 'Please enter upto 3 digits only.';
         	}
     	}
 

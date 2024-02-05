@@ -1284,7 +1284,7 @@ def search_unique_no_bus_no_special_bus_data(request):
 @custom_login_required
 def hsd_oil_submission_add(request):
     if request.method == "POST":
-        bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
+        bus_number = request.POST.get('hsd_oil_bus_number')
         hsd_liters = request.POST.get('hsd_top_oil_liters')
         mts_no = request.POST.get('mts_no')
         point_name = request.POST.get('point_name')
@@ -1585,45 +1585,28 @@ def out_depot_vehicle_send_back_edit(request):
 
 @custom_login_required
 def out_depot_vehicle_send_back_update(request):
-    out_depot_vehicle_receive_id = request.POST.get('id')
-    bus_number = request.POST.get('bus_number')
-    unique_no = request.POST.get('unique_no')
-    new_log_sheet_no = request.POST.get('new_log_sheet_no')
-    hsd_top_oil_liters = request.POST.get('hsd_top_oil_liters')
-    mts_no = request.POST.get('mts_no')
-    bus_reported_date = request.POST.get('bus_reported_date')
-    bus_reported_time = request.POST.get('bus_reported_time')
-    out_depot_buses_receive_status = 0
-    if out_depot_vehicle_receive_id:
+    out_depot_vehicle_send_back_id = request.POST.get('id')
+    unique_no_bus_no = request.POST.get('unique_no_bus_no')
+    log_sheet_no = request.POST.get('log_sheet_no')
+    out_depot_buses_send_back_status = 0
+    if out_depot_vehicle_send_back_id:
         try:
-            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(id=out_depot_vehicle_receive_id)
-            out_depot_vehicle_receive_data.unique_no = unique_no
-            out_depot_vehicle_receive_data.new_log_sheet_no = new_log_sheet_no
-            out_depot_vehicle_receive_data.hsd_top_oil_liters = hsd_top_oil_liters
-            out_depot_vehicle_receive_data.mts_no = mts_no
-            out_depot_vehicle_receive_data.bus_reported_date = bus_reported_date
-            out_depot_vehicle_receive_data.bus_reported_time = bus_reported_time
-            out_depot_vehicle_receive_data.status = out_depot_buses_receive_status
-            vehicle_detail_data = VehicleDetails.objects.get(bus_number=bus_number)
-            out_depot_vehicle_receive_data.bus_number = vehicle_detail_data
-            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail_data)
-            out_depot_vehicle_receive_data.special_bus_data_entry = special_bus_data
-            out_depot_bus_sending_depot = Depot.objects.get(id=special_bus_data.special_bus_sending_depot.id)
-            out_depot_vehicle_receive_data.out_depot_bus_sending_depot = out_depot_bus_sending_depot
-            out_depot_bus_reporting_depot = Depot.objects.get(id=special_bus_data.special_bus_reporting_depot.id)
-            out_depot_vehicle_receive_data.out_depot_bus_reporting_depot = out_depot_bus_reporting_depot
+            out_depot_vehicle_send_back_data = OutDepotVehicleSentBack.objects.get(id=out_depot_vehicle_send_back_id)
+            out_depot_vehicle_send_back_data.unique_no_bus_no = unique_no_bus_no
+            out_depot_vehicle_send_back_data.status = out_depot_buses_send_back_status
+            special_bus_data = SpecialBusDataEntry.objects.get(log_sheet_no=log_sheet_no)
+            out_depot_vehicle_send_back_data.special_bus_data_entry = special_bus_data
             user_data = User.objects.get(id=request.session['user_id'])
-            out_depot_vehicle_receive_data.updated_by = user_data
-            out_depot_vehicle_receive_data.save()
-            messages.success(request, 'Out Depot Vehicle Receive Details updated  successfully!!')
-            return redirect("app:out_depot_buses_receive_list")
+            out_depot_vehicle_send_back_data.updated_by = user_data
+            out_depot_vehicle_send_back_data.save()
+            messages.success(request, 'Out Depot Vehicle Send Back Details updated  successfully!!')
+            return redirect("app:out_depot_vehicle_send_back_list")
         except Exception as e:
             print(e)
-            messages.error(request, 'Out Depot Vehicle Receive Details update  failed!!')
-            return redirect("app:out_depot_buses_receive_list")
+            messages.error(request, 'Out Depot Vehicle Send Back Details update  failed!!')
+            return redirect("app:out_depot_vehicle_send_back_list")
     else:
-        return redirect("app:out_depot_buses_receive_list")
-
+        return redirect("app:out_depot_vehicle_send_back_list")
 
 
 @custom_login_required
@@ -1666,6 +1649,51 @@ def buses_on_hand_update(request):
             return redirect("app:buses_on_hand_list")
     else:
         return redirect("app:buses_on_hand_list")
+
+
+@custom_login_required
+def hsd_oil_submission_edit(request):
+    hsd_oil_submission_id = request.GET.get('id')
+    if hsd_oil_submission_id:
+        hsd_oil_submission_data = HsdOilSubmission.objects.get(id=hsd_oil_submission_id)
+    try:
+        return render(request, 'hsd_oil_submission/edit.html', {"hsd_oil_submission_data": hsd_oil_submission_data})
+    except Exception as e:
+        print(e)
+        return render(request, 'hsd_oil_submission/edit.html', {})
+
+
+@custom_login_required
+def hsd_oil_submission_update(request):
+    hsd_oil_submission_id = request.POST.get('id')
+    bus_number = request.POST.get('hsd_oil_bus_number')
+    hsd_liters = request.POST.get('hsd_top_oil_liters')
+    mts_no = request.POST.get('mts_no')
+    point_name = request.POST.get('point_name')
+    unique_no_bus_no = request.POST.get('unique_bus_no')
+    hsd_oil_submission_status = 0
+    if hsd_oil_submission_id:
+        try:
+            hsd_oil_submission_data = HsdOilSubmission.objects.get(id=hsd_oil_submission_id)
+            hsd_oil_submission_data.unique_no_bus_no = unique_no_bus_no
+            hsd_oil_submission_data.point_name = point_name
+            hsd_oil_submission_data.hsd_liters = hsd_liters
+            hsd_oil_submission_data.mts_no = mts_no
+            hsd_oil_submission_data.status = hsd_oil_submission_status
+            vehicle_detail_data = VehicleDetails.objects.get(bus_number=bus_number)
+            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail_data)
+            hsd_oil_submission_data.special_bus_data_entry = special_bus_data
+            user_data = User.objects.get(id=request.session['user_id'])
+            hsd_oil_submission_data.updated_by = user_data
+            hsd_oil_submission_data.save()
+            messages.success(request, 'HSD Oil Submission Details updated  successfully!!')
+            return redirect("app:hsd_oil_submission_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'HSD Oil Submission Details update  failed!!')
+            return redirect("app:hsd_oil_submission_list")
+    else:
+        return redirect("app:hsd_oil_submission_list")
 
 
 # REST API STARTS FROM HERE

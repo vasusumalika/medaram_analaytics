@@ -82,12 +82,18 @@ urlpatterns = [
     path('out/depot/buses/send/back/list', views.out_depot_vehicle_send_back_list,
          name='out_depot_vehicle_send_back_list'),
     path('out/depot/buses/send/back/add', views.out_depot_vehicle_send_back_add, name='out_depot_vehicle_send_back_add'),
+    path('out/depot/buses/send/back/edit', views.out_depot_vehicle_send_back_edit,
+         name='out_depot_vehicle_send_back_edit'),
+    path('out/depot/buses/send/back/update', views.out_depot_vehicle_send_back_update,
+         name='out_depot_vehicle_send_back_update'),
 
     path('hsd/oil/submission/list', views.hsd_oil_submission_list, name='hsd_oil_submission_list'),
     path('hsd/oil/submission/form', views.hsd_oil_submission_form, name='hsd_oil_submission_form'),
     path('hsd/oil/submission/add', views.hsd_oil_submission_add, name='hsd_oil_submission_add'),
     path('search/unique/bus/number/special/bus/data', views.search_unique_no_bus_no_special_bus_data,
          name='search_unique_no_bus_no_special_bus_data'),
+    path('hsd/oil/submission/edit', views.hsd_oil_submission_edit, name='hsd_oil_submission_edit'),
+    path('hsd/oil/submission/update', views.hsd_oil_submission_update, name='hsd_oil_submission_update'),
 
     path('buses/on/hand/list', views.buses_on_hand_list, name='buses_on_hand_list'),
     path('buses/on/hand/add', views.buses_on_hand_add, name='buses_on_hand_add'),
