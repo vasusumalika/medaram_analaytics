@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.utils.datetime_safe import datetime
+
 from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, \
     StatisticsDateEntry, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw, OutDepotVehicleSentBack, \
     HsdOilSubmission, BusesOnHand
@@ -1361,12 +1363,16 @@ def summary_sending_buses_list(request):
             no_of_buses_due = summary_depot.buses_allotted - no_of_buses_dispatched
         else:
             no_of_buses_due = 0
-        no_of_buses_reached = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=summary_depot).count()
+
+        no_of_buses_reached = OutDepotVehicleReceive.objects.filter(out_depot_bus_sending_depot=summary_depot).count()
+
         if no_of_buses_dispatched != 0:
             no_of_buses_not_reached = no_of_buses_dispatched - no_of_buses_reached
         else:
             no_of_buses_not_reached = 0
+
         summary_depot_result.append({
+            'depot_id': summary_depot.id,
             'depot_name': summary_depot.name,
             'buses_allotted': no_of_buses_allotted,
             'buses_dispatched': no_of_buses_dispatched,
@@ -1380,23 +1386,99 @@ def summary_sending_buses_list(request):
 
 @custom_login_required
 def buses_dispatched_list(request):
-    buses_dispatched_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
+    depot_id = request.GET.get('id')
+    depot_data = Depot.objects.get(id=depot_id)
+    buses_dispatched_data = SpecialBusDataEntry.objects.filter(~Q(status=2)).filter(special_bus_sending_depot=depot_id)
     return render(request, 'reports/buses_dispatched_list.html',
-                  {'buses_dispatched_data': buses_dispatched_data})
+                  {'buses_dispatched_data': buses_dispatched_data, 'depot_data': depot_data})
+
+
+@custom_login_required
+def buses_dispatched_display_details(request):
+    bus_number = request.GET.get('id')
+    if bus_number:
+        buses_dispatched_display_data = SpecialBusDataEntry.objects.get(bus_number=bus_number)
+        date_part = buses_dispatched_display_data.created_at.date()
+        time_part = buses_dispatched_display_data.created_at.time()
+    try:
+        return render(request, 'reports/buses_dispatched_display_details.html',
+                      {"buses_dispatched_display_data": buses_dispatched_display_data, "date_part": date_part,
+                       "time_part": time_part})
+    except Exception as e:
+        print(e)
+        return render(request, 'reports/buses_dispatched_display_details.html', {})
 
 
 @custom_login_required
 def buses_reached_list(request):
-    buses_reached_data = OutDepotVehicleReceive.objects.filter(~Q(status=2))
+    depot_id = request.GET.get('id')
+    depot_data = Depot.objects.get(id=depot_id)
+    buses_reached_data = OutDepotVehicleReceive.objects.filter(~Q(status=2)).filter(out_depot_bus_sending_depot=depot_id)
     return render(request, 'reports/buses_reached_list.html',
-                  {'buses_reached_data': buses_reached_data})
+                  {'buses_reached_data': buses_reached_data, 'depot_data': depot_data})
 
 
 @custom_login_required
-def display_bus_details(request):
-    buses_dispatched_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
-    return render(request, 'reports/buses_dispatched_list.html',
-                  {'buses_dispatched_data': buses_dispatched_data})
+def buses_reached_display_details(request):
+    bus_number = request.GET.get('id')
+    if bus_number:
+        buses_reached_display_data = OutDepotVehicleReceive.objects.get(bus_number=bus_number)
+    try:
+        return render(request, 'reports/buses_reached_display_details.html',
+                      {"buses_reached_display_data": buses_reached_display_data})
+    except Exception as e:
+        print(e)
+        return render(request, 'reports/buses_reached_display_details.html', {})
+
+
+
+@custom_login_required
+def buses_not_reached_list(request):
+    depot_id = request.GET.get('id')
+    buses_reached_data = OutDepotVehicleReceive.objects.values_list('special_bus_data_entry__id', flat=True). \
+        filter(~Q(status=2)).filter(out_depot_bus_sending_depot=depot_id)
+    buses_not_reached_data = SpecialBusDataEntry.objects.filter(~Q(status=2)).exclude(id__in=buses_reached_data). \
+        filter(special_bus_sending_depot=depot_id)
+    depot_data = Depot.objects.get(id=depot_id)
+
+    return render(request, 'reports/buses_not_reached_list.html',
+                  {'buses_not_reached_data': buses_not_reached_data, 'depot_data': depot_data})
+
+
+@custom_login_required
+def buses_not_reached_display_details(request):
+    bus_number = request.GET.get('id')
+    if bus_number:
+        buses_not_reached_display_data = SpecialBusDataEntry.objects.get(bus_number=bus_number)
+        date_part = buses_not_reached_display_data.created_at.date()
+        time_part = buses_not_reached_display_data.created_at.time()
+    try:
+        return render(request, 'reports/buses_not_reached_display_details.html',
+                      {"buses_not_reached_display_data": buses_not_reached_display_data, "date_part": date_part,
+                       "time_part": time_part})
+    except Exception as e:
+        print(e)
+        return render(request, 'reports/buses_not_reached_display_details.html', {})
+
+
+@custom_login_required
+def buses_reached_display_details(request):
+    bus_number = request.GET.get('id')
+    if bus_number:
+        buses_reached_display_data = SpecialBusDataEntry.objects.get(bus_number=bus_number)
+        date_part = buses_reached_display_data.created_at.date()
+        time_part = buses_reached_display_data.created_at.time()
+        bus_reported = OutDepotVehicleReceive.objects.get(special_bus_data_entry=buses_reached_display_data.id)
+        bus_reported_date = bus_reported.bus_reported_date
+        bus_reported_time = bus_reported.bus_reported_time
+    try:
+        return render(request, 'reports/buses_reached_display_details.html',
+                      {"buses_reached_display_data": buses_reached_display_data, "date_part": date_part,
+                       "time_part": time_part, "bus_reported_date": bus_reported_date,
+                       "bus_reported_time": bus_reported_time})
+    except Exception as e:
+        print(e)
+        return render(request, 'reports/buses_reached_display_details.html', {})
 
 
 @custom_login_required
@@ -1615,11 +1697,12 @@ class SplBusEntryAPIView(APIView):
                 "result": []
             })
 
+
 class SearchBusNumberAPI(APIView):
     def get(self, request):
         bus_number = request.GET.get("bus_number")
         serializer_instance = app_serializers.SearchBusNumberSerializer(
-            data={"bus_number":bus_number}
+            data={"bus_number": bus_number}
         )
         if not serializer_instance.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
@@ -1632,32 +1715,34 @@ class SearchBusNumberAPI(APIView):
                 bus_number=bus_instance
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Special Bus Details Fetched Successfully.",
+                "code": "Success",
+                "message": "Special Bus Details Fetched Successfully.",
                 "result": spl_bus_details.get_complete_detail()
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
+
 
 class GetAllOutDepotVehicleReceiveAPIView(APIView):
     def get(self, request):
         out_depot_vehicle_instances = OutDepotVehicleReceive.objects.filter(~Q(status=2))
         out_depot_vehicle_receive_details = [bus.get_complete_details() for bus in out_depot_vehicle_instances]
         return Response(status=status.HTTP_200_OK, data={
-            "code":"Success",
-            "message":"All Out Depot Vehicle Receive Data Fetched Successfully.",
+            "code": "Success",
+            "message": "All Out Depot Vehicle Receive Data Fetched Successfully.",
             "result": out_depot_vehicle_receive_details
         })
-    
+
+
 class OutDepotVehicleReceiveAPIView(APIView):
     def get(self, request):
         out_depot_vehicle_receive_id = request.GET.get("out_depot_vehicle_receive_id")
         serializer_instance = app_serializers.GetOutDepotVehicleReceiveSerializer(
-            data={"out_depot_vehicle_receive_id":out_depot_vehicle_receive_id}
+            data={"out_depot_vehicle_receive_id": out_depot_vehicle_receive_id}
         )
         if not serializer_instance.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
@@ -1669,15 +1754,15 @@ class OutDepotVehicleReceiveAPIView(APIView):
                 id=serialized_data.get("out_depot_vehicle_receive_id")
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Special Bus Entry Data Fetched Successfully.",
+                "code": "Success",
+                "message": "Special Bus Entry Data Fetched Successfully.",
                 "result": out_depot_vehicle_receive_instance.get_complete_detail()
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
 
     def post(self, request):
@@ -1705,32 +1790,34 @@ class OutDepotVehicleReceiveAPIView(APIView):
                 status=0
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Out Depot Vehicle Receive Data Added Successfully.",
+                "code": "Success",
+                "message": "Out Depot Vehicle Receive Data Added Successfully.",
                 "result": []
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
-        
+
+
 class GetAllOutDepotVehicleSendBackAPIView(APIView):
     def get(self, request):
         out_depot_vehicle_instances = OutDepotVehicleSentBack.objects.filter(~Q(status=2))
         out_depot_vehicle_receive_details = [bus.get_complete_details() for bus in out_depot_vehicle_instances]
         return Response(status=status.HTTP_200_OK, data={
-            "code":"Success",
-            "message":"All Out Depot Vehicle Send Back Data Fetched Successfully.",
+            "code": "Success",
+            "message": "All Out Depot Vehicle Send Back Data Fetched Successfully.",
             "result": out_depot_vehicle_receive_details
         })
-    
+
+
 class OutDepotVehicleSendBackAPIView(APIView):
     def get(self, request):
         out_depot_vehicle_send_back_id = request.GET.get("out_depot_vehicle_send_back_id")
         serializer_instance = app_serializers.GetOutDepotVehicleSendBackSerializer(
-            data={"out_depot_vehicle_send_back_id":out_depot_vehicle_send_back_id}
+            data={"out_depot_vehicle_send_back_id": out_depot_vehicle_send_back_id}
         )
         if not serializer_instance.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
@@ -1742,15 +1829,15 @@ class OutDepotVehicleSendBackAPIView(APIView):
                 id=serialized_data.get("out_depot_vehicle_send_back_id")
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Out Depot Vehicle Sent Back Data Fetched Successfully.",
+                "code": "Success",
+                "message": "Out Depot Vehicle Sent Back Data Fetched Successfully.",
                 "result": out_depot_vehicle_receive_instance.get_complete_detail()
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
 
     def post(self, request):
@@ -1773,15 +1860,15 @@ class OutDepotVehicleSendBackAPIView(APIView):
                 status=0
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Out Depot Vehicle Send Back Data Added Successfully.",
+                "code": "Success",
+                "message": "Out Depot Vehicle Send Back Data Added Successfully.",
                 "result": []
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
 
 
@@ -1790,16 +1877,17 @@ class GetAllOwnDepotBusDetailAPIView(APIView):
         own_depot_bus_entry_instances = OwnDepotBusDetailsEntry.objects.filter(~Q(status=2))
         own_depot_bus_entry_details = [bus.get_complete_details() for bus in own_depot_bus_entry_instances]
         return Response(status=status.HTTP_200_OK, data={
-            "code":"Success",
-            "message":"All Own Depot Bus Entry Data Fetched Successfully.",
+            "code": "Success",
+            "message": "All Own Depot Bus Entry Data Fetched Successfully.",
             "result": own_depot_bus_entry_details
         })
-    
+
+
 class OwnDepotBusDetailAPIView(APIView):
     def get(self, request):
         own_depot_bus_detail_id = request.GET.get("own_depot_bus_detail_id")
         serializer_instance = app_serializers.GetOwnDepotBusDetailSerializer(
-            data={"own_depot_bus_detail_id":own_depot_bus_detail_id}
+            data={"own_depot_bus_detail_id": own_depot_bus_detail_id}
         )
         if not serializer_instance.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
@@ -1811,15 +1899,15 @@ class OwnDepotBusDetailAPIView(APIView):
                 id=serialized_data.get("own_depot_bus_detail_id")
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Own Depot Bus Entry Data Fetched Successfully.",
+                "code": "Success",
+                "message": "Own Depot Bus Entry Data Fetched Successfully.",
                 "result": own_depot_bus_entry_instance.get_complete_details()
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
 
     def post(self, request):
@@ -1845,32 +1933,34 @@ class OwnDepotBusDetailAPIView(APIView):
                 created_by=user_data
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Own Depot Bus Entry Data Added Successfully.",
+                "code": "Success",
+                "message": "Own Depot Bus Entry Data Added Successfully.",
                 "result": []
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
-        
+
+
 class GetAllOwnDepotBusWithdrawAPIView(APIView):
     def get(self, request):
         own_depot_bus_withdraw_instances = OwnDepotBusWithdraw.objects.filter(~Q(status=2))
         own_depot_bus_withdraw_details = [bus.get_complete_details() for bus in own_depot_bus_withdraw_instances]
         return Response(status=status.HTTP_200_OK, data={
-            "code":"Success",
-            "message":"All Own Depot Bus Withdraw Data Fetched Successfully.",
+            "code": "Success",
+            "message": "All Own Depot Bus Withdraw Data Fetched Successfully.",
             "result": own_depot_bus_withdraw_details
         })
-    
+
+
 class OwnDepotBusWithdrawAPIView(APIView):
     def get(self, request):
         own_depot_bus_withdraw_id = request.GET.get("own_depot_bus_withdraw_id")
         serializer_instance = app_serializers.GetOwnDepotBusWithdrawSerializer(
-            data={"own_depot_bus_withdraw_id":own_depot_bus_withdraw_id}
+            data={"own_depot_bus_withdraw_id": own_depot_bus_withdraw_id}
         )
         if not serializer_instance.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
@@ -1882,15 +1972,15 @@ class OwnDepotBusWithdrawAPIView(APIView):
                 id=serialized_data.get("own_depot_bus_withdraw_id")
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Own Depot Bus Withdraw Data Fetched Successfully.",
+                "code": "Success",
+                "message": "Own Depot Bus Withdraw Data Fetched Successfully.",
                 "result": own_depot_bus_withdraw_instance.get_complete_details()
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
 
     def post(self, request):
@@ -1909,32 +1999,34 @@ class OwnDepotBusWithdrawAPIView(APIView):
                 created_by=user_data
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Own Depot Bus Withdraw Data Added Successfully.",
+                "code": "Success",
+                "message": "Own Depot Bus Withdraw Data Added Successfully.",
                 "result": []
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
-        
+
+
 class GetAllUpJourneyAPIView(APIView):
     def get(self, request):
         up_journey_instances = StatisticsDateEntry.objects.filter(~Q(status=2))
         up_journey_details = [instance.get_complete_details() for instance in up_journey_instances]
         return Response(status=status.HTTP_200_OK, data={
-            "code":"Success",
-            "message":"All Up Journey Data Fetched Successfully.",
+            "code": "Success",
+            "message": "All Up Journey Data Fetched Successfully.",
             "result": up_journey_details
         })
-    
+
+
 class UpJourneyAPIView(APIView):
     def get(self, request):
         up_journey_id = request.GET.get("up_journey_id")
         serializer_instance = app_serializers.GetUpJourneySerializer(
-            data={"up_journey_id":up_journey_id}
+            data={"up_journey_id": up_journey_id}
         )
         if not serializer_instance.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
@@ -1946,15 +2038,15 @@ class UpJourneyAPIView(APIView):
                 id=serialized_data.get("up_journey_id")
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Up Journey Data Fetched Successfully.",
+                "code": "Success",
+                "message": "Up Journey Data Fetched Successfully.",
                 "result": up_journey_instance.get_complete_details()
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
 
     def post(self, request):
@@ -1978,36 +2070,38 @@ class UpJourneyAPIView(APIView):
                 mhl_child_amount=serialized_data.get("mhl_child_amount"),
                 entry_type="up",
                 # service_operated_date=serialized_data.get("user_id"),
-                status=0, 
+                status=0,
                 created_by=user_data
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Up Journey Data Added Successfully.",
+                "code": "Success",
+                "message": "Up Journey Data Added Successfully.",
                 "result": []
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
-        
+
+
 class GetAllDownJourneyAPIView(APIView):
     def get(self, request):
         down_journey_instances = StatisticsDateEntry.objects.filter(~Q(status=2))
         down_journey_details = [instance.get_complete_details() for instance in down_journey_instances]
         return Response(status=status.HTTP_200_OK, data={
-            "code":"Success",
-            "message":"All Down Journey Data Fetched Successfully.",
+            "code": "Success",
+            "message": "All Down Journey Data Fetched Successfully.",
             "result": down_journey_details
         })
-    
+
+
 class DownJourneyAPIView(APIView):
     def get(self, request):
         down_journey_id = request.GET.get("down_journey_id")
         serializer_instance = app_serializers.GetDownJourneySerializer(
-            data={"down_journey_id":down_journey_id}
+            data={"down_journey_id": down_journey_id}
         )
         if not serializer_instance.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
@@ -2019,15 +2113,15 @@ class DownJourneyAPIView(APIView):
                 id=serialized_data.get("down_journey_id")
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Down Journey Data Fetched Successfully.",
+                "code": "Success",
+                "message": "Down Journey Data Fetched Successfully.",
                 "result": down_journey_instance.get_complete_details()
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
 
     def post(self, request):
@@ -2051,36 +2145,38 @@ class DownJourneyAPIView(APIView):
                 mhl_child_amount=serialized_data.get("mhl_child_amount"),
                 entry_type="down",
                 # service_operated_date=serialized_data.get("user_id"),
-                status=0, 
+                status=0,
                 created_by=user_data
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"Down Journey Data Added Successfully.",
+                "code": "Success",
+                "message": "Down Journey Data Added Successfully.",
                 "result": []
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
+
 
 class GetAllHSDOilSubmissionAPIView(APIView):
     def get(self, request):
         hsd_oil_submission_instances = HsdOilSubmission.objects.filter(~Q(status=2))
         hsd_oil_submission_details = [instance.get_complete_details() for instance in hsd_oil_submission_instances]
         return Response(status=status.HTTP_200_OK, data={
-            "code":"Success",
-            "message":"All HSD Oil Submission Data Fetched Successfully.",
+            "code": "Success",
+            "message": "All HSD Oil Submission Data Fetched Successfully.",
             "result": hsd_oil_submission_details
         })
-    
+
+
 class HSDOilSubmissionAPIView(APIView):
     def get(self, request):
         hsd_oil_submission_id = request.GET.get("hsd_oil_submission_id")
         serializer_instance = app_serializers.GetHSDOilSubmissionSerializer(
-            data={"hsd_oil_submission_id":hsd_oil_submission_id}
+            data={"hsd_oil_submission_id": hsd_oil_submission_id}
         )
         if not serializer_instance.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
@@ -2092,15 +2188,15 @@ class HSDOilSubmissionAPIView(APIView):
                 id=serialized_data.get("hsd_oil_submission_id")
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"HSD Oil Submission Data Fetched Successfully.",
+                "code": "Success",
+                "message": "HSD Oil Submission Data Fetched Successfully.",
                 "result": down_journey_instance.get_complete_details()
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
 
     def post(self, request):
@@ -2118,20 +2214,20 @@ class HSDOilSubmissionAPIView(APIView):
             hsd_oil_submission_detail = HsdOilSubmission.objects.create(
                 special_bus_data_entry=special_bus_data,
                 hsd_liters=serialized_data.get("hsd_liters"),
-                mts_no=serialized_data.get("mts_no"), 
+                mts_no=serialized_data.get("mts_no"),
                 point_name=serialized_data.get("point_name"),
                 created_by=user_data,
                 unique_no_bus_no=serialized_data.get("unique_no_bus_no"),
                 status=0
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code":"Success",
-                "message":"HSD Oil Subimission Data Added Successfully.",
+                "code": "Success",
+                "message": "HSD Oil Subimission Data Added Successfully.",
                 "result": []
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code":"Fail",
-                "message":"Something Went Wrong.",
-                "result":[]
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
             })
