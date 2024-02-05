@@ -192,6 +192,18 @@ class OutDepotVehicleReceive(models.Model):
                                    null=True, blank=True, default="")
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='out_depot_vehicle_updated_user',
                                    null=True, blank=True, default="")
+    
+    def get_complete_details(self):
+        return{
+            # "id":self.id,
+            "bus_number":self.bus_number.bus_number,
+            "unique_no":self.unique_no,
+            "new_log_sheet_no":self.new_log_sheet_no,
+            "hsd_top_oil_liters":self.hsd_top_oil_liters,
+            "mts_no":self.mts_no,
+            "bus_reported_date":self.bus_reported_date,
+            "bus_reported_time":self.bus_reported_time,
+        }
 
 
 class OutDepotVehicleSentBack(models.Model):
@@ -208,6 +220,13 @@ class OutDepotVehicleSentBack(models.Model):
                                    related_name='out_depot_vehicle_sent_updated_user',
                                    null=True, blank=True, default="")
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
+
+    def get_complete_details(self):
+        return{
+            # "id":self.id,
+            "unique_no_bus_no":self.unique_no_bus_no,
+            "log_sheet_no":self.log_sheet_no,
+        }
 
 
 class OwnDepotBusDetailsEntry(models.Model):
@@ -228,6 +247,19 @@ class OwnDepotBusDetailsEntry(models.Model):
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
                                    related_name='own_depot_bus_details_entry_updated_user',
                                    null=True, blank=True, default="")
+    
+    def get_complete_details(self):
+        return{
+            # "id":self.id,
+            "bus_number":self.bus_number,
+            "unique_no":self.unique_no,
+            "bus_type":self.bus_type,
+            "log_sheet_no":self.log_sheet_no,
+            "driver1_name":self.driver1_name,
+            "driver1_phone_number":self.driver1_phone_number,
+            "driver2_name":self.driver2_name,
+            "driver2_phone_number":self.driver2_phone_number,
+        }
 
 
 class OwnDepotBusWithdraw(models.Model):
@@ -241,6 +273,12 @@ class OwnDepotBusWithdraw(models.Model):
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
                                    related_name='own_depot_bus_withdraw_updated_user',
                                    null=True, blank=True, default="")
+    
+    def get_complete_details(self):
+        return{
+            # "id":self.id,
+            "bus_number":self.bus_number,
+        }
 
 
 class StatisticsDateEntry(models.Model):
@@ -264,6 +302,19 @@ class StatisticsDateEntry(models.Model):
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_updated_user',
                                    null=True,
                                    blank=True, default="")
+    
+    def get_complete_details(self):
+        return{
+            "id":self.id,
+            "bus_unique_code":self.bus_unique_code,
+            "total_ticket_amount":self.total_ticket_amount,
+            "total_adult_passengers":self.total_adult_passengers,
+            "total_child_passengers":self.total_child_passengers,
+            "mhl_adult_passengers":self.mhl_adult_passengers,
+            "mhl_child_passengers":self.mhl_child_passengers,
+            "mhl_adult_amount":self.mhl_adult_amount,
+            "mhl_child_amount":self.mhl_child_amount,
+        }
 
 
 class HsdOilSubmission(models.Model):
@@ -282,6 +333,16 @@ class HsdOilSubmission(models.Model):
                                    related_name='hsd_oil_submission_updated_user',
                                    null=True, blank=True, default="")
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
+
+    def get_complete_details(self):
+        return{
+            # "id":self.id,
+            "hsd_liters":self.hsd_liters,
+            "mts_no":self.mts_no,
+            "unique_no_bus_no":self.unique_no_bus_no,
+            "point_name":self.point_name,
+            "spl_bus_entry_id":self.special_bus_data_entry.id
+        }
 
 
 class BusesOnHand(models.Model):
