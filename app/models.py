@@ -321,13 +321,13 @@ class TripStatistics(models.Model):
                                    null=True, blank=True)
     data_enter_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_by',
                                       null=True, blank=True)
-    data_verify_by = models.ForeignKey(User, on_delete=models.CASCADE,
+    trip_verify_by = models.ForeignKey(User, on_delete=models.CASCADE,
                                        related_name='statistics_data_verify_by', default="", null=True,
                                        blank=True)
     trip_start = models.DateTimeField(auto_now_add=True)
     # trip_end = models.DateTimeField(null=True, blank=True)
     trip_verified = models.BooleanField(default=False)
-    trip_verified_time = models.TimeField(null=True, blank=True)
+    trip_verified_time = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
@@ -368,6 +368,8 @@ class HsdOilSubmission(models.Model):
                                    related_name='hsd_oil_submission_updated_user',
                                    null=True, blank=True, default="")
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
+    shift = models.CharField(max_length=256, null=True, blank=True)
+
 
     def get_complete_details(self):
         return{
