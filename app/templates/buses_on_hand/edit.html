@@ -36,10 +36,15 @@
 										<div class="card-body">
 											<form class="form-horizontal row" action="{% url 'app:buses_on_hand_update' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
-
-                                                <div class="form-group col-md-6">
-                                                    <label class="form-label" for="point_name">Point Name</label>
-                                                    <input type="text" id="point_name" name="point_name" class="form-control" value="{{buses_on_hand_data.point_name}}" required>
+												<div class="col-sm-12 col-md-12 col-xl-6">
+													<div class="form-group">
+														<label class="form-label text-muted">Point Name: </label>
+														<select class="form-control custom-select" id="point_name_id" name="point_name_id" data-placeholder="Choose Point Name Id..." tabindex="-1" aria-hidden="true" required>
+															{% for point_name in point_name_data %}
+																<option value="{{ point_name.id }}"{% if point_name.id in point_name_id_list %} selected{% endif %}>{{ point_name.point_name }}</option>
+															{% endfor %}
+														</select>
+													</div>
 												</div>
 
 												<input type="hidden" name="id" value="{{buses_on_hand_data.id}}">
@@ -73,5 +78,18 @@
 					</div>
 				</div>
 				<!-- CONTAINER CLOSED -->
+
+	<!-- JQUERY JS -->
+	<script src="{% static 'js/jquery.min.js' %}"></script>
+	<!-- SELECT2 JS -->
+	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
+
+<script>
+    $(document).ready(function() {
+        //Select2 on the dropdown
+        $('#point_name_id').select2();
+        $('#bus_in_out').select2();
+    });
+</script>
 
 {% endblock %}

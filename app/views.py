@@ -1601,9 +1601,14 @@ def out_depot_vehicle_send_back_edit(request):
     out_depot_vehicle_send_back_id = request.GET.get('id')
     if out_depot_vehicle_send_back_id:
         out_depot_vehicle_send_back_data = OutDepotVehicleSentBack.objects.get(id=out_depot_vehicle_send_back_id)
+        unique_no_list = []
+        if out_depot_vehicle_send_back_data.unique_no:
+            unique_no_list.append(out_depot_vehicle_send_back_data.unique_no)
     try:
+        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'out_depot_buses/out_depot_vehicle_send_back/edit.html',
-        {"out_depot_vehicle_send_back_data": out_depot_vehicle_send_back_data})
+        {"out_depot_vehicle_send_back_data": out_depot_vehicle_send_back_data, 'unique_no_list': unique_no_list,
+         'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
     except Exception as e:
         print(e)
         return render(request, 'out_depot_buses/out_depot_vehicle_send_back/edit.html', {})
@@ -1612,13 +1617,15 @@ def out_depot_vehicle_send_back_edit(request):
 @custom_login_required
 def out_depot_vehicle_send_back_update(request):
     out_depot_vehicle_send_back_id = request.POST.get('id')
-    unique_no_bus_no = request.POST.get('unique_no_bus_no')
+    unique_no = request.POST.get('out_depot_vehicle_receive_unique_no')
+    bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
     log_sheet_no = request.POST.get('log_sheet_no')
     out_depot_buses_send_back_status = 0
     if out_depot_vehicle_send_back_id:
         try:
             out_depot_vehicle_send_back_data = OutDepotVehicleSentBack.objects.get(id=out_depot_vehicle_send_back_id)
-            out_depot_vehicle_send_back_data.unique_no_bus_no = unique_no_bus_no
+            out_depot_vehicle_send_back_data.unique_no = unique_no
+            out_depot_vehicle_send_back_data.bus_number = bus_number
             out_depot_vehicle_send_back_data.status = out_depot_buses_send_back_status
             special_bus_data = SpecialBusDataEntry.objects.get(log_sheet_no=log_sheet_no)
             out_depot_vehicle_send_back_data.special_bus_data_entry = special_bus_data
@@ -1640,8 +1647,14 @@ def buses_on_hand_edit(request):
     buses_on_hand_id = request.GET.get('id')
     if buses_on_hand_id:
         buses_on_hand_data = BusesOnHand.objects.get(id=buses_on_hand_id)
+        point_name_id_list = []
+        if buses_on_hand_data.point_name:
+            point_name_id_list.append(buses_on_hand_data.point_name.id)
     try:
-        return render(request, 'buses_on_hand/edit.html', {"buses_on_hand_data": buses_on_hand_data})
+        point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'buses_on_hand/edit.html', {"buses_on_hand_data": buses_on_hand_data,
+                                                           'point_name_data': point_name_data,
+                                                           'point_name_id_list': point_name_id_list})
     except Exception as e:
         print(e)
         return render(request, 'buses_on_hand/edit.html', {})
@@ -1651,14 +1664,15 @@ def buses_on_hand_edit(request):
 def buses_on_hand_update(request):
     buses_on_hand_id = request.POST.get('id')
     unique_code = request.POST.get('unique_code')
-    point_name = request.POST.get('point_name')
     bus_in_out = request.POST.get('bus_in_out')
+    point_name = request.POST.get('point_name_id')
     buses_on_hand_status = 0
     if buses_on_hand_id:
         try:
             buses_on_hand_data = BusesOnHand.objects.get(id=buses_on_hand_id)
             buses_on_hand_data.unique_code = unique_code
-            buses_on_hand_data.point_name = point_name
+            point_name_data = PointData.objects.get(id=point_name)
+            buses_on_hand_data.point_name = point_name_data
             buses_on_hand_data.bus_in_out = bus_in_out
             buses_on_hand_data.status = buses_on_hand_status
             out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_code)
