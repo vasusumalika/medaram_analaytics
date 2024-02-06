@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.utils.datetime_safe import datetime
 
 from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, \
-    StatisticsDateEntry, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw, OutDepotVehicleSentBack, \
+    TripStatistics, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw, OutDepotVehicleSentBack, \
     HsdOilSubmission, BusesOnHand, PointData
 from django.db.models import Q, Count
 from django.contrib.auth.hashers import make_password
@@ -58,6 +58,7 @@ def do_login(request):
             print(request.user.id)
             request.session['user_id'] = user_login_data.id
             request.session['user_type'] = user_login_data.user_type.name
+            request.session['point_name'] = user_login_data.point_name.point_name
             return redirect("app:dashboard")
         else:
             messages.error(request, 'Invalid Login Credentials!!')
@@ -833,17 +834,19 @@ def vehicle_details_import(request):
     return render(request, 'vehicle_details/import.html', {})
 
 
-@custom_login_required
-def statistics_up_journey_list(request):
-    statistics_up_journey_data = StatisticsDateEntry.objects.filter(~Q(status=2)).filter(entry_type='up')
-    return render(request, 'statistics_date_entry/up_journey/list.html',
-                  {"statistics_up_journey_data": statistics_up_journey_data})
+# @custom_login_required
+# def statistics_up_journey_list(request):
+#     statistics_up_journey_data = StatisticsDateEntry.objects.filter(~Q(status=2)).filter(entry_type='up')
+#     return render(request, 'statistics_date_entry/up_journey/list.html',
+#                   {"statistics_up_journey_data": statistics_up_journey_data})
 
 
 @custom_login_required
-def statistics_up_journey_add(request):
+def trip_data_add(request):
     if request.method == "POST":
-        bus_unique_code = request.POST.get('bus_unique_code')
+        # bus_unique_code = request.POST.get('bus_unique_code')
+        unique_code = request.POST.get('out_depot_vehicle_receive_unique_no')
+        bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
         total_ticket_amount = request.POST.get('total_ticket_amount')
         total_adult_passengers = request.POST.get('total_adult_passengers')
         total_child_passengers = request.POST.get('total_child_passengers')
@@ -851,32 +854,43 @@ def statistics_up_journey_add(request):
         mhl_child_passengers = request.POST.get('mhl_child_passengers')
         mhl_adult_amount = request.POST.get('mhl_adult_amount')
         mhl_child_amount = request.POST.get('mhl_child_amount')
-        entry_type = 'up'
         service_operated_date = request.POST.get('service_operated_date')
+        point_name = request.POST.get('point_name')
         status = 0
 
         try:
             user_data = User.objects.get(id=request.session['user_id'])
-            statistics_data_entry = StatisticsDateEntry.objects.create(bus_unique_code=bus_unique_code,
-                                                                       total_ticket_amount=total_ticket_amount,
-                                                                       total_adult_passengers=total_adult_passengers,
-                                                                       total_child_passengers=total_child_passengers,
-                                                                       mhl_adult_passengers=mhl_adult_passengers,
-                                                                       mhl_child_passengers=mhl_child_passengers,
-                                                                       mhl_adult_amount=mhl_adult_amount,
-                                                                       mhl_child_amount=mhl_child_amount,
-                                                                       entry_type=entry_type,
-                                                                       service_operated_date=service_operated_date,
-                                                                       status=status, created_by=user_data)
+            point_data = PointData.objects.get(point_name=point_name)
+            if point_name != 'Thadvai':
+                entry_type = 'up'
+            else:
+                entry_type = 'down'
+            statistics_data_entry = TripStatistics.objects.create(unique_code=unique_code, bus_number=bus_number,
+                                                                  total_ticket_amount=total_ticket_amount,
+                                                                  total_adult_passengers=total_adult_passengers,
+                                                                  total_child_passengers=total_child_passengers,
+                                                                  mhl_adult_passengers=mhl_adult_passengers,
+                                                                  mhl_child_passengers=mhl_child_passengers,
+                                                                  mhl_adult_amount=mhl_adult_amount,
+                                                                  mhl_child_amount=mhl_child_amount,
+                                                                  entry_type=entry_type,
+                                                                  service_operated_date=service_operated_date,
+                                                                  status=status, created_by=user_data,
+                                                                  point_name=point_data, data_enter_by=user_data,
+                                                                  trip_start=datetime.now())
             statistics_data_entry.save()
-            messages.success(request, 'Statistics Data Entry Up Journey Created Successfully')
+            messages.success(request, 'Statistics Trip Data Created Successfully')
         except Exception as e:
             print(e)
-            messages.error(request, 'Statistics Data Entry Up Journey Creation Failed!!')
-        # return redirect("app:statistics_up_journey_list")
-        return redirect("app:statistics_up_journey_add")
-    else:
-        return render(request, 'statistics_date_entry/up_journey/add.html', {})
+            messages.error(request, 'Statistics Trip Data Creation Failed!!')
+        return redirect("app:trip_data_add")
+    try:
+        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'trip_statistics/trip_data/add.html',
+                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+    except Exception as e:
+        print(e)
+        return render(request, 'trip_statistics/trip_data/add.html', {})
 
 
 @custom_login_required
@@ -1748,10 +1762,12 @@ def point_data_import(request):
             for i, row in row_iter:
                 print(row)
                 try:
-                    name = row[0]
+                    name = row[1]
                     point_name_exist = PointData.objects.filter(point_name=name).count()
                     if point_name_exist == 0:
-                        point_name = PointData.objects.create(point_name=name, status=0)
+                        depot_data = Depot.objects.get(name=row[2])
+                        point_name = PointData.objects.create(point_name=name, depot_name=depot_data, region=row[3],
+                                                              zone=row[4], status=0)
                         point_name.save()
                     else:
                         pass
