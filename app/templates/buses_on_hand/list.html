@@ -60,7 +60,7 @@
 														<tr>
 															<th class="border-bottom-0">Point Name</th>
 															<th class="border-bottom-0">Unique Code</th>
-
+															<th class="border-bottom-0">Actions</th>
 														</tr>
 													</thead>
 													<tbody>
@@ -68,6 +68,10 @@
                                                           <tr>
 															  <td>{{ buses_on_hand.point_name }}</td>
 															  <td>{{ buses_on_hand.unique_code }}</td>
+															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:buses_on_hand_edit' %}?id={{ buses_on_hand.id }}">
+																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
+															   		</a>
+															  </td>
 														  </tr>
                                                         {% endfor %}
 													</tbody>

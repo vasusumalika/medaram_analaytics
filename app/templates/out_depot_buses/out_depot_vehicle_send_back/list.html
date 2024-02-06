@@ -60,8 +60,9 @@
 														<tr>
 															<th class="border-bottom-0">Unique No/Bus Number</th>
 															<th class="border-bottom-0">Log Sheet Number</th>
-                                                            <th class="border-bottom-0">Created At</th>
-                                                            <th class="border-bottom-0">Created By</th>
+                                                            <th class="border-bottom-0">Send Back Time</th>
+                                                            <th class="border-bottom-0">Send Back By</th>
+															<th class="border-bottom-0">Actions</th>
 
 														</tr>
 													</thead>
@@ -72,6 +73,11 @@
 															  <td>{{ out_depot_vehicle.log_sheet_no }}</td>
 															  <td>{{ out_depot_vehicle.created_at }}</td>
 															  <td>{{ out_depot_vehicle.created_by.name }}</td>
+															  <td>
+																  <a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:out_depot_vehicle_send_back_edit' %}?id={{ out_depot_vehicle.id }}">
+																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
+															   		</a>
+															  </td>
 														  </tr>
                                                         {% endfor %}
 													</tbody>
