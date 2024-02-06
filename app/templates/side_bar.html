@@ -276,8 +276,8 @@
 										<span class="side-menu__label">Statistics Date Entry</span><i
 													class="angle fa fa-angle-right"></i></a>
 											<ul class="slide-menu">
-												<li><a class="slide-item" href="{% url 'app:statistics_up_journey_list'%}">Up Journey</a></li>
-												<li><a class="slide-item" href="{% url 'app:statistics_down_journey_list'%}">Down Journey</a></li>
+												<li><a class="slide-item" href="{% url 'app:statistics_up_journey_add'%}">Up Journey</a></li>
+												<li><a class="slide-item" href="{% url 'app:statistics_down_journey_add'%}">Down Journey</a></li>
 											</ul>
 								</li>
 
@@ -459,32 +459,7 @@
 				pageLength: 10,
          	});
 
-			$('#special_bus_sending_depot').select2({
-            	ajax: {
-                	url: "{% url 'app:search_for_spl_sending_bus_depot' %}",
-                	dataType: 'json',
-                	type: 'POST',
-                	delay: 250,
-                	data: function (params) {
-                    	return {
-                    		csrfmiddlewaretoken: '{{ csrf_token }}',
-                        	search_text: params.term,
-                    	};
-                	},
-                	processResults: function (data) {
-                    	var options = data.result.map(function (item) {
-                        	return { id: item.id, text: item.name };
-                    	});
-
-                    	return {
-                        	results: options,
-                    	};
-                	},
-                	cache: true
-            	},
-        	});
-
-        	$('#out_depot_send_back_log_sheet_no').on('blur', function() {
+         	$('#out_depot_send_back_log_sheet_no').on('blur', function() {
         		var logSheetNo = $(this).val();
         		console.log("Log sheet number:", logSheetNo);
         		$.ajax({
@@ -539,7 +514,7 @@
         	if (inputField.checkValidity()) {
             	validation_message.innerHTML = '';
         	} else {
-            	validation_message.innerHTML = 'Please enter exactly three digits.';
+            	validation_message.innerHTML = 'Please enter upto 3 digits only.';
         	}
     	}
 

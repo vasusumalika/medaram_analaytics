@@ -55,6 +55,9 @@ urlpatterns = [
     path('out/depot/buses/receive/list', views.out_depot_buses_receive_list, name='out_depot_buses_receive_list'),
     path('out/depot/buses/receive/add', views.out_depot_buses_receive_add, name='out_depot_buses_receive_add'),
     path('search/special/bus/data', views.search_special_bus_data, name='search_special_bus_data'),
+    path('out/depot/buses/receive/edit', views.out_depot_vehicle_receive_edit, name='out_depot_vehicle_receive_edit'),
+    path('out/depot/buses/receive/update', views.out_depot_vehicle_receive_update,
+         name='out_depot_vehicle_receive_update'),
 
     path('own/depot/bus/details/entry/list', views.own_depot_bus_details_entry_list, name='own_depot_bus_details_entry_list'),
     path('own/depot/bus/details/entry/add', views.own_depot_bus_details_entry_add, name='own_depot_bus_details_entry_add'),
@@ -79,21 +82,26 @@ urlpatterns = [
     path('out/depot/buses/send/back/list', views.out_depot_vehicle_send_back_list,
          name='out_depot_vehicle_send_back_list'),
     path('out/depot/buses/send/back/add', views.out_depot_vehicle_send_back_add, name='out_depot_vehicle_send_back_add'),
+    path('out/depot/buses/send/back/edit', views.out_depot_vehicle_send_back_edit,
+         name='out_depot_vehicle_send_back_edit'),
+    path('out/depot/buses/send/back/update', views.out_depot_vehicle_send_back_update,
+         name='out_depot_vehicle_send_back_update'),
     path('out/depot/buses/send/back/validate/log/sheet', views.validate_log_sheet, name='validate_log_sheet'),
-    path('get/out/depot/vehicle/receive/bus/number', views.get_out_depot_vehicle_receive_bus_number, name='get_out_depot_vehicle_receive_bus_number'),
-
-
-    path('spl/bus/search/sending/bus/depot', views.search_for_spl_sending_bus_depot,
-         name='search_for_spl_sending_bus_depot'),
+    path('get/out/depot/vehicle/receive/bus/number', views.get_out_depot_vehicle_receive_bus_number,
+         name='get_out_depot_vehicle_receive_bus_number'),
 
     path('hsd/oil/submission/list', views.hsd_oil_submission_list, name='hsd_oil_submission_list'),
     path('hsd/oil/submission/form', views.hsd_oil_submission_form, name='hsd_oil_submission_form'),
     path('hsd/oil/submission/add', views.hsd_oil_submission_add, name='hsd_oil_submission_add'),
     path('search/unique/bus/number/special/bus/data', views.search_unique_no_bus_no_special_bus_data,
          name='search_unique_no_bus_no_special_bus_data'),
+    path('hsd/oil/submission/edit', views.hsd_oil_submission_edit, name='hsd_oil_submission_edit'),
+    path('hsd/oil/submission/update', views.hsd_oil_submission_update, name='hsd_oil_submission_update'),
 
     path('buses/on/hand/list', views.buses_on_hand_list, name='buses_on_hand_list'),
     path('buses/on/hand/add', views.buses_on_hand_add, name='buses_on_hand_add'),
+    path('buses/on/hand/edit', views.buses_on_hand_edit, name='buses_on_hand_edit'),
+    path('buses/on/hand/update', views.buses_on_hand_update, name='buses_on_hand_update'),
 
     path('reports/summary/sending/buses/list', views.summary_sending_buses_list, name='summary_sending_buses_list'),
 

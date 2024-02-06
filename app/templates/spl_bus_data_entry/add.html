@@ -48,9 +48,11 @@
 										<div class="card-header border-bottom">
 											<h3 class="card-title">Add SPL Bus Data Entry Form</h3>
 										</div>
-										<div class="card-body">
+										<div class="card-body bg-light">
 											<form class="form-horizontal row" action="{% url 'app:spl_bus_data_entry_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
-
+												<div class="card mb-3">
+            <div class="card-body">
+				<div class="row">
 											    <div class="form-group col-md-6">
                                                     <label class="form-label" for="special_bus_sending_depot">Special Bus Sending Depot</label>
 													<select class="form-control custom-select" name="special_bus_sending_depot" id="special_bus_sending_depot" required>
@@ -104,6 +106,13 @@
                                                     <label class="form-label" for="log_sheet_no">Log Sheet No</label>
                                                     <input type="text" id="log_sheet_no" name="log_sheet_no" class="form-control" required>
 												</div>
+			</div></div></div>
+
+												<div class="card mb-4">
+            <div class="card-body">
+				<div class="row">
+
+												<h3 class="card-title">Driver1 Info</h3>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver1_name">Driver1 Name</label>
@@ -122,6 +131,12 @@
                                                     <input type="text" id="driver1_phone_number" name="driver1_phone_number" class="form-control" required>
 												</div>
 
+				</div></div></div>
+
+												<div class="card mb-4">
+            <div class="card-body">
+				<div class="row">
+												<h3 class="card-title">Driver2 Info</h3>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver2_name">Driver2 Name</label>
@@ -139,6 +154,12 @@
                                                     <label class="form-label" for="driver2_phone_number">Driver2 Phone Number</label>
                                                     <input type="text" id="driver2_phone_number" name="driver2_phone_number" class="form-control" required>
 												</div>
+					</div></div></div>
+					<div class="card mb-4">
+            <div class="card-body">
+				<div class="row">
+
+												<h3 class="card-title">Incharge Info</h3>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="incharge_name">Incharge Name</label>
@@ -149,6 +170,7 @@
                                                     <label class="form-label" for="incharge_phone_number">Incharge Phone Number</label>
                                                     <input type="text" id="incharge_phone_number" name="incharge_phone_number" class="form-control" required>
 												</div>
+					</div></div></div>
 
 
 												<div class="form-group mt-3">
@@ -180,10 +202,9 @@
 <script>
     $(document).ready(function() {
         //Select2 on the dropdown
-        $('#vehicle_id').select2();
-        $('#depot_id').select2();
+        $('#special_bus_reporting_depot').select2();
         $('#opt_type').select2();
-        $('#status').select2();
+        $('#special_bus_sending_depot').select2();
     });
 </script>
 
