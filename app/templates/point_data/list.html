@@ -59,15 +59,18 @@
 													<thead>
 														<tr>
 															<th class="border-bottom-0">Point Name</th>
-                                                            <th class="border-bottom-0">Created At</th>
-
+                                                            <th class="border-bottom-0">Depot Name</th>
+															<th class="border-bottom-0">Region</th>
+															<th class="border-bottom-0">Zone</th>
 														</tr>
 													</thead>
 													<tbody>
 														{% for point_name in point_name_data %}
                                                           <tr>
 															  <td>{{ point_name.point_name }}</td>
-															  <td>{{ point_name.created_at }}</td>
+															  <td>{{ point_name.depot_name.name }}</td>
+															  <td>{{ point_name.region }}</td>
+															  <td>{{ point_name.zone }}</td>
 														  </tr>
                                                         {% endfor %}
 													</tbody>

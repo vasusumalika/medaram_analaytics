@@ -5,6 +5,9 @@ from django.db import models
 
 class PointData(models.Model):
     point_name = models.CharField(max_length=256, null=True, blank=True)
+    depot_name = models.ForeignKey("Depot", on_delete=models.CASCADE, null=True, blank=True)
+    region = models.CharField(max_length=256, null=True, blank=True)
+    zone = models.CharField(max_length=256, null=True, blank=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -301,9 +304,10 @@ class OwnDepotBusWithdraw(models.Model):
         }
 
 
-class StatisticsDateEntry(models.Model):
+class TripStatistics(models.Model):
     id = models.AutoField(primary_key=True)
-    bus_unique_code = models.CharField(max_length=256, null=True, blank=True)
+    unique_code = models.IntegerField(null=True, blank=True)
+    bus_number = models.CharField(max_length=256, null=True, blank=True)
     total_ticket_amount = models.CharField(max_length=256, null=True, blank=True)
     total_adult_passengers = models.CharField(max_length=256, null=True, blank=True)
     total_child_passengers = models.CharField(max_length=256, null=True, blank=True)
@@ -313,6 +317,17 @@ class StatisticsDateEntry(models.Model):
     mhl_child_amount = models.CharField(max_length=256, null=True, blank=True)
     entry_type = models.CharField(max_length=256, null=True, blank=True)
     service_operated_date = models.DateField(null=True, blank=True)
+    point_name = models.ForeignKey(PointData, on_delete=models.CASCADE, related_name="statistic_date_entry_point_data",
+                                   null=True, blank=True)
+    data_enter_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_by',
+                                      null=True, blank=True)
+    data_verify_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                       related_name='statistics_data_verify_by', default="", null=True,
+                                       blank=True)
+    trip_start = models.DateTimeField(auto_now_add=True)
+    # trip_end = models.DateTimeField(null=True, blank=True)
+    trip_verified = models.BooleanField(default=False)
+    trip_verified_time = models.TimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
