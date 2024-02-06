@@ -230,6 +230,7 @@
 											<ul class="slide-menu">
 												<li><a class="slide-item" href="{% url 'app:users_list'%}">Users</a></li>
 												<li><a class="slide-item" href="{% url 'app:user_type_list'%}">User Type</a></li>
+												<li><a class="slide-item" href="{% url 'app:point_data_list'%}">Point Data</a></li>
 												<li><a class="slide-item" href="{% url 'app:depots_list'%}">Depots</a></li>
 												<li><a class="slide-item" href="{% url 'app:operation_type_list'%}">Operation Type</a></li>
 												<li><a class="slide-item" href="{% url 'app:vehicle_list'%}">Vehicle</a></li>
@@ -457,6 +458,41 @@
 				},
 				pageLength: 10,
          	});
+
+         	$('#out_depot_send_back_log_sheet_no').on('blur', function() {
+        		var logSheetNo = $(this).val();
+        		console.log("Log sheet number:", logSheetNo);
+        		$.ajax({
+            		url: '/out/depot/buses/send/back/validate/log/sheet',
+            		type: 'GET',
+            		data: {
+                		'log_sheet_no': logSheetNo
+            		},
+            		success: function(data) {
+            			console.log("AJAX success");
+                		if (data.exists) {
+                			console.log("Log sheet number exists");
+                    		$('#log_sheet_no_error').html('');
+                		} else {
+                			console.log("Log sheet number does not exist");
+                    		$('#log_sheet_no_error').html('Log sheet number does not exist');
+                		}
+            		}
+        		});
+    		});
+
+    		$("#out_depot_vehicle_receive_unique_no").change(function() {
+            	var selectedUniqueNo = $(this).val();
+            	console.log(selectedUniqueNo);
+				$.ajax({
+					url: '{% url "app:get_out_depot_vehicle_receive_bus_number" %}',
+					data: { unique_no: selectedUniqueNo },
+					dataType: 'json',
+					success: function(data) {
+						$('#out_depot_vehicle_receive_bus_number').val(data.bus_number);
+					}
+				});
+			});
 
         });
 

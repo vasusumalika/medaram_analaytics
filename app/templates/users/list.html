@@ -60,9 +60,13 @@
 														<tr>
 															<th class="border-bottom-0">Name</th>
 															<th class="border-bottom-0">Email</th>
+															{% if request.session.user_type == 'Super_admin' %}
+                												<th>Password</th>
+            												{% endif %}
 															<th class="border-bottom-0">User Type</th>
 															<th class="border-bottom-0">Phone</th>
 															<th class="border-bottom-0">Depot</th>
+															<th class="border-bottom-0">Point Name</th>
                                                             <th class="border-bottom-0">Created At</th>
 															<th class="border-bottom-0">Actions</th>
 
@@ -73,9 +77,13 @@
                                                           <tr>
 															  <td>{{ user.name }}</td>
 															  <td>{{ user.email }}</td>
+															  {% if request.session.user_type == 'Super_admin' %}
+															  	<td>{{ user.password }}</td>
+															  {% endif %}
 															  <td>{{ user.user_type.name }}</td>
 															  <td>{{ user.phone_number }}</td>
 															  <td>{{ user.depot.name }}</td>
+															  <td>{{ user.point_name.point_name }}</td>
 															  <td>{{ user.created_at }}</td>
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:user_edit' %}?id={{ user.id }}">
 																   	<i class="fe fe-edit fe-pen" title="Edit"></i>

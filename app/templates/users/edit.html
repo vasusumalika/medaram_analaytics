@@ -62,7 +62,7 @@
 												<div class="col-sm-12 col-md-12 col-xl-6">
 													<div class="form-group">
 														<label class="form-label text-muted">User Type:</label>
-														<select class="form-control custom-select" id="user_type_id" name="user_type_id" data-placeholder="Choose UserType..." tabindex="-1" aria-hidden="true">
+														<select class="form-control custom-select" id="user_type_id" name="user_type_id" data-placeholder="Choose UserType..." tabindex="-1" aria-hidden="true" required>
 															{% for user_type in user_type_data %}
 																<option value="{{ user_type.id }}"{% if user_type.id in user_type_id_list %} selected{% endif %}>{{ user_type.name }}</option>
 															{% endfor %}
@@ -73,9 +73,20 @@
 												<div class="col-sm-12 col-md-12 col-xl-6">
 													<div class="form-group">
 														<label class="form-label text-muted">Depot: </label>
-														<select class="form-control custom-select" id="depot_id" name="depot_id" data-placeholder="Choose Depot Id..." tabindex="-1" aria-hidden="true">
+														<select class="form-control custom-select" id="depot_id" name="depot_id" data-placeholder="Choose Depot Id..." tabindex="-1" aria-hidden="true" required>
 															{% for depot in depot_data %}
 																<option value="{{ depot.id }}"{% if depot.id in depot_id_list %} selected{% endif %}>{{ depot.name }}</option>
+															{% endfor %}
+														</select>
+													</div>
+												</div>
+
+												<div class="col-sm-12 col-md-12 col-xl-6">
+													<div class="form-group">
+														<label class="form-label text-muted">Point Name: </label>
+														<select class="form-control custom-select" id="point_name_id" name="point_name_id" data-placeholder="Choose Point Name Id..." tabindex="-1" aria-hidden="true" required>
+															{% for point_name in point_name_data %}
+																<option value="{{ point_name.id }}"{% if point_name.id in point_name_id_list %} selected{% endif %}>{{ point_name.point_name }}</option>
 															{% endfor %}
 														</select>
 													</div>
@@ -110,6 +121,7 @@
         //Select2 on the dropdown
         $('#depot_id').select2();
         $('#user_type_id').select2();
+        $('#point_name_id').select2();
     });
 </script>
 {% endblock %}

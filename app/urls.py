@@ -86,6 +86,9 @@ urlpatterns = [
          name='out_depot_vehicle_send_back_edit'),
     path('out/depot/buses/send/back/update', views.out_depot_vehicle_send_back_update,
          name='out_depot_vehicle_send_back_update'),
+    path('out/depot/buses/send/back/validate/log/sheet', views.validate_log_sheet, name='validate_log_sheet'),
+    path('get/out/depot/vehicle/receive/bus/number', views.get_out_depot_vehicle_receive_bus_number,
+         name='get_out_depot_vehicle_receive_bus_number'),
 
     path('hsd/oil/submission/list', views.hsd_oil_submission_list, name='hsd_oil_submission_list'),
     path('hsd/oil/submission/form', views.hsd_oil_submission_form, name='hsd_oil_submission_form'),
@@ -118,6 +121,11 @@ urlpatterns = [
          name='status_return_back_buses_list'),
     path('reports/buses/sending/back/list', views.buses_sending_back_list,
          name='buses_sending_back_list'),
+
+    path('point_data/list', views.point_data_list, name='point_data_list'),
+    path('point_data/import', views.point_data_import, name='point_data_import'),
+
+
 
     # Medaram REST API STARTS FROM HERE
     path("api/login/", views.LoginAPIView.as_view()),
