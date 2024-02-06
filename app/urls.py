@@ -71,13 +71,19 @@ urlpatterns = [
 
     # path('statistics/up/journey/list', views.statistics_up_journey_list, name='statistics_up_journey_list'),
     path('statistics/trip/data/add', views.trip_data_add, name='trip_data_add'),
-    path('statistics/up/journey/edit', views.statistics_up_journey_edit, name='statistics_up_journey_edit'),
-    path('statistics/up/journey/update', views.statistics_up_journey_update, name='statistics_up_journey_update'),
 
-    path('statistics/down/journey/list', views.statistics_down_journey_list, name='statistics_down_journey_list'),
-    path('statistics/down/journey/add', views.statistics_down_journey_add, name='statistics_down_journey_add'),
-    path('statistics/down/journey/edit', views.statistics_down_journey_edit, name='statistics_down_journey_edit'),
-    path('statistics/down/journey/update', views.statistics_down_journey_update, name='statistics_down_journey_update'),
+    path('statistics/trip/check/form', views.trip_check_form, name='trip_check_form'),
+    path('statistics/unique/no/trip/check/list', views.search_unique_no_trip_check_list, name='search_unique_no_trip_check_list'),
+    path('statistics/trip/check/edit', views.trip_check_edit, name='trip_check_edit'),
+    path('statistics/trip/check/update', views.trip_check_update, name='trip_check_update'),
+
+    # path('statistics/up/journey/edit', views.statistics_up_journey_edit, name='statistics_up_journey_edit'),
+    # path('statistics/up/journey/update', views.statistics_up_journey_update, name='statistics_up_journey_update'),
+    #
+    # path('statistics/down/journey/list', views.statistics_down_journey_list, name='statistics_down_journey_list'),
+    # path('statistics/down/journey/add', views.statistics_down_journey_add, name='statistics_down_journey_add'),
+    # path('statistics/down/journey/edit', views.statistics_down_journey_edit, name='statistics_down_journey_edit'),
+    # path('statistics/down/journey/update', views.statistics_down_journey_update, name='statistics_down_journey_update'),
 
     path('out/depot/buses/send/back/list', views.out_depot_vehicle_send_back_list,
          name='out_depot_vehicle_send_back_list'),

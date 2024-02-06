@@ -60,6 +60,7 @@
 															<th class="border-bottom-0">Point Name</th>
 															<th class="border-bottom-0">Hsd liters</th>
 															<th class="border-bottom-0">MTS No</th>
+															<th class="border-bottom-0">Shift</th>
 															<th class="border-bottom-0">Actions</th>
 														</tr>
 													</thead>
@@ -70,6 +71,7 @@
 															  <td>{{ hsd_oil_submission.point_name }}</td>
 															  <td>{{ hsd_oil_submission.hsd_liters }}</td>
 															  <td>{{ hsd_oil_submission.mts_no }}</td>
+															  <td>{{ hsd_oil_submission.shift }}</td>
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:hsd_oil_submission_edit' %}?id={{ hsd_oil_submission.id }}">
 																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
 															   		</a>

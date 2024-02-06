@@ -125,7 +125,7 @@
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="point_name">Point Name</label>
-                                                    <input type="text" id="point_name" name="point_name" class="form-control" required>
+                                                    <input type="text" id="point_name" name="point_name" value="{{request.session.point_name}}" class="form-control" required>
 												</div>
 
 												<div class="form-group col-md-6">
@@ -137,6 +137,15 @@
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="mts_no">MTS No</label>
                                                     <input type="number" id="mts_no" name="mts_no" class="form-control" required>
+												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="shift">Shift</label>
+                                                    <select class="form-control custom-select" id="shift" name="shift" required>
+														<option value="">Select Option</option>
+															<option value='day_shift'>Day Shift</option>
+															<option value='night_shift'>Night Shift</option>
+													</select>
 												</div>
 
 												<div class="form-group mt-3">
