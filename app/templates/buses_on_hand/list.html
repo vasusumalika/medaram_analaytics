@@ -66,7 +66,7 @@
 													<tbody>
 														{% for buses_on_hand in buses_on_hand_data %}
                                                           <tr>
-															  <td>{{ buses_on_hand.point_name }}</td>
+															  <td>{{ buses_on_hand.point_name.point_name }}</td>
 															  <td>{{ buses_on_hand.unique_code }}</td>
 														  </tr>
                                                         {% endfor %}

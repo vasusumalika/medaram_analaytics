@@ -1,7 +1,15 @@
 from django.db import models
 
-
 # Create your models here.
+
+
+class PointData(models.Model):
+    point_name = models.CharField(max_length=256, null=True, blank=True)
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class User(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256, null=True, blank=True)
@@ -10,6 +18,8 @@ class User(models.Model):
     phone_number = models.CharField(max_length=256, null=True, blank=True)
     user_type = models.ForeignKey("UserType", on_delete=models.CASCADE, null=True)
     depot = models.ForeignKey("Depot", on_delete=models.CASCADE, null=True)
+    point_name = models.ForeignKey(PointData, on_delete=models.CASCADE, related_name="user_point_data",
+                                   null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
@@ -22,6 +32,15 @@ class User(models.Model):
             "phone": self.phone_number,
             "user_type": self.user_type
         }
+
+    def display_password(self, requesting_user_type):
+        # Check if the requesting user type is 'Super Admin'
+        if requesting_user_type == 'Super_admin':
+            # You can add additional checks based on your requirements
+            # Display the password for Super Admin
+            return self.password
+        else:
+            return "Permission denied"
 
 
 class UserType(models.Model):
@@ -207,7 +226,8 @@ class OutDepotVehicleReceive(models.Model):
 
 
 class OutDepotVehicleSentBack(models.Model):
-    unique_no_bus_no = models.CharField(max_length=256, null=True, blank=True)
+    unique_no = models.CharField(max_length=256, null=True, blank=True)
+    bus_number = models.CharField(max_length=256, null=True, blank=True)
     log_sheet_no = models.CharField(max_length=256, null=True, blank=True)
     special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,
                                                related_name="out_depot_vehicle_sent_special_bus")
@@ -346,7 +366,8 @@ class HsdOilSubmission(models.Model):
 
 
 class BusesOnHand(models.Model):
-    point_name = models.CharField(max_length=256, null=True, blank=True)
+    point_name = models.ForeignKey(PointData, on_delete=models.CASCADE, related_name="buses_on_hand_point_data",
+                                   null=True, blank=True)
     unique_code = models.CharField(max_length=256, null=True, blank=True)
     bus_in_out = models.CharField(max_length=256, null=True, blank=True)
     special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,

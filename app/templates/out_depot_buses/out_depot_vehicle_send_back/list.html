@@ -58,7 +58,8 @@
 												<table id="listing-table" class="table table-bordered text-nowrap key-buttons border-bottom  w-100">
 													<thead>
 														<tr>
-															<th class="border-bottom-0">Unique No/Bus Number</th>
+															<th class="border-bottom-0">Unique No</th>
+															<th class="border-bottom-0">Bus Number</th>
 															<th class="border-bottom-0">Log Sheet Number</th>
                                                             <th class="border-bottom-0">Created At</th>
                                                             <th class="border-bottom-0">Created By</th>
@@ -68,7 +69,8 @@
 													<tbody>
 														{% for out_depot_vehicle in out_depot_vehicle_send_back_data %}
                                                           <tr>
-															  <td>{{ out_depot_vehicle.unique_no_bus_no }}</td>
+															  <td>{{ out_depot_vehicle.unique_no }}</td>
+															  <td>{{ out_depot_vehicle.bus_number }}</td>
 															  <td>{{ out_depot_vehicle.log_sheet_no }}</td>
 															  <td>{{ out_depot_vehicle.created_at }}</td>
 															  <td>{{ out_depot_vehicle.created_by.name }}</td>

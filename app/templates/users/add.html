@@ -95,6 +95,18 @@
                                                     </select>
 												</div>
 
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="point_name">Point Name</label>
+                                                    <select class="form-control custom-select" name="point_name" id="point_name" required>
+                                                     	<option value="">Select Option</option>
+                                                        	{% for point_name in point_name_data %}
+                                                            	<option value="{{ point_name.id }}">
+                                                                	{{ point_name.point_name }}
+                                                                </option>
+                                                            {% endfor %}
+                                                    </select>
+												</div>
+
 												<div class="form-group mt-3">
 													<div>
 														<button type="submit" class="btn btn-primary">Save User Info</button>
@@ -126,6 +138,7 @@
         //Select2 on the dropdown
         $('#depot_id').select2();
         $('#user_type').select2();
+        $('#point_name').select2();
     });
 </script>
 

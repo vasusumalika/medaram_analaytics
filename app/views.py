@@ -6,7 +6,7 @@ from django.utils.datetime_safe import datetime
 
 from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, \
     StatisticsDateEntry, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw, OutDepotVehicleSentBack, \
-    HsdOilSubmission, BusesOnHand
+    HsdOilSubmission, BusesOnHand, PointData
 from django.db.models import Q, Count
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -57,6 +57,7 @@ def do_login(request):
         if user_login_data and check_password(user_password, user_login_data.password):
             print(request.user.id)
             request.session['user_id'] = user_login_data.id
+            request.session['user_type'] = user_login_data.user_type.name
             return redirect("app:dashboard")
         else:
             messages.error(request, 'Invalid Login Credentials!!')
@@ -94,6 +95,7 @@ def user_add(request):
         phone = request.POST.get('phone')
         email = request.POST.get('email')
         password = request.POST.get('password')
+        point_name = request.POST.get('point_name')
         user_status = 0
         user_type = request.POST.get('user_type')
         depot = request.POST.get('depot_id')
@@ -107,11 +109,12 @@ def user_add(request):
             #     messages.error(request, 'Email already exist. Please try again')
             #     return redirect('app:user_add')
             user_type_data = UserType.objects.get(id=user_type)
+            point_name_data = PointData.objects.get(id=point_name)
             depot_data = Depot.objects.get(id=depot)
             encrypted_password = make_password(password)
             user = User.objects.create(name=name, email=email, password=encrypted_password, phone_number=phone,
-                                       status=user_status,
-                                       user_type=user_type_data, depot=depot_data)
+                                       status=user_status, user_type=user_type_data, depot=depot_data,
+                                       point_name=point_name_data)
             user.save()
             messages.success(request, 'User Created Successfully')
         except Exception as e:
@@ -121,7 +124,9 @@ def user_add(request):
     try:
         user_type_data = UserType.objects.filter(Q(status=0) | Q(status=1))
         depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
-        return render(request, 'users/add.html', {'user_type_data': user_type_data, "depot_data": depot_data})
+        point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'users/add.html', {'user_type_data': user_type_data, "depot_data": depot_data,
+                                                  "point_name_data": point_name_data})
     except Exception as e:
         print(e)
         return render(request, 'users/add.html', {})
@@ -133,17 +138,23 @@ def user_edit(request):
     if user_id:
         user_data = User.objects.get(id=user_id)
         user_type_id_list = []
+        point_name_id_list = []
         depot_id_list = []
         if user_data.user_type:
             user_type_id_list.append(user_data.user_type.id)
         if user_data.depot:
             depot_id_list.append(user_data.depot.id)
+        if user_data.point_name:
+            point_name_id_list.append(user_data.point_name.id)
     try:
         user_type_data = UserType.objects.filter(Q(status=0) | Q(status=1))
         depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
+        point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'users/edit.html', {"user_type_data": user_type_data, 'depot_data': depot_data,
-                                                   'user': user_data, 'user_type_id_list': user_type_id_list,
-                                                   'depot_id_list': depot_id_list})
+                                                   'user': user_data, "point_name_data": point_name_data,
+                                                   'user_type_id_list': user_type_id_list,
+                                                   'depot_id_list': depot_id_list,
+                                                   'point_name_id_list': point_name_id_list})
     except Exception as e:
         print(e)
         return render(request, 'users/edit.html', {})
@@ -159,6 +170,7 @@ def user_update(request):
     user_status = 0
     user_type = request.POST.get('user_type_id')
     depot = request.POST.get('depot_id')
+    point_name = request.POST.get('point_name_id')
     if user_id:
         try:
             user_data = User.objects.get(id=user_id)
@@ -171,6 +183,8 @@ def user_update(request):
             user_data.user_type = user_type_data
             depot_data = Depot.objects.get(id=depot)
             user_data.depot = depot_data
+            point_name_data = PointData.objects.get(id=point_name)
+            user_data.point_name = point_name_data
             user_data.save()
             messages.success(request, 'User updated  successfully!!')
             return redirect("app:users_list")
@@ -1225,13 +1239,15 @@ def out_depot_vehicle_send_back_list(request):
 @custom_login_required
 def out_depot_vehicle_send_back_add(request):
     if request.method == "POST":
-        unique_no_bus_no = request.POST.get('unique_no_bus_no')
-        log_sheet_no = request.POST.get('log_sheet_no')
+        unique_no = request.POST.get('out_depot_vehicle_receive_unique_no')
+        bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
+        log_sheet_no = request.POST.get('out_depot_send_back_log_sheet_no')
         out_depot_buses_send_back_status = 0
         try:
             special_bus_data = SpecialBusDataEntry.objects.get(log_sheet_no=log_sheet_no)
             user_data = User.objects.get(id=request.session['user_id'])
-            out_depo_buse_send_back_detail = OutDepotVehicleSentBack.objects.create(unique_no_bus_no=unique_no_bus_no,
+            out_depo_buse_send_back_detail = OutDepotVehicleSentBack.objects.create(unique_no=unique_no,
+                                                                                    bus_number=bus_number,
                                                                                     log_sheet_no=log_sheet_no,
                                                                                     special_bus_data_entry=
                                                                                     special_bus_data,
@@ -1244,8 +1260,13 @@ def out_depot_vehicle_send_back_add(request):
             print(e)
             messages.error(request, 'Out Depot Vehicle Send Back Details Creation Failed!!')
         return redirect("app:out_depot_vehicle_send_back_list")
-
-    return render(request, 'out_depot_buses/out_depot_vehicle_send_back/add.html', {})
+    try:
+        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'out_depot_buses/out_depot_vehicle_send_back/add.html',
+                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+    except Exception as e:
+        print(e)
+        return render(request, 'out_depot_buses/out_depot_vehicle_send_back/add.html', {})
 
 
 def search_for_spl_sending_bus_depot(request):
@@ -1337,19 +1358,24 @@ def buses_on_hand_add(request):
         try:
             out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_code)
             special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
+            point_name_data = PointData.objects.get(id=point_name)
             user_data = User.objects.get(id=request.session['user_id'])
             buses_on_hand_detail = BusesOnHand.objects.create(unique_code=unique_code, status=buses_on_hand_status,
                                                               special_bus_data_entry=special_bus_data,
                                                               created_by=user_data, bus_in_out=bus_in_out,
-                                                              point_name=point_name)
+                                                              point_name=point_name_data)
             buses_on_hand_detail.save()
             messages.success(request, 'Buses on hand Details saved Successfully')
         except Exception as e:
             print(e)
             messages.error(request, 'Buses On Hand Details Creation Failed!!')
         return redirect("app:buses_on_hand_list")
-
-    return render(request, 'buses_on_hand/add.html', {})
+    try:
+        point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'buses_on_hand/add.html', {"point_name_data": point_name_data})
+    except Exception as e:
+        print(e)
+        return render(request, 'buses_on_hand/add.html', {})
 
 
 @custom_login_required
@@ -1523,6 +1549,59 @@ def buses_sending_back_list(request):
     buses_sending_back_data = OutDepotVehicleSentBack.objects.filter(~Q(status=2))
     return render(request, 'reports/buses_sending_back_list.html',
                   {'buses_sending_back_data': buses_sending_back_data})
+
+
+@transaction.atomic
+@custom_login_required
+def point_data_import(request):
+    print("Called")
+    if request.method == "POST":
+        file = request.FILES.get('point_data_list')
+        try:
+            df = pd.read_excel(file)
+            row_iter = df.iterrows()
+            for i, row in row_iter:
+                print(row)
+                try:
+                    name = row[0]
+                    point_name_exist = PointData.objects.filter(point_name=name).count()
+                    if point_name_exist == 0:
+                        point_name = PointData.objects.create(point_name=name, status=0)
+                        point_name.save()
+                    else:
+                        pass
+                except Exception as e:
+                    print(e)
+            return redirect("app:point_data_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Point Data import failed!!')
+        return redirect("app:point_data_list")
+    return render(request, 'point_data/import.html', {})
+
+
+@custom_login_required
+def point_data_list(request):
+    point_data = PointData.objects.filter(~Q(status=2))
+    return render(request, 'point_data/list.html', {"point_name_data": point_data})
+
+
+def validate_log_sheet(request):
+    log_sheet_no = request.GET.get('log_sheet_no')
+    try:
+        special_bus_data = SpecialBusDataEntry.objects.get(log_sheet_no=log_sheet_no)
+        exists = True
+    except SpecialBusDataEntry.DoesNotExist:
+        exists = False
+    return JsonResponse({'exists': exists})
+
+
+@custom_login_required
+def get_out_depot_vehicle_receive_bus_number(request):
+    unique_no = request.GET.get('unique_no')
+    out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_no)
+    special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
+    return JsonResponse({'bus_number': special_bus_data.bus_number.bus_number})
 
 
 # REST API STARTS FROM HERE

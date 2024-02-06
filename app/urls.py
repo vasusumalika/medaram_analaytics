@@ -79,6 +79,9 @@ urlpatterns = [
     path('out/depot/buses/send/back/list', views.out_depot_vehicle_send_back_list,
          name='out_depot_vehicle_send_back_list'),
     path('out/depot/buses/send/back/add', views.out_depot_vehicle_send_back_add, name='out_depot_vehicle_send_back_add'),
+    path('out/depot/buses/send/back/validate/log/sheet', views.validate_log_sheet, name='validate_log_sheet'),
+    path('get/out/depot/vehicle/receive/bus/number', views.get_out_depot_vehicle_receive_bus_number, name='get_out_depot_vehicle_receive_bus_number'),
+
 
     path('spl/bus/search/sending/bus/depot', views.search_for_spl_sending_bus_depot,
          name='search_for_spl_sending_bus_depot'),
@@ -110,6 +113,9 @@ urlpatterns = [
          name='status_return_back_buses_list'),
     path('reports/buses/sending/back/list', views.buses_sending_back_list,
          name='buses_sending_back_list'),
+
+    path('point_data/list', views.point_data_list, name='point_data_list'),
+    path('point_data/import', views.point_data_import, name='point_data_import'),
 
 
 
