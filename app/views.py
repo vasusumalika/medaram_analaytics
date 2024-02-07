@@ -1196,13 +1196,28 @@ def search_unique_no_bus_no_special_bus_data(request):
     if request.method == "POST":
         unique_no_bus_no = request.POST.get('unique_no_bus_no')
         if unique_no_bus_no.isdigit():
-            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_no_bus_no)
-            special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
+            try:
+                out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_no_bus_no)
+                special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
+                return render(request, 'hsd_oil_submission/add.html', {'special_bus_data': special_bus_data,
+                                                                   'unique_bus_no': unique_no_bus_no})
+            except Exception as e:
+                print(e)
+                messages.error(request, 'Unique number not matching please try again')
+                return redirect("app:hsd_oil_submission_add")
         else:
-            vehicle_details = VehicleDetails.objects.get(bus_number=unique_no_bus_no)
-            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_details)
-    return render(request, 'hsd_oil_submission/add.html', {'special_bus_data': special_bus_data,
-                                                           'unique_bus_no': unique_no_bus_no})
+            try:
+                vehicle_details = VehicleDetails.objects.get(bus_number=unique_no_bus_no)
+                special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_details)
+                return render(request, 'hsd_oil_submission/add.html', {'special_bus_data': special_bus_data,
+                                                                       'unique_bus_no': unique_no_bus_no})
+            except Exception as e:
+                print(e)
+                messages.error(request, 'Bus number not matching please try again')
+                return redirect("app:hsd_oil_submission_add")
+    else:
+        return redirect("app:hsd_oil_submission_add")
+
 
 
 @custom_login_required
