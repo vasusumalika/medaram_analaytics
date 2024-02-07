@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'medaram_analytics.wsgi.application'
 #
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 #
-#         'NAME': 'medaram',
+#         'NAME': 'medaram_analytics_db',
 #
 #         'USER': 'postgres',
 #
@@ -144,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -174,3 +174,5 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ENCRYPTION_KEY = b'H9b4YZDrzbE0JLJXWxPgZQFgjLRph7QFCCywfc9zPQU='

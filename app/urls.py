@@ -51,7 +51,7 @@ urlpatterns = [
     path('spl/bus/data/entry/update', views.spl_bus_data_entry_update, name='spl_bus_data_entry_update'),
     path('get/depot/vehicle/number', views.get_depot_vehicle_number, name='get_depot_vehicle_number'),
 
-    path('out/depot/buses/receive/form', views.out_depot_buses_receive_form, name='out_depot_buses_receive_form'),
+    # path('out/depot/buses/receive/form', views.out_depot_buses_receive_form, name='out_depot_buses_receive_form'),
     path('out/depot/buses/receive/list', views.out_depot_buses_receive_list, name='out_depot_buses_receive_list'),
     path('out/depot/buses/receive/add', views.out_depot_buses_receive_add, name='out_depot_buses_receive_add'),
     path('search/special/bus/data', views.search_special_bus_data, name='search_special_bus_data'),
@@ -87,7 +87,7 @@ urlpatterns = [
          name='get_out_depot_vehicle_receive_bus_number'),
 
     path('hsd/oil/submission/list', views.hsd_oil_submission_list, name='hsd_oil_submission_list'),
-    path('hsd/oil/submission/form', views.hsd_oil_submission_form, name='hsd_oil_submission_form'),
+    # path('hsd/oil/submission/form', views.hsd_oil_submission_form, name='hsd_oil_submission_form'),
     path('hsd/oil/submission/add', views.hsd_oil_submission_add, name='hsd_oil_submission_add'),
     path('search/unique/bus/number/special/bus/data', views.search_unique_no_bus_no_special_bus_data,
          name='search_unique_no_bus_no_special_bus_data'),
@@ -120,6 +120,9 @@ urlpatterns = [
 
     path('point_data/list', views.point_data_list, name='point_data_list'),
     path('point_data/import', views.point_data_import, name='point_data_import'),
+    path('point_data/add', views.point_name_add, name='point_name_add'),
+    path('point_data/edit', views.point_name_edit, name='point_name_edit'),
+    path('point_data/update', views.point_name_update, name='point_name_update'),
 
 
 

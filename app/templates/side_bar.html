@@ -252,7 +252,7 @@
 										<i class="angle fa fa-angle-right"></i>
 									</a>
          							<ul class="slide-menu">
-            							<li><a class="slide-item" href="{% url 'app:out_depot_buses_receive_form'%}">Out depot vehicle receive</a></li>
+            							<li><a class="slide-item" href="{% url 'app:out_depot_buses_receive_add'%}">Out depot vehicle receive</a></li>
             							<li><a class="slide-item" href="{% url 'app:out_depot_vehicle_send_back_list'%}">Out depot vehicle send back</a></li>
          							</ul>
 								</li>
@@ -282,7 +282,7 @@
 								</li>
 
 								<li class="slide">
-									<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:hsd_oil_submission_form'%}">
+									<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:hsd_oil_submission_add'%}">
 										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
 										<span class="side-menu__label">HSD Oil Submission</span>
 									</a>
@@ -459,27 +459,27 @@
 				pageLength: 10,
          	});
 
-         	$('#out_depot_send_back_log_sheet_no').on('blur', function() {
-        		var logSheetNo = $(this).val();
-        		console.log("Log sheet number:", logSheetNo);
-        		$.ajax({
-            		url: '/out/depot/buses/send/back/validate/log/sheet',
-            		type: 'GET',
-            		data: {
-                		'log_sheet_no': logSheetNo
-            		},
-            		success: function(data) {
-            			console.log("AJAX success");
-                		if (data.exists) {
-                			console.log("Log sheet number exists");
-                    		$('#log_sheet_no_error').html('');
-                		} else {
-                			console.log("Log sheet number does not exist");
-                    		$('#log_sheet_no_error').html('Log sheet number does not exist');
-                		}
-            		}
-        		});
-    		});
+<!--         	$('#out_depot_send_back_log_sheet_no').on('blur', function() {-->
+<!--        		var logSheetNo = $(this).val();-->
+<!--        		console.log("Log sheet number:", logSheetNo);-->
+<!--        		$.ajax({-->
+<!--            		url: '/out/depot/buses/send/back/validate/log/sheet',-->
+<!--            		type: 'GET',-->
+<!--            		data: {-->
+<!--                		'log_sheet_no': logSheetNo-->
+<!--            		},-->
+<!--            		success: function(data) {-->
+<!--            			console.log("AJAX success");-->
+<!--                		if (data.exists) {-->
+<!--                			console.log("Log sheet number exists");-->
+<!--                    		$('#log_sheet_no_error').html('');-->
+<!--                		} else {-->
+<!--                			console.log("Log sheet number does not exist");-->
+<!--                    		$('#log_sheet_no_error').html('Log sheet number does not exist');-->
+<!--                		}-->
+<!--            		}-->
+<!--        		});-->
+<!--    		});-->
 
     		$("#out_depot_vehicle_receive_unique_no").change(function() {
             	var selectedUniqueNo = $(this).val();
