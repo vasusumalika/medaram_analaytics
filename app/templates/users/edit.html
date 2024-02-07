@@ -61,7 +61,7 @@
 
 												<div class="col-sm-12 col-md-12 col-xl-6">
 													<div class="form-group">
-														<label class="form-label text-muted">User Type:</label>
+														<label class="form-label text-muted">User Role:</label>
 														<select class="form-control custom-select" id="user_type_id" name="user_type_id" data-placeholder="Choose UserType..." tabindex="-1" aria-hidden="true" required>
 															{% for user_type in user_type_data %}
 																<option value="{{ user_type.id }}"{% if user_type.id in user_type_id_list %} selected{% endif %}>{{ user_type.name }}</option>

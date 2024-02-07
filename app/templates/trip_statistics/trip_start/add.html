@@ -18,8 +18,8 @@
 								</div>
 								<div class="ms-auto pageheader-btn">
 									<ol class="breadcrumb">
-										<li class="breadcrumb-item"><a href="">Trip Statistics - Trip Data</a></li>
-										<li class="breadcrumb-item active" aria-current="page"> Add Trip Statistics - Trip Data</li>
+										<li class="breadcrumb-item"><a href="">Trip Statistics - Trip Start</a></li>
+										<li class="breadcrumb-item active" aria-current="page"> Add Trip Statistics - Trip Start</li>
 									</ol>
 								</div>
 							</div>
@@ -46,10 +46,55 @@
 								<div class="col-lg-12 col-xl-12 col-md-12 col-sm-12">
 									<div class="card box-shadow-0">
 										<div class="card-header border-bottom">
-											<h3 class="card-title">Add Trip Statistics - Trip Data Form</h3>
+										<h3 class="card-title">Trip Start</h3>
 										</div>
 										<div class="card-body">
-											<form class="form-horizontal row" action="{% url 'app:trip_data_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+											<form class="form-horizontal row" action="{% url 'app:trip_start_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+
+                                               {% if request.session.point_name != 'Thadvai' %}
+
+                                                            <div class="row row-sm">
+                                                                <div class="col-lg">
+                                                                    <label class="form-label" >Journey:</label>
+                                                                    <input class="form-control mb-4" name="entry_type" value="up" type="text" readonly>
+                                                                </div>
+                                                                <div class="col-lg">
+                                                                   <label class="form-label" >From:</label>
+                                                                   <input type="text" class="form-control mb-4" name="start_form_location" value="{{request.session.point_name}}"  readonly>
+                                                                </div>
+                                                                <div class="col-lg">
+                                                                    <label class="form-label" >To:</label>
+                                                                    <input type="text" class="form-control mb-4" name="start_to_location" value="Thadvai" readonly>
+                                                                </div>
+                                                            </div>
+                                                {% else %}
+
+                                                          <div class="row row-sm">
+                                                              <div class="col-md-4">
+                                                                  <label class="form-label" >Journey:</label>
+                                                                  <input class="form-control mb-4" name="entry_type" value="down" type="text" readonly>
+                                                              </div>
+
+                                                              <div class="col-md-4">
+                                                                   <label class="form-label" >From:</label>
+                                                                   <input type="text" class="form-control mb-4" name="start_form_location" value="{{request.session.point_name}}"  readonly>
+                                                              </div>
+
+                                                              <div class="col-md-4">
+                                                                  <label for="validationCustom04" class="form-label">To</label>
+                                                                  <select class="form-select custom-select" id="point"  name="start_to_location" required>
+                                                                        <option value="">Select Option</option>
+                                                                        {% for point in point_data %}
+                                                                            <option value="{{ point.point_name }}">
+                                                                                {{ point.point_name }}
+                                                                            </option>
+                                                                        {% endfor %}
+                                                                  </select>
+                                                               </div>
+
+                                                          </div>
+
+                                                {% endif %}
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="out_depot_vehicle_receive_unique_no">Unique No</label>
@@ -111,7 +156,7 @@
 												<div class="form-group mt-3">
 													<div>
 														<button type="submit" class="btn btn-primary">Submit</button>
-														<a href="{% url 'app:trip_data_add' %}">
+														<a href="{% url 'app:trip_start_add' %}">
 															<button type="button" class="btn btn-secondary">Cancel</button>
 														</a>
 													</div>
@@ -139,6 +184,7 @@
     $(document).ready(function() {
         //Select2 on the dropdown
         $('#out_depot_vehicle_receive_unique_no').select2();
+        $('#').select2();
     });
 </script>
 
