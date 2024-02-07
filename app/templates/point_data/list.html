@@ -35,6 +35,8 @@
                                         <div class="col-md-12">
 											<a  href="{% url 'app:point_data_import' %}">
                                             <input type="button" value="Import Point Data" class="btn btn-primary" style="width: 15%;margin: 0 20px 20px 0;"></a>
+											<a  href="{% url 'app:point_name_add' %}">
+                                            <input type="button" value="Add Point Data" class="btn btn-primary float-right" style="float:right;width: 15%;margin: 0 20px 20px 0;"></a>
                                         </div>
                                       </div>
 									<div class="card">
@@ -62,6 +64,7 @@
                                                             <th class="border-bottom-0">Depot Name</th>
 															<th class="border-bottom-0">Region</th>
 															<th class="border-bottom-0">Zone</th>
+															<th class="border-bottom-0">Actions</th>
 														</tr>
 													</thead>
 													<tbody>
@@ -71,6 +74,10 @@
 															  <td>{{ point_name.depot_name.name }}</td>
 															  <td>{{ point_name.region }}</td>
 															  <td>{{ point_name.zone }}</td>
+															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:point_name_edit' %}?id={{ point_name.id }}">
+																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
+															   		</a>
+															  </td>
 														  </tr>
                                                         {% endfor %}
 													</tbody>

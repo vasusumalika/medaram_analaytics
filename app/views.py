@@ -13,12 +13,23 @@ from django.db import transaction
 from django.contrib.auth.hashers import check_password
 import pandas as pd
 from functools import wraps
+from cryptography.fernet import Fernet
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+import ast
 
 # RESTAPI IMPORT STARTS HERE
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from app import serializers as app_serializers
+
+
+ENCRYPTION_KEY = getattr(settings, 'ENCRYPTION_KEY', None)
+if ENCRYPTION_KEY is None:
+    raise ImproperlyConfigured("ENCRYPTION_KEY setting is missing")
+
+cipher_suite = Fernet(ENCRYPTION_KEY)
 
 
 def custom_login_required(view_func):
@@ -51,18 +62,28 @@ def do_login(request):
         if not (user_email_phone and user_password):
             messages.error(request, "Please provide all the details!!")
             return redirect("app:index")
-
         user_login_data = User.objects.filter(Q(email=user_email_phone) | Q(phone_number=user_email_phone)).first()
-
-        if user_login_data and check_password(user_password, user_login_data.password):
-            print(request.user.id)
-            request.session['user_id'] = user_login_data.id
-            request.session['user_type'] = user_login_data.user_type.name
-            request.session['point_name'] = user_login_data.point_name.point_name
-            return redirect("app:dashboard")
-        else:
-            messages.error(request, 'Invalid Login Credentials!!')
-            return redirect("app:index")
+        if user_login_data:
+            encrypted_password = ast.literal_eval(user_login_data.password)
+            decrypted_password = cipher_suite.decrypt(encrypted_password).decode()
+            if decrypted_password == user_password:
+                print(request.user.id)
+                request.session['user_id'] = user_login_data.id
+                request.session['user_type'] = user_login_data.user_type.name
+                request.session['point_name'] = user_login_data.point_name.point_name
+                return redirect("app:dashboard")
+            else:
+                messages.error(request, 'Invalid Login Credentials!!')
+                return redirect("app:index")
+        # if user_login_data and check_password(user_password, user_login_data.password):
+        #     print(request.user.id)
+        #     request.session['user_id'] = user_login_data.id
+        #     request.session['user_type'] = user_login_data.user_type.name
+        #     request.session['point_name'] = user_login_data.point_name.point_name
+        #     return redirect("app:dashboard")
+        # else:
+        #     messages.error(request, 'Invalid Login Credentials!!')
+        #     return redirect("app:index")
     else:
         messages.error(request, 'Login failed. Try again!!')
         return redirect("app:index")
@@ -85,8 +106,29 @@ def logout_user(request):
 
 @custom_login_required
 def users_list(request):
+    users_data_list = []
     users_data = User.objects.filter(~Q(status=2))
-    return render(request, 'users/list.html', {"users": users_data})
+    for user in users_data:
+        user_data = {
+            'id': user.id,
+            'name': user.name,
+            'email': user.email,
+            'phone': user.phone_number,
+            'user_type': user.user_type.name,
+            'depot': user.depot.name,
+            'point_name': user.point_name.point_name,
+            'created_at': user.created_at,
+        }
+        if request.session['user_type'] == 'Super_admin':
+            try:
+                encrypted_password = ast.literal_eval(user.password)
+                decrypted_password = cipher_suite.decrypt(encrypted_password).decode()
+                user_data['password'] = decrypted_password
+            except Exception as e:
+                print(e)
+                messages.error(request, ' Failed!!')
+        users_data_list.append(user_data)
+    return render(request, 'users/list.html', {"users": users_data_list})
 
 
 @custom_login_required
@@ -112,7 +154,7 @@ def user_add(request):
             user_type_data = UserType.objects.get(id=user_type)
             point_name_data = PointData.objects.get(id=point_name)
             depot_data = Depot.objects.get(id=depot)
-            encrypted_password = make_password(password)
+            encrypted_password = cipher_suite.encrypt(password.encode())
             user = User.objects.create(name=name, email=email, password=encrypted_password, phone_number=phone,
                                        status=user_status, user_type=user_type_data, depot=depot_data,
                                        point_name=point_name_data)
@@ -178,7 +220,7 @@ def user_update(request):
             user_data.name = name
             user_data.email = email
             if user_data.password != password:   # edited the password
-                encrypted_password = make_password(password)
+                encrypted_password = cipher_suite.encrypt(password.encode())
                 user_data.password = encrypted_password
             user_data.phone = phone
             user_data.status = user_status
@@ -212,8 +254,8 @@ def user_type_add(request):
         name = request.POST.get('name')
         user_status = 0
         try:
-            # user_data = User.objects.get(id=request.session['user_id'])
-            user_type = UserType.objects.create(name=name, status=user_status)
+            user_data = User.objects.get(id=request.session['user_id'])
+            user_type = UserType.objects.create(name=name, status=user_status, created_by=user_data)
             user_type.save()
             messages.success(request, 'User Type Created Successfully')
         except Exception as e:
@@ -272,8 +314,8 @@ def depot_add(request):
         buses_allotted = request.POST.get('buses_allotted')
         depot_status = 0
         try:
-            # user_data = User.objects.get(id=request.session['user_id'])
-            depot = Depot.objects.create(name=name, depot_code=depot_code, status=depot_status,
+            user_data = User.objects.get(id=request.session['user_id'])
+            depot = Depot.objects.create(name=name, depot_code=depot_code, status=depot_status, created_by=user_data,
                                          buses_allotted=buses_allotted)
             depot.save()
             messages.success(request, 'Depot Created Successfully')
@@ -898,6 +940,7 @@ def trip_check_form(request):
     out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(~Q(status=2))
     return render(request, 'trip_statistics/trip_check/list.html', {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
 
+
 @custom_login_required
 def search_unique_no_trip_check_list(request):
     trip_check_list = ''
@@ -1045,14 +1088,14 @@ def out_depot_buses_receive_list(request):
                   {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
 
 
-@custom_login_required
-def out_depot_buses_receive_form(request):
-    try:
-        special_bus_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
-        return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html',
-                      {'special_bus_numbers_data': special_bus_data})
-    except Exception as e:
-        print(e)
+# @custom_login_required
+# def out_depot_buses_receive_form(request):
+#     try:
+#         special_bus_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
+#         return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html',
+#                       {'special_bus_numbers_data': special_bus_data})
+#     except Exception as e:
+#         print(e)
 
 
 @custom_login_required
@@ -1062,7 +1105,9 @@ def search_special_bus_data(request):
         if bus_number:
             vehicle_detail = VehicleDetails.objects.get(bus_number=bus_number)
             special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail)
-    return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html', {'special_bus_data': special_bus_data})
+    special_bus_numbers_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
+    return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html',
+                  {'special_bus_data': special_bus_data, 'special_bus_numbers_data': special_bus_numbers_data})
 
 
 @custom_login_required
@@ -1101,8 +1146,13 @@ def out_depot_buses_receive_add(request):
             print(e)
             messages.error(request, 'Out Depot Vehicle Receive Details Creation Failed!!')
         return redirect("app:out_depot_buses_receive_list")
-
-    return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html', {})
+    try:
+        special_bus_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
+        return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html',
+                      {'special_bus_numbers_data': special_bus_data})
+    except Exception as e:
+        print(e)
+    # return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html', {})
 
 
 def own_depot_bus_details_entry_list(request):
@@ -1266,13 +1316,16 @@ def out_depot_vehicle_send_back_add(request):
         log_sheet_no = request.POST.get('out_depot_send_back_log_sheet_no')
         out_depot_buses_send_back_status = 0
         try:
-            special_bus_data = SpecialBusDataEntry.objects.get(log_sheet_no=log_sheet_no)
+            special_bus_data = SpecialBusDataEntry.objects.filter(log_sheet_no=log_sheet_no)
+            if special_bus_data.count() == 0:
+                messages.error(request, 'Log Sheet number not exist!!')
+                return redirect("app:out_depot_vehicle_send_back_add")
             user_data = User.objects.get(id=request.session['user_id'])
             out_depo_buse_send_back_detail = OutDepotVehicleSentBack.objects.create(unique_no=unique_no,
                                                                                     bus_number=bus_number,
                                                                                     log_sheet_no=log_sheet_no,
                                                                                     special_bus_data_entry=
-                                                                                    special_bus_data,
+                                                                                    special_bus_data[0],
                                                                                     created_by=user_data,
                                                                                     status=
                                                                                     out_depot_buses_send_back_status)
@@ -1807,6 +1860,78 @@ def get_out_depot_vehicle_receive_bus_number(request):
     out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_no)
     special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
     return JsonResponse({'bus_number': special_bus_data.bus_number.bus_number})
+
+
+@custom_login_required
+def point_name_add(request):
+    if request.method == "POST":
+        point_name = request.POST.get('point_name')
+        depot_id = request.POST.get('depot_id')
+        region = request.POST.get('region')
+        zone = request.POST.get('zone')
+        point_status = 0
+        try:
+            depot_data = Depot.objects.get(id=depot_id)
+            point_data = PointData.objects.create(point_name=point_name, status=point_status, region=region, zone=zone,
+                                                  depot_name=depot_data)
+            point_data.save()
+            messages.success(request, 'Point Created Successfully')
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Point Creation Failed!!')
+        return redirect("app:point_data_list")
+    try:
+        depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'point_data/add.html', {"depot_data": depot_data})
+    except Exception as e:
+        print(e)
+        return render(request, 'point_data/add.html', {})
+
+
+@custom_login_required
+def point_name_edit(request):
+    point_name_id = request.GET.get('id')
+    if point_name_id:
+        point_name_data = PointData.objects.get(id=point_name_id)
+        depot_id_list = []
+        if point_name_data.depot_name:
+            depot_id_list.append(point_name_data.depot_name.id)
+    try:
+        depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'point_data/edit.html', {'depot_data': depot_data, "point": point_name_data,
+                                                        'depot_id_list': depot_id_list})
+    except Exception as e:
+        print(e)
+        return render(request, 'point_data/edit.html', {})
+
+
+@custom_login_required
+def point_name_update(request):
+    point_name_id = request.POST.get('id')
+    point_name = request.POST.get('point_name')
+    depot_id = request.POST.get('depot_id')
+    region = request.POST.get('region')
+    zone = request.POST.get('zone')
+    point_status = 0
+    if point_name_id:
+        try:
+            point_name_data = PointData.objects.get(id=point_name_id)
+            point_name_data.point_name = point_name
+            point_name_data.region = region
+            point_name_data.zone = zone
+            point_name_data.status = point_status
+            depot_data = Depot.objects.get(id=depot_id)
+            point_name_data.depot_name = depot_data
+            point_name_data.save()
+            messages.success(request, 'Point Data updated  successfully!!')
+            return redirect("app:point_data_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Point Data update  failed!!')
+            return redirect("app:point_data_list")
+    else:
+        return redirect("app:point_data_list")
+
 
 
 # REST API STARTS FROM HERE
