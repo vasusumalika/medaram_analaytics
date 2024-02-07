@@ -15,12 +15,12 @@
 							<!-- PAGE-HEADER -->
 							<div class="page-header">
 								<div>
-									<h1 class="page-title">Update Trip check</h1>
+									<h1 class="page-title">Update Trip End</h1>
 								</div>
 								<div class="ms-auto pageheader-btn">
 									<ol class="breadcrumb">
-										<li class="breadcrumb-item"><a href="javascript:void(0);">Trip check</a></li>
-										<li class="breadcrumb-item active" aria-current="page">Edit Trip check</li>
+										<li class="breadcrumb-item"><a href="javascript:void(0);">Trip End</a></li>
+										<li class="breadcrumb-item active" aria-current="page">Edit Trip End</li>
 									</ol>
 								</div>
 							</div>
@@ -33,7 +33,7 @@
 								<div class="col-lg-12 col-xl-12 col-md-12 col-sm-12">
 									<div class="card box-shadow-0">
 										<div class="card-header border-bottom">
-											<h3 class="card-title">Edit Trip check Form</h3>
+											<h3 class="card-title">Edit Trip End Form</h3>
 										</div>
 										<div class="card-body">
 											<form class="form-horizontal row" action="{% url 'app:search_trip_end_form' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
@@ -61,17 +61,17 @@
 										<div class="container">
                                             <center>
                                                 {% if messages %}
-                                                    {% for message in messages %}
-                                                        <div class="container-fluid p-0">
-                                                          <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %} alert-dismissible" role="alert" >
-                                                            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
-                                                              <span aria-hidden="True">&times;</span>
-                                                            </button>
-                                                            {{ message }}
-                                                          </div>
-                                                        </div>
-                                                    {% endfor %}
-                                                {% endif %}
+													{% for message in messages %}
+														<div class="container-fluid p-0">
+											  				<div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+																<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+												  					<span aria-hidden="True">&times;</span>
+																</button>
+																{{ message }}
+											  				</div>
+														</div>
+													{% endfor %}
+												{% endif %}
                                             </center>
                                         </div>
 
@@ -169,5 +169,16 @@
 					</div>
 				</div>
 				<!-- CONTAINER CLOSED -->
+	<!-- JQUERY JS -->
+	<script src="{% static 'js/jquery.min.js' %}"></script>
+	<!-- SELECT2 JS -->
+	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
+
+<script>
+    $(document).ready(function() {
+        //Select2 on the dropdown
+        $('#unique_no').select2();
+    });
+</script>
 
 {% endblock %}
