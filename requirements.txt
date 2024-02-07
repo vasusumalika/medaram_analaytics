@@ -4,4 +4,4 @@ pandas
 openpyxl
 gunicorn==21.2.0
 djangorestframework==3.14.0
-cryptography
+cryptography~=41.0.2
