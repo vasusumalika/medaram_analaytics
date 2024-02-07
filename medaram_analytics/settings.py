@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'medaram_analytics.wsgi.application'
 #
 #         'USER': 'postgres',
 #
-#         'PASSWORD': 'postgress',
+#         'PASSWORD': 'admin',
 #
 #         'HOST': 'localhost',
 #
