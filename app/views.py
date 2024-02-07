@@ -930,14 +930,25 @@ def trip_start_add(request):
 
 @custom_login_required
 def search_trip_end_form(request):
+    out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
     if request.method == "POST":
         unique_no = request.POST.get('unique_no')
         last_trip_details = TripStatistics.objects.filter(unique_code=unique_no).order_by('-created_at').first()
-        return render(request, 'trip_statistics/trip_end/add.html', {'last_trip_details': last_trip_details})
-    else:
-        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
+        if last_trip_details:
+            return render(request, 'trip_statistics/trip_end/add.html',
+                          {'last_trip_details': last_trip_details,
+                           'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+        else:
+            messages.error(request, 'Selected Unique No has no TripStatistic details!!')
+            return render(request, 'trip_statistics/trip_end/add.html',
+                          {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+    try:
         return render(request, 'trip_statistics/trip_end/add.html',
                       {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+    except Exception as e:
+        print(e)
+
+
 
 
 
