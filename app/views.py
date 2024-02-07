@@ -177,7 +177,7 @@ def user_update(request):
             user_data = User.objects.get(id=user_id)
             user_data.name = name
             user_data.email = email
-            if user_data.password != password:   # edited the password
+            if user_data.password != password:  # edited the password
                 encrypted_password = make_password(password)
                 user_data.password = encrypted_password
             user_data.phone = phone
@@ -834,17 +834,11 @@ def vehicle_details_import(request):
     return render(request, 'vehicle_details/import.html', {})
 
 
-# @custom_login_required
-# def statistics_up_journey_list(request):
-#     statistics_up_journey_data = StatisticsDateEntry.objects.filter(~Q(status=2)).filter(entry_type='up')
-#     return render(request, 'statistics_date_entry/up_journey/list.html',
-#                   {"statistics_up_journey_data": statistics_up_journey_data})
 
 
 @custom_login_required
-def trip_data_add(request):
+def trip_start_add(request):
     if request.method == "POST":
-        # bus_unique_code = request.POST.get('bus_unique_code')
         unique_code = request.POST.get('out_depot_vehicle_receive_unique_no')
         bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
         total_ticket_amount = request.POST.get('total_ticket_amount')
@@ -854,17 +848,16 @@ def trip_data_add(request):
         mhl_child_passengers = request.POST.get('mhl_child_passengers')
         mhl_adult_amount = request.POST.get('mhl_adult_amount')
         mhl_child_amount = request.POST.get('mhl_child_amount')
-        service_operated_date = request.POST.get('service_operated_date')
-        point_name = request.POST.get('point_name')
+        start_form_location = request.POST.get('start_form_location')
+        start_to_location = request.POST.get('start_to_location')
+        entry_type = request.POST.get('entry_type')
         status = 0
 
         try:
             user_data = User.objects.get(id=request.session['user_id'])
-            point_data = PointData.objects.get(point_name=point_name)
-            if point_name != 'Thadvai':
-                entry_type = 'up'
-            else:
-                entry_type = 'down'
+            start_from_point_data = PointData.objects.get(point_name=start_form_location)
+            start_to_pont_data = PointData.objects.get(point_name=start_to_location)
+
             statistics_data_entry = TripStatistics.objects.create(unique_code=unique_code, bus_number=bus_number,
                                                                   total_ticket_amount=total_ticket_amount,
                                                                   total_adult_passengers=total_adult_passengers,
@@ -874,56 +867,44 @@ def trip_data_add(request):
                                                                   mhl_adult_amount=mhl_adult_amount,
                                                                   mhl_child_amount=mhl_child_amount,
                                                                   entry_type=entry_type,
-                                                                  service_operated_date=service_operated_date,
                                                                   status=status, created_by=user_data,
-                                                                  point_name=point_data, data_enter_by=user_data,
+                                                                  start_form_location=start_from_point_data,
+                                                                  start_to_location=start_to_pont_data,
+                                                                  data_enter_by=user_data,
                                                                   trip_start=datetime.now())
             statistics_data_entry.save()
             messages.success(request, 'Statistics Trip Data Created Successfully')
+            return redirect("app:trip_start_add")
         except Exception as e:
             print(e)
             messages.error(request, 'Statistics Trip Data Creation Failed!!')
-        return redirect("app:trip_data_add")
-    try:
+            return redirect("app:trip_start_add")
+    else:
         out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
-        return render(request, 'trip_statistics/trip_data/add.html',
-                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
-    except Exception as e:
-        print(e)
-        return render(request, 'trip_statistics/trip_data/add.html', {})
+        point_data = PointData.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'trip_statistics/trip_start/add.html',
+                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data, 'point_data': point_data})
 
 
 @custom_login_required
-def trip_check_form(request):
-    out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(~Q(status=2))
-    return render(request, 'trip_statistics/trip_check/list.html', {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
-
-@custom_login_required
-def search_unique_no_trip_check_list(request):
-    trip_check_list = ''
+def search_trip_end_form(request):
     if request.method == "POST":
         unique_no = request.POST.get('unique_no')
-        # out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_no)
-        trip_check_list = TripStatistics.objects.filter(unique_code=unique_no).order_by('-created_at')
-    return render(request, 'trip_statistics/trip_check/list.html', {'trip_check_list': trip_check_list})
-
-
-@custom_login_required
-def trip_check_edit(request):
-    trip_check_edit_id = request.GET.get('id')
-    if trip_check_edit_id:
-        trip_check_edit_data = TripStatistics.objects.get(id=trip_check_edit_id)
-        return render(request, 'trip_statistics/trip_check//edit.html',
-                      {"trip_check_edit_data": trip_check_edit_data})
+        last_trip_details = TripStatistics.objects.filter(unique_code=unique_no).order_by('-created_at').first()
+        return render(request, 'trip_statistics/trip_end/add.html', {'last_trip_details': last_trip_details})
     else:
-        return render(request, 'trip_statistics/trip_check/edit.html', {})
+        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'trip_statistics/trip_end/add.html',
+                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+
 
 
 @custom_login_required
-def trip_check_update(request):
+def trip_end_add(request):
     trip_check_id = request.POST.get('id')
     trip_verified = request.POST.get('trip_verified')
     trip_verified_time = datetime.now()
+    service_operated_date = request.POST.get('service_operated_date')
     if trip_check_id:
         try:
             trip_check_data = TripStatistics.objects.get(id=trip_check_id)
@@ -931,111 +912,19 @@ def trip_check_update(request):
             trip_check_data.trip_verified_time = trip_verified_time
             user_data = User.objects.get(id=request.session['user_id'])
             trip_check_data.trip_verify_by = user_data
+            trip_check_data.service_operated_date = service_operated_date
             trip_check_data.updated_by = user_data
             trip_check_data.save()
             messages.success(request, 'Trip check updated successfully!!')
-            return redirect("app:trip_check_form")
+            return redirect("app:trip_end_add")
         except Exception as e:
             print(e)
             messages.error(request, 'Trip check updated failed!!')
-            return redirect("app:trip_check_form")
+            return redirect("app:trip_end_add")
     else:
-        return redirect("app:trip_check_form")
-
-
-# @custom_login_required
-# def statistics_down_journey_list(request):
-#     statistics_down_journey_data = StatisticsDateEntry.objects.filter(~Q(status=2)).filter(entry_type='down')
-#     return render(request, 'statistics_date_entry/down_journey/list.html',
-#                   {"statistics_down_journey_data": statistics_down_journey_data})
-
-
-# @custom_login_required
-# def statistics_down_journey_add(request):
-#     if request.method == "POST":
-#         bus_unique_code = request.POST.get('bus_unique_code')
-#         total_ticket_amount = request.POST.get('total_ticket_amount')
-#         total_adult_passengers = request.POST.get('total_adult_passengers')
-#         total_child_passengers = request.POST.get('total_child_passengers')
-#         mhl_adult_passengers = request.POST.get('mhl_adult_passengers')
-#         mhl_child_passengers = request.POST.get('mhl_child_passengers')
-#         mhl_adult_amount = request.POST.get('mhl_adult_amount')
-#         mhl_child_amount = request.POST.get('mhl_child_amount')
-#         entry_type = 'down'
-#         service_operated_date = request.POST.get('service_operated_date')
-#         status = 0
-#
-#         try:
-#             user_data = User.objects.get(id=request.session['user_id'])
-#             statistics_data_entry = StatisticsDateEntry.objects.create(bus_unique_code=bus_unique_code,
-#                                                                        total_ticket_amount=total_ticket_amount,
-#                                                                        total_adult_passengers=total_adult_passengers,
-#                                                                        total_child_passengers=total_child_passengers,
-#                                                                        mhl_adult_passengers=mhl_adult_passengers,
-#                                                                        mhl_child_passengers=mhl_child_passengers,
-#                                                                        mhl_adult_amount=mhl_adult_amount,
-#                                                                        mhl_child_amount=mhl_child_amount,
-#                                                                        entry_type=entry_type,
-#                                                                        service_operated_date=service_operated_date,
-#                                                                        status=status, created_by=user_data)
-#             statistics_data_entry.save()
-#             messages.success(request, 'Statistics Date Entry down Journey Created Successfully')
-#         except Exception as e:
-#             print(e)
-#             messages.error(request, 'Statistics Date Entry down Journey Creation Failed!!')
-#         return redirect("app:statistics_down_journey_list")
-#     else:
-#         return render(request, 'statistics_date_entry/down_journey/add.html', {})
-#
-#
-# @custom_login_required
-# def statistics_down_journey_edit(request):
-#     statistics_down_journey_id = request.GET.get('id')
-#     if statistics_down_journey_id:
-#         statistics_down_journey_data = StatisticsDateEntry.objects.get(id=statistics_down_journey_id)
-#         return render(request, 'statistics_date_entry/down_journey/edit.html',
-#                       {"statistics_down_journey_data": statistics_down_journey_data})
-#     else:
-#         return render(request, 'statistics_date_entry/down_journey/edit.html', {})
-#
-#
-# @custom_login_required
-# def statistics_down_journey_update(request):
-#     statistics_down_journey_id = request.POST.get('id')
-#     bus_unique_code = request.POST.get('bus_unique_code')
-#     total_ticket_amount = request.POST.get('total_ticket_amount')
-#     total_adult_passengers = request.POST.get('total_adult_passengers')
-#     total_child_passengers = request.POST.get('total_child_passengers')
-#     mhl_adult_passengers = request.POST.get('mhl_adult_passengers')
-#     mhl_child_passengers = request.POST.get('mhl_child_passengers')
-#     mhl_adult_amount = request.POST.get('mhl_adult_amount')
-#     mhl_child_amount = request.POST.get('mhl_child_amount')
-#     service_operated_date = request.POST.get('service_operated_date')
-#     status = 0
-#     if statistics_down_journey_id:
-#         try:
-#             statistics_up_journey_data = StatisticsDateEntry.objects.get(id=statistics_down_journey_id)
-#             statistics_up_journey_data.bus_unique_code = bus_unique_code
-#             statistics_up_journey_data.total_ticket_amount = total_ticket_amount
-#             statistics_up_journey_data.total_adult_passengers = total_adult_passengers
-#             statistics_up_journey_data.total_child_passengers = total_child_passengers
-#             statistics_up_journey_data.mhl_adult_passengers = mhl_adult_passengers
-#             statistics_up_journey_data.mhl_child_passengers = mhl_child_passengers
-#             statistics_up_journey_data.mhl_adult_amount = mhl_adult_amount
-#             statistics_up_journey_data.mhl_child_amount = mhl_child_amount
-#             statistics_up_journey_data.service_operated_date = service_operated_date
-#             statistics_up_journey_data.status = status
-#             user_data = User.objects.get(id=request.session['user_id'])
-#             statistics_up_journey_data.updated_by = user_data
-#             statistics_up_journey_data.save()
-#             messages.success(request, 'Statistics Date Entry down Journey updated successfully!!')
-#             return redirect("app:statistics_down_journey_list")
-#         except Exception as e:
-#             print(e)
-#             messages.error(request, 'Statistics Date Entry down Journey update  failed!!')
-#             return redirect("app:statistics_down_journey_list")
-#     else:
-#         return redirect("app:statistics_down_journey_list")
+        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'trip_statistics/trip_end/add.html',
+                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
 
 
 @custom_login_required
@@ -1445,7 +1334,8 @@ def buses_dispatched_display_details(request):
 def buses_reached_list(request):
     depot_id = request.GET.get('id')
     depot_data = Depot.objects.get(id=depot_id)
-    buses_reached_data = OutDepotVehicleReceive.objects.filter(~Q(status=2)).filter(out_depot_bus_sending_depot=depot_id)
+    buses_reached_data = OutDepotVehicleReceive.objects.filter(~Q(status=2)).filter(
+        out_depot_bus_sending_depot=depot_id)
     return render(request, 'reports/buses_reached_list.html',
                   {'buses_reached_data': buses_reached_data, 'depot_data': depot_data})
 
@@ -1461,7 +1351,6 @@ def buses_reached_display_details(request):
     except Exception as e:
         print(e)
         return render(request, 'reports/buses_reached_display_details.html', {})
-
 
 
 @custom_login_required
@@ -1564,7 +1453,7 @@ def out_depot_vehicle_receive_edit(request):
         out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(id=out_depot_vehicle_receive_id)
     try:
         return render(request, 'out_depot_buses/out_depot_vehicle_receive/edit.html',
-        {"out_depot_vehicle_receive_data": out_depot_vehicle_receive_data})
+                      {"out_depot_vehicle_receive_data": out_depot_vehicle_receive_data})
     except Exception as e:
         print(e)
         return render(request, 'out_depot_buses/out_depot_vehicle_receive/edit.html', {})
@@ -1623,8 +1512,9 @@ def out_depot_vehicle_send_back_edit(request):
     try:
         out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'out_depot_buses/out_depot_vehicle_send_back/edit.html',
-        {"out_depot_vehicle_send_back_data": out_depot_vehicle_send_back_data, 'unique_no_list': unique_no_list,
-         'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+                      {"out_depot_vehicle_send_back_data": out_depot_vehicle_send_back_data,
+                       'unique_no_list': unique_no_list,
+                       'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
     except Exception as e:
         print(e)
         return render(request, 'out_depot_buses/out_depot_vehicle_send_back/edit.html', {})
