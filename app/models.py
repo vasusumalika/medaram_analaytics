@@ -331,7 +331,7 @@ class TripStatistics(models.Model):
                                        related_name='statistics_data_verify_by', default="", null=True,
                                        blank=True)
     trip_start = models.DateTimeField(auto_now_add=True)
-    # trip_end = models.DateTimeField(null=True, blank=True)
+    trip_end = models.DateTimeField(null=True, blank=True)
     trip_verified = models.BooleanField(default=False)
     trip_verified_time = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
