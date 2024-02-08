@@ -77,47 +77,47 @@ WSGI_APPLICATION = 'medaram_analytics.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-
-    'default': {
-
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-
-        'NAME': 'medaram_analytics_db',
-
-        'USER': 'postgres',
-
-        'PASSWORD': 'postgress',
-
-        'HOST': 'localhost',
-
-        'PORT': '5432',
-
-    }
-
-}
-
-
-
 # DATABASES = {
 #
 #     'default': {
 #
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 #
-#         'NAME': 'medaram_analaytics_db',
+#         'NAME': 'medaram_analytics_db',
 #
-#         'USER': 'medaram_analaytics_db',
+#         'USER': 'postgres',
 #
-#         'PASSWORD': 'bvQrozq2X3AWIyNEPT7ENxG92BAOwiIr',
+#         'PASSWORD': 'postgress',
 #
-#         'HOST': 'dpg-cmuesbug1b2c73ehm3fg-a.singapore-postgres.render.com',
+#         'HOST': 'localhost',
 #
 #         'PORT': '5432',
 #
 #     }
 #
 # }
+
+
+
+DATABASES = {
+
+    'default': {
+
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+
+        'NAME': 'medaram_analaytics_db',
+
+        'USER': 'medaram_analaytics_db',
+
+        'PASSWORD': 'bvQrozq2X3AWIyNEPT7ENxG92BAOwiIr',
+
+        'HOST': 'dpg-cmuesbug1b2c73ehm3fg-a.singapore-postgres.render.com',
+
+        'PORT': '5432',
+
+    }
+
+}
 
 
 # Password validation
