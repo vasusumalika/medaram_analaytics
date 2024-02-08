@@ -24,13 +24,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from app import serializers as app_serializers
 
-
 ENCRYPTION_KEY = getattr(settings, 'ENCRYPTION_KEY', None)
 if ENCRYPTION_KEY is None:
     raise ImproperlyConfigured("ENCRYPTION_KEY setting is missing")
 
 cipher_suite = Fernet(ENCRYPTION_KEY)
 
+from django.db.models import Sum
 
 def custom_login_required(view_func):
     @wraps(view_func)
@@ -219,7 +219,7 @@ def user_update(request):
             user_data = User.objects.get(id=user_id)
             user_data.name = name
             user_data.email = email
-            if user_data.password != password:   # edited the password
+            if user_data.password != password:  # edited the password
                 encrypted_password = cipher_suite.encrypt(password.encode())
                 user_data.password = encrypted_password
             user_data.phone = phone
@@ -744,10 +744,10 @@ def spl_bus_data_entry_update(request):
             spl_bus_data_entry_data = SpecialBusDataEntry.objects.get(id=spl_bus_data_entry_id)
 
             sending_depot_data = Depot.objects.get(id=special_bus_sending_depot)
-            spl_bus_data_entry_data.depot = sending_depot_data
+            spl_bus_data_entry_data.special_bus_sending_depot = sending_depot_data
 
             reporting_depot_data = Depot.objects.get(id=special_bus_reporting_depot)
-            spl_bus_data_entry_data.depot = reporting_depot_data
+            spl_bus_data_entry_data.special_bus_reporting_depot = reporting_depot_data
 
             operation_type_data = OperationType.objects.get(id=bus_type)
             spl_bus_data_entry_data.opt_type = operation_type_data
@@ -876,8 +876,6 @@ def vehicle_details_import(request):
     return render(request, 'vehicle_details/import.html', {})
 
 
-
-
 @custom_login_required
 def trip_start_add(request):
     if request.method == "POST":
@@ -949,9 +947,6 @@ def search_trip_end_form(request):
                       {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
     except Exception as e:
         print(e)
-
-
-
 
 
 @custom_login_required
@@ -1267,7 +1262,7 @@ def search_unique_no_bus_no_special_bus_data(request):
                 out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_no_bus_no)
                 special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
                 return render(request, 'hsd_oil_submission/add.html', {'special_bus_data': special_bus_data,
-                                                                   'unique_bus_no': unique_no_bus_no})
+                                                                       'unique_bus_no': unique_no_bus_no})
             except Exception as e:
                 print(e)
                 messages.error(request, 'Unique number not matching please try again')
@@ -1284,7 +1279,6 @@ def search_unique_no_bus_no_special_bus_data(request):
                 return redirect("app:hsd_oil_submission_add")
     else:
         return redirect("app:hsd_oil_submission_add")
-
 
 
 @custom_login_required
@@ -1494,6 +1488,86 @@ def display_bus_details(request):
     except Exception as e:
         print(e)
         return render(request, 'reports/display_bus_details.html', {})
+
+
+@custom_login_required
+def search_depot_list(request):
+    special_bus_sending_depot = SpecialBusDataEntry.objects.values('special_bus_sending_depot__id',
+                                                                   'special_bus_sending_depot__name').distinct()
+    if request.method == "POST":
+        performance_depot_result = []
+        depot_name = request.POST.get('depot_name')
+        out_depot_bus_reporting_depot = OutDepotVehicleReceive.objects.values_list("out_depot_bus_reporting_depot",
+                                                                                   flat=True).filter(
+            out_depot_bus_sending_depot=depot_name).distinct()
+        if len(out_depot_bus_reporting_depot) > 0:
+            for reporting_Depot in out_depot_bus_reporting_depot:
+                depot_info = Depot.objects.get(id=reporting_Depot)
+                report_depot_id = depot_info.id
+                report_depot_name = depot_info.name
+                alloted_buses = OutDepotVehicleReceive.objects.filter(
+                    out_depot_bus_reporting_depot=reporting_Depot).count()
+
+                depot_points = PointData.objects.values_list('id', flat=True).filter(depot_name=reporting_Depot)
+
+                no_of_trips_up_count = TripStatistics.objects.filter(entry_type='up').filter(start_form_location__in=depot_points).count()
+                no_of_trips_down_count = TripStatistics.objects.filter(entry_type='down').filter(start_to_location__in=depot_points).count()
+                no_of_trips_count = no_of_trips_up_count+no_of_trips_down_count
+                # total_passenger_count = TripStatistics.objects. \
+                #     values('total_adult_passengers', 'total_child_passengers', 'mhl_adult_passengers',
+                #            'mhl_child_passengers').count()
+                # total_earnings_count = TripStatistics.objects. \
+                #     values('total_ticket_amount', 'mhl_adult_amount', 'mhl_child_amount').sum()
+
+                total_earnings_up = TripStatistics.objects.filter(entry_type='up').filter(start_form_location__in=depot_points).aggregate(
+                    total_ticket_amount_sum=Sum('total_ticket_amount'),
+                    mhl_adult_amount_sum=Sum('mhl_adult_amount'),
+                    mhl_child_amount_sum=Sum('mhl_child_amount')
+                )
+
+                total_earnings_down = TripStatistics.objects.filter(entry_type='down').filter(start_to_location__in=depot_points).aggregate(
+                    total_ticket_amount_sum=Sum('total_ticket_amount'),
+                    mhl_adult_amount_sum=Sum('mhl_adult_amount'),
+                    mhl_child_amount_sum=Sum('mhl_child_amount')
+                )
+
+                total_passenger_up = TripStatistics.objects.filter(entry_type='up').filter(
+                    start_form_location__in=depot_points).aggregate(
+                    total_adult_passengers=Sum('total_adult_passengers'),
+                    total_child_passengers=Sum('total_child_passengers'),
+                    mhl_adult_passengers=Sum('mhl_adult_passengers'),
+                    mhl_child_passengers=Sum('mhl_child_passengers')
+                )
+
+                total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
+                    start_form_location__in=depot_points).aggregate(
+                    total_adult_passengers=Sum('total_adult_passengers'),
+                    total_child_passengers=Sum('total_child_passengers'),
+                    mhl_adult_passengers=Sum('mhl_adult_passengers'),
+                    mhl_child_passengers=Sum('mhl_child_passengers')
+                )
+                total_earnings_count = total_earnings_up + total_earnings_down
+                total_passenger_count = total_passenger_up + total_passengers_down
+                performance_depot_result.append({
+                    'depot_id': report_depot_id,
+                    'depot_name': report_depot_name,
+                    'buses_allotted': alloted_buses,
+                    'no_of_trips_count': no_of_trips_count,
+                    'no_of_trips_up_count': no_of_trips_up_count,
+                    'no_of_trips_down_count': no_of_trips_down_count,
+                    'total_passenger_count': total_passenger_count,
+                    'total_earnings_count': total_earnings_count,
+                })
+
+                # messages.error(request, 'Selected Unique No has no TripStatistic details!!')
+                return render(request, 'reports/performance_of_buses_list.html',
+                              {'performance_depot_result': performance_depot_result})
+        else:
+            return render(request, 'reports/performance_of_buses_list.html',
+                          {'special_bus_sending_depot': special_bus_sending_depot})
+    else:
+        return render(request, 'reports/performance_of_buses_list.html',
+                      {'special_bus_sending_depot': special_bus_sending_depot})
 
 
 @custom_login_required
@@ -1850,7 +1924,6 @@ def point_name_update(request):
             return redirect("app:point_data_list")
     else:
         return redirect("app:point_data_list")
-
 
 
 # REST API STARTS FROM HERE
