@@ -51,7 +51,9 @@
 										<div class="card-body">
 											<form class="form-horizontal row" action="{% url 'app:trip_start_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
-                                               {% if request.session.point_name != 'Thadvai' and request.session.user_type == 'PSG ENTRY UP'%}
+                                               {% if request.session.point_name != 'Thadvai' %}
+
+													{% if request.session.user_type == 'PSG ENTRY UP' or request.session.user_type == 'Super_admin' %}
 
                                                             <div class="row row-sm">
                                                                 <div class="col-lg">
@@ -67,6 +69,8 @@
                                                                     <input type="text" class="form-control mb-4" name="start_to_location" value="Thadvai" readonly>
                                                                 </div>
                                                             </div>
+													{% endif %}
+
 												{% else %}
 
                                                           <div class="row row-sm">
@@ -179,19 +183,5 @@
 					</div>
 				</div>
 				<!-- CONTAINER CLOSED -->
-
-	<!-- JQUERY JS -->
-	<script src="{% static 'js/jquery.min.js' %}"></script>
-	<!-- SELECT2 JS -->
-	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
-
-<script>
-    $(document).ready(function() {
-        //Select2 on the dropdown
-        $('#out_depot_vehicle_receive_unique_no').select2();
-        $('#').select2();
-    });
-</script>
-
 
 {% endblock %}

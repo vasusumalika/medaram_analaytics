@@ -63,6 +63,7 @@
 															{% if request.session.user_type == 'Super_admin' %}
                 												<th>Password</th>
             												{% endif %}
+															<th class="border-bottom-0">Employee Designation</th>
 															<th class="border-bottom-0">User Role</th>
 															<th class="border-bottom-0">Phone</th>
 															<th class="border-bottom-0">Depot</th>
@@ -80,6 +81,13 @@
 															  {% if request.session.user_type == 'Super_admin' %}
 															  	<td>{{ user.password }}</td>
 															  {% endif %}
+															  <td>
+																  {% for key, label in employee_designations.items %}
+																  	{% if key == user.employee_designation %}
+																  		{{ label }}
+																  	{% endif %}
+																  {% endfor %}
+															  </td>
 															  <td>{{ user.user_type }}</td>
 															  <td>{{ user.phone }}</td>
 															  <td>{{ user.depot }}</td>

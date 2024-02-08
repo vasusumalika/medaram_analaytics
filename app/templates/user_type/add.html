@@ -56,6 +56,18 @@
                                                     <input type="text" id="name" name="name" class="form-control" required>
 												</div>
 
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="employee_designation">Employee Designation</label>
+                                                    <select class="form-control custom-select" name="employee_designation" id="employee_designation" required>
+                                                     	<option value="">Select Option</option>
+                                                        	{% for key, label in employee_designations.items %}
+                                                            	<option value="{{ key }}">
+                                                                	{{ label }}
+                                                                </option>
+                                                            {% endfor %}
+                                                    </select>
+												</div>
+
 												<div class="form-group mt-3">
 													<div>
 														<button type="submit" class="btn btn-primary">Save User Type Info</button>
