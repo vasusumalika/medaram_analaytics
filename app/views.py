@@ -893,6 +893,7 @@ def trip_start_add(request):
         start_form_location = request.POST.get('start_form_location')
         start_to_location = request.POST.get('start_to_location')
         entry_type = request.POST.get('entry_type')
+        service_operated_date = request.POST.get('service_operated_date')
         status = 0
 
         try:
@@ -913,7 +914,8 @@ def trip_start_add(request):
                                                                   start_form_location=start_from_point_data,
                                                                   start_to_location=start_to_pont_data,
                                                                   data_enter_by=user_data,
-                                                                  trip_start=datetime.now())
+                                                                  trip_start=datetime.now(),
+                                                                  service_operated_date=service_operated_date)
             statistics_data_entry.save()
             messages.success(request, 'Statistics Trip Data Created Successfully')
             return redirect("app:trip_start_add")
@@ -957,6 +959,7 @@ def trip_end_add(request):
     trip_check_id = request.POST.get('id')
     trip_verified = request.POST.get('trip_verified')
     trip_verified_time = datetime.now()
+    trip_end = datetime.now()
     service_operated_date = request.POST.get('service_operated_date')
     if trip_check_id:
         try:
@@ -967,6 +970,7 @@ def trip_end_add(request):
             trip_check_data.trip_verify_by = user_data
             trip_check_data.service_operated_date = service_operated_date
             trip_check_data.updated_by = user_data
+            trip_check_data.trip_end = trip_end
             trip_check_data.save()
             messages.success(request, 'Trip check updated successfully!!')
             return redirect("app:trip_end_add")
