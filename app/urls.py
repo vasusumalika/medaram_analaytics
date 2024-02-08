@@ -113,8 +113,6 @@ urlpatterns = [
 
 
     path('reports/search/depot/list', views.search_depot_list, name='search_depot_list'),
-    path('reports/performance/of/buses/list', views.performance_of_buses_list, name='performance_of_buses_list'),
-
 
     path('reports/display/operating/depot/list', views.display_operating_depot_list, name='display_operating_depot_list'),
     path('reports/status/return/back/buses/list', views.status_return_back_buses_list,

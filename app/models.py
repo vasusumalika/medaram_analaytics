@@ -311,15 +311,15 @@ class TripStatistics(models.Model):
     id = models.AutoField(primary_key=True)
     unique_code = models.IntegerField(null=True, blank=True)
     bus_number = models.CharField(max_length=256, null=True, blank=True)
-    total_ticket_amount = models.CharField(max_length=256, null=True, blank=True)
-    total_adult_passengers = models.CharField(max_length=256, null=True, blank=True)
-    total_child_passengers = models.CharField(max_length=256, null=True, blank=True)
-    mhl_adult_passengers = models.CharField(max_length=256, null=True, blank=True)
-    mhl_child_passengers = models.CharField(max_length=256, null=True, blank=True)
-    mhl_adult_amount = models.CharField(max_length=256, null=True, blank=True)
-    mhl_child_amount = models.CharField(max_length=256, null=True, blank=True)
+    total_ticket_amount = models.IntegerField(null=True, blank=True)
+    total_adult_passengers = models.IntegerField(null=True, blank=True)
+    total_child_passengers = models.IntegerField(null=True, blank=True)
+    mhl_adult_passengers = models.IntegerField(null=True, blank=True)
+    mhl_child_passengers = models.IntegerField(null=True, blank=True)
+    mhl_adult_amount = models.IntegerField(null=True, blank=True)
+    mhl_child_amount = models.IntegerField(null=True, blank=True)
     entry_type = models.CharField(max_length=256, null=True, blank=True)
-    start_form_location = models.ForeignKey(PointData, on_delete=models.CASCADE,
+    start_from_location = models.ForeignKey(PointData, on_delete=models.CASCADE,
                                             related_name="statistic_start_from_location_point_data",
                                             null=True, blank=True)
     start_to_location = models.ForeignKey(PointData, on_delete=models.CASCADE,

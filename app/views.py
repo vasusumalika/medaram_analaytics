@@ -32,6 +32,7 @@ cipher_suite = Fernet(ENCRYPTION_KEY)
 
 from django.db.models import Sum
 
+
 def custom_login_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
@@ -896,7 +897,7 @@ def trip_start_add(request):
         mhl_child_passengers = request.POST.get('mhl_child_passengers')
         mhl_adult_amount = request.POST.get('mhl_adult_amount')
         mhl_child_amount = request.POST.get('mhl_child_amount')
-        start_form_location = request.POST.get('start_form_location')
+        start_from_location = request.POST.get('start_from_location')
         start_to_location = request.POST.get('start_to_location')
         entry_type = request.POST.get('entry_type')
         service_operated_date = request.POST.get('service_operated_date')
@@ -904,7 +905,7 @@ def trip_start_add(request):
 
         try:
             user_data = User.objects.get(id=request.session['user_id'])
-            start_from_point_data = PointData.objects.get(point_name=start_form_location)
+            start_from_point_data = PointData.objects.get(point_name=start_from_location)
             start_to_pont_data = PointData.objects.get(point_name=start_to_location)
 
             statistics_data_entry = TripStatistics.objects.create(unique_code=unique_code, bus_number=bus_number,
@@ -917,7 +918,7 @@ def trip_start_add(request):
                                                                   mhl_child_amount=mhl_child_amount,
                                                                   entry_type=entry_type,
                                                                   status=status, created_by=user_data,
-                                                                  start_form_location=start_from_point_data,
+                                                                  start_from_location=start_from_point_data,
                                                                   start_to_location=start_to_pont_data,
                                                                   data_enter_by=user_data,
                                                                   trip_start=datetime.now(),
@@ -1518,29 +1519,29 @@ def search_depot_list(request):
 
                 depot_points = PointData.objects.values_list('id', flat=True).filter(depot_name=reporting_Depot)
 
-                no_of_trips_up_count = TripStatistics.objects.filter(entry_type='up').filter(start_form_location__in=depot_points).count()
-                no_of_trips_down_count = TripStatistics.objects.filter(entry_type='down').filter(start_to_location__in=depot_points).count()
-                no_of_trips_count = no_of_trips_up_count+no_of_trips_down_count
-                # total_passenger_count = TripStatistics.objects. \
-                #     values('total_adult_passengers', 'total_child_passengers', 'mhl_adult_passengers',
-                #            'mhl_child_passengers').count()
-                # total_earnings_count = TripStatistics.objects. \
-                #     values('total_ticket_amount', 'mhl_adult_amount', 'mhl_child_amount').sum()
+                no_of_trips_up_count = TripStatistics.objects.filter(entry_type='up').filter(
+                    start_from_location__in=depot_points).count()
+                no_of_trips_down_count = TripStatistics.objects.filter(entry_type='down').filter(
+                    start_to_location__in=depot_points).count()
 
-                total_earnings_up = TripStatistics.objects.filter(entry_type='up').filter(start_form_location__in=depot_points).aggregate(
+                no_of_trips_count = no_of_trips_up_count + no_of_trips_down_count
+
+                total_earnings_up = TripStatistics.objects.filter(entry_type='up').filter(
+                    start_from_location__in=depot_points).aggregate(
                     total_ticket_amount_sum=Sum('total_ticket_amount'),
                     mhl_adult_amount_sum=Sum('mhl_adult_amount'),
                     mhl_child_amount_sum=Sum('mhl_child_amount')
                 )
 
-                total_earnings_down = TripStatistics.objects.filter(entry_type='down').filter(start_to_location__in=depot_points).aggregate(
+                total_earnings_down = TripStatistics.objects.filter(entry_type='down').filter(
+                    start_to_location__in=depot_points).aggregate(
                     total_ticket_amount_sum=Sum('total_ticket_amount'),
                     mhl_adult_amount_sum=Sum('mhl_adult_amount'),
                     mhl_child_amount_sum=Sum('mhl_child_amount')
                 )
 
                 total_passenger_up = TripStatistics.objects.filter(entry_type='up').filter(
-                    start_form_location__in=depot_points).aggregate(
+                    start_from_location__in=depot_points).aggregate(
                     total_adult_passengers=Sum('total_adult_passengers'),
                     total_child_passengers=Sum('total_child_passengers'),
                     mhl_adult_passengers=Sum('mhl_adult_passengers'),
@@ -1548,14 +1549,34 @@ def search_depot_list(request):
                 )
 
                 total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
-                    start_form_location__in=depot_points).aggregate(
+                    start_to_location__in=depot_points).aggregate(
                     total_adult_passengers=Sum('total_adult_passengers'),
                     total_child_passengers=Sum('total_child_passengers'),
                     mhl_adult_passengers=Sum('mhl_adult_passengers'),
                     mhl_child_passengers=Sum('mhl_child_passengers')
                 )
-                total_earnings_count = total_earnings_up + total_earnings_down
-                total_passenger_count = total_passenger_up + total_passengers_down
+
+                total_passengers = {
+                    'total_adult_passengers': total_passenger_up['total_adult_passengers'] + total_passengers_down[
+                        'total_adult_passengers'],
+                    'total_child_passengers': total_passenger_up['total_child_passengers'] + total_passengers_down[
+                        'total_child_passengers'],
+                    'mhl_adult_passengers': total_passenger_up['mhl_adult_passengers'] + total_passengers_down[
+                        'mhl_adult_passengers'],
+                    'mhl_child_passengers': total_passenger_up['mhl_child_passengers'] + total_passengers_down[
+                        'mhl_child_passengers']
+                }
+
+                total_passenger_count = total_passengers['total_adult_passengers'] + total_passengers[
+                    'total_child_passengers'] + \
+                                        total_passengers['mhl_adult_passengers'] + total_passengers[
+                                            'mhl_child_passengers']
+
+                total_earnings_count = total_earnings_up['total_ticket_amount_sum'] + total_earnings_up[
+                    'mhl_adult_amount_sum'] + total_earnings_up['mhl_child_amount_sum'] + total_earnings_down[
+                                           'total_ticket_amount_sum'] + total_earnings_down['mhl_adult_amount_sum'] + \
+                                       total_earnings_down['mhl_child_amount_sum']
+
                 performance_depot_result.append({
                     'depot_id': report_depot_id,
                     'depot_name': report_depot_name,
@@ -1569,7 +1590,8 @@ def search_depot_list(request):
 
                 # messages.error(request, 'Selected Unique No has no TripStatistic details!!')
                 return render(request, 'reports/performance_of_buses_list.html',
-                              {'performance_depot_result': performance_depot_result})
+                              {'performance_depot_result': performance_depot_result,
+                               'special_bus_sending_depot': special_bus_sending_depot})
         else:
             return render(request, 'reports/performance_of_buses_list.html',
                           {'special_bus_sending_depot': special_bus_sending_depot})
@@ -1578,20 +1600,11 @@ def search_depot_list(request):
                       {'special_bus_sending_depot': special_bus_sending_depot})
 
 
-@custom_login_required
-def performance_of_buses_list(request):
-    performance_of_buses_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
-    return render(request, 'reports/performance_of_buses_list.html',
-                  {'performance_of_buses_data': performance_of_buses_data})
-
-
 def display_operating_depot_list(request):
     operating_depot_name = request.GET.get('id')
-    special_bus_entry = SpecialBusDataEntry.objects.get(special_bus_reporting_depot=operating_depot_name)
-    display_operating_depot_data = OutDepotVehicleReceive.objects.filter(~Q(status=2)).filter(
-        special_bus_data_entry=special_bus_entry)
+    out_depot_bus_reporting_depot = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=operating_depot_name)
     return render(request, 'reports/display_operating_depot_list.html',
-                  {'display_operating_depot_data': display_operating_depot_data})
+                  {'display_operating_depot_data': out_depot_bus_reporting_depot})
 
 
 def status_return_back_buses_list(request):
