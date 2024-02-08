@@ -80,6 +80,21 @@
 
                                                 <input type="hidden" name="id" value="{{last_trip_details.id}}">
 
+                                                 <div class="row row-sm">
+                                                                <div class="col-lg">
+                                                                    <label class="form-label" >Journey:</label>
+                                                                    <input class="form-control mb-4" name="entry_type" value="{{last_trip_details.entry_type}}" type="text" readonly>
+                                                                </div>
+                                                                <div class="col-lg">
+                                                                   <label class="form-label" >From:</label>
+                                                                   <input type="text" class="form-control mb-4" name="start_form_location" value="{{last_trip_details.start_form_location.point_name}}"  readonly>
+                                                                </div>
+                                                                <div class="col-lg">
+                                                                    <label class="form-label" >To:</label>
+                                                                    <input type="text" class="form-control mb-4" name="start_to_location" value="{{last_trip_details.start_to_location.point_name}}" readonly>
+                                                                </div>
+                                                  </div>
+
 												<div class="form-group col-md-6">
                                                     <label class="form-label">Unique No:</label>
                                                     <input type="text"  class="form-control" value="{{last_trip_details.unique_code}}" readonly>
