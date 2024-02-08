@@ -43,15 +43,6 @@
                                                     <input type="text" id="name" name="name" class="form-control" value="{{vehicle_data.name}}" required>
 												</div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="vehicle_owner">RTC/PHB</label>
-                                                    <select class="form-control custom-select" id="vehicle_owner" name="vehicle_owner" required>
-														<option>Select one</option>
-														<option value= "RTC" {% if vehicle_data.vehicle_owner == RTC %} selected {% endif %}>RTC</option>
-														<option value= "PHB" {% if vehicle_data.vehicle_owner == PHB %} selected {% endif %}>PHB</option>
-													</select>
-												</div>
-
 												<div class="form-group mt-3">
 													<div>
 														<button type="submit" class="btn btn-primary">Submit</button>
@@ -70,16 +61,5 @@
 					</div>
 				</div>
 				<!-- CONTAINER CLOSED -->
-	<!-- JQUERY JS -->
-	<script src="{% static 'js/jquery.min.js' %}"></script>
-	<!-- SELECT2 JS -->
-	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
-
-<script>
-    $(document).ready(function() {
-        //Select2 on the dropdown
-        $('#vehicle_owner').select2();
-    });
-</script>
 
 {% endblock %}

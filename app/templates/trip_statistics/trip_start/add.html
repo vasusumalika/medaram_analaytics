@@ -53,6 +53,8 @@
 
                                                {% if request.session.point_name != 'Thadvai' %}
 
+													{% if request.session.user_type == 'PSG ENTRY UP' or request.session.user_type == 'Super_admin' %}
+
                                                             <div class="row row-sm">
                                                                 <div class="col-lg">
                                                                     <label class="form-label" >Journey:</label>
@@ -67,7 +69,9 @@
                                                                     <input type="text" class="form-control mb-4" name="start_to_location" value="Thadvai" readonly>
                                                                 </div>
                                                             </div>
-                                                {% else %}
+													{% endif %}
+
+												{% else %}
 
                                                           <div class="row row-sm">
                                                               <div class="col-md-4">
@@ -94,7 +98,7 @@
 
                                                           </div>
 
-                                                {% endif %}
+                                               {% endif %}
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="out_depot_vehicle_receive_unique_no">Unique No</label>
@@ -179,19 +183,5 @@
 					</div>
 				</div>
 				<!-- CONTAINER CLOSED -->
-
-	<!-- JQUERY JS -->
-	<script src="{% static 'js/jquery.min.js' %}"></script>
-	<!-- SELECT2 JS -->
-	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
-
-<script>
-    $(document).ready(function() {
-        //Select2 on the dropdown
-        $('#out_depot_vehicle_receive_unique_no').select2();
-        $('#').select2();
-    });
-</script>
-
 
 {% endblock %}
