@@ -51,7 +51,7 @@
 										<div class="card-body">
 											<form class="form-horizontal row" action="{% url 'app:trip_start_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
-                                               {% if request.session.point_name != 'Thadvai' %}
+                                               {% if request.session.point_name != 'Thadvai' and request.session.user_type == 'PSG ENTRY UP'%}
 
                                                             <div class="row row-sm">
                                                                 <div class="col-lg">
@@ -67,7 +67,7 @@
                                                                     <input type="text" class="form-control mb-4" name="start_to_location" value="Thadvai" readonly>
                                                                 </div>
                                                             </div>
-                                                {% else %}
+												{% else %}
 
                                                           <div class="row row-sm">
                                                               <div class="col-md-4">
@@ -94,7 +94,7 @@
 
                                                           </div>
 
-                                                {% endif %}
+                                               {% endif %}
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="out_depot_vehicle_receive_unique_no">Unique No</label>
