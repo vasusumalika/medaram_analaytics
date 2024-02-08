@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'medaram_analytics.wsgi.application'
 #
 #         'USER': 'postgres',
 #
-#         'PASSWORD': 'admin',
+#         'PASSWORD': 'postgress',
 #
 #         'HOST': 'localhost',
 #
@@ -176,3 +176,15 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ENCRYPTION_KEY = b'H9b4YZDrzbE0JLJXWxPgZQFgjLRph7QFCCywfc9zPQU='
+
+EMPLOYEE_DESIGNATION = {
+    0: 'Supervisor(Traffic)',
+    1: 'Supervisor(Garege)',
+    2: 'Employee(Up journey)',
+    3: 'Employee(Trip End)',
+    4: 'Dc(oil)  (Depots & outlets)',
+    5: 'Parking',
+    6: 'Thadvai down(Down journey)',
+    7: 'Officers /Depot Managers',
+    8: 'ALL EMPLOYEES'
+}

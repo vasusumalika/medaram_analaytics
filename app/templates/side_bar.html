@@ -215,48 +215,57 @@
 
 							<div data-kt-menu-trigger="click" class="menu-item menu-accordion">
 
-								<li class="slide">
-									<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:dashboard'%}">
-										<img alt="Logo" src="{% static 'images/sidebar/icons8-dashboard-100.png' %}" class="side-menu__icon"/>
-										<span class="side-menu__label">DashBoard</span>
-									</a>
-								</li>
+								{% if request.session.user_type == 'OFFICERS' or request.session.user_type == 'Super_admin' %}
 
-								<li class="slide">
-									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
-										<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-										<span class="side-menu__label">Configurations</span><i
-													class="angle fa fa-angle-right"></i></a>
-											<ul class="slide-menu">
-												<li><a class="slide-item" href="{% url 'app:users_list'%}">Users</a></li>
-												<li><a class="slide-item" href="{% url 'app:user_type_list'%}">User Type</a></li>
-												<li><a class="slide-item" href="{% url 'app:point_data_list'%}">Point Data</a></li>
-												<li><a class="slide-item" href="{% url 'app:depots_list'%}">Depots</a></li>
-												<li><a class="slide-item" href="{% url 'app:operation_type_list'%}">Operation Type</a></li>
-												<li><a class="slide-item" href="{% url 'app:vehicle_list'%}">Vehicle</a></li>
-												<li><a class="slide-item" href="{% url 'app:vehicle_details_list'%}">Vehicle Details</a></li>
-											</ul>
-								</li>
+									<li class="slide">
+										<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:dashboard'%}">
+											<img alt="Logo" src="{% static 'images/sidebar/icons8-dashboard-100.png' %}" class="side-menu__icon"/>
+											<span class="side-menu__label">DashBoard</span>
+										</a>
+									</li>
 
-								<li class="slide">
-									<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:spl_bus_data_entry_list'%}">
-										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
-										<span class="side-menu__label">Special Bus Data Entry</span>
-									</a>
-								</li>
+									<li class="slide">
+										<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
+											<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+											<span class="side-menu__label">Configurations</span>
+											<i class="angle fa fa-angle-right"></i>
+										</a>
+										<ul class="slide-menu">
+											<li><a class="slide-item" href="{% url 'app:users_list'%}">Users</a></li>
+											<li><a class="slide-item" href="{% url 'app:user_type_list'%}">User Type</a></li>
+											<li><a class="slide-item" href="{% url 'app:point_data_list'%}">Point Data</a></li>
+											<li><a class="slide-item" href="{% url 'app:depots_list'%}">Depots</a></li>
+											<li><a class="slide-item" href="{% url 'app:operation_type_list'%}">Operation Type</a></li>
+											<li><a class="slide-item" href="{% url 'app:vehicle_list'%}">Vehicle</a></li>
+											<li><a class="slide-item" href="{% url 'app:vehicle_details_list'%}">Vehicle Details</a></li>
+										</ul>
+									</li>
+								{% endif %}
 
-								<li class="slide">
-   									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
-         								<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-         								<span class="side-menu__label">Out Depot Buses</span>
-										<i class="angle fa fa-angle-right"></i>
-									</a>
-         							<ul class="slide-menu">
-            							<li><a class="slide-item" href="{% url 'app:out_depot_buses_receive_add'%}">Out depot vehicle receive</a></li>
-            							<li><a class="slide-item" href="{% url 'app:out_depot_vehicle_send_back_list'%}">Out depot vehicle send back</a></li>
-         							</ul>
-								</li>
+								{% if request.session.user_type == 'PARENT DEPOT' or request.session.user_type == 'Super_admin' %}
 
+									<li class="slide">
+										<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:spl_bus_data_entry_list'%}">
+											<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
+											<span class="side-menu__label">Special Bus Data Entry</span>
+										</a>
+									</li>
+								{% endif %}
+
+								{% if request.session.user_type == 'BUS RECEIVING' or request.session.user_type == 'Super_admin' %}
+
+									<li class="slide">
+   										<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
+         									<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+         									<span class="side-menu__label">Out Depot Buses</span>
+											<i class="angle fa fa-angle-right"></i>
+										</a>
+         								<ul class="slide-menu">
+            								<li><a class="slide-item" href="{% url 'app:out_depot_buses_receive_add'%}">Out depot vehicle receive</a></li>
+            								<li><a class="slide-item" href="{% url 'app:out_depot_vehicle_send_back_list'%}">Out depot vehicle send back</a></li>
+         								</ul>
+									</li>
+								{% endif %}
 
 								<li class="slide">
    									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
@@ -270,44 +279,65 @@
          							</ul>
 								</li>
 
-								<li class="slide">
-									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
-										<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-										<span class="side-menu__label">Trip Statistics</span><i
-													class="angle fa fa-angle-right"></i></a>
-											<ul class="slide-menu">
+								{% if request.session.user_type == 'PSG UP THADVAI' or request.session.user_type == 'PSG ENTRY UP' or request.session.user_type == 'PSG ENTRY DOWN' or request.session.user_type == 'Super_admin' %}
+
+									<li class="slide">
+										<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
+											<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+											<span class="side-menu__label">Trip Statistics</span>
+											<i class="angle fa fa-angle-right"></i>
+										</a>
+										<ul class="slide-menu">
+
+											{% if request.session.user_type == 'PSG ENTRY UP' or request.session.user_type == 'PSG ENTRY DOWN' or request.session.user_type == 'Super_admin' %}
+
 												<li><a class="slide-item" href="{% url 'app:trip_start_add'%}">Trip Start</a></li>
+											{% endif %}
+
+											{% if request.session.user_type == 'PSG UP THADVAI' or request.session.user_type == 'Super_admin' %}
+
 												<li><a class="slide-item" href="{% url 'app:search_trip_end_form'%}">Trip End</a></li>
-											</ul>
-								</li>
+											{% endif %}
 
-								<li class="slide">
-									<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:hsd_oil_submission_add'%}">
-										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
-										<span class="side-menu__label">HSD Oil Submission</span>
-									</a>
-								</li>
+										</ul>
+									</li>
+								{% endif %}
 
-								<li class="slide">
-									<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:buses_on_hand_list'%}">
-										<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
-										<span class="side-menu__label">Buses On Hand</span>
-									</a>
-								</li>
+								{% if request.session.user_type == 'HSD DC OIL' or request.session.user_type == 'Super_admin' %}
 
+									<li class="slide">
+										<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:hsd_oil_submission_add'%}">
+											<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
+											<span class="side-menu__label">HSD Oil Submission</span>
+										</a>
+									</li>
+								{% endif %}
 
-								<li class="slide">
-									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
-										<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-										<span class="side-menu__label">Reports</span><i
-													class="angle fa fa-angle-right"></i></a>
-											<ul class="slide-menu">
-												<li><a class="slide-item" href="{% url 'app:summary_sending_buses_list'%}">Summary of Sending Buses</a></li>
-												<li><a class="slide-item" href="{% url 'app:performance_of_buses_list'%}">Performance of Buses</a></li>
-												<li><a class="slide-item" href="{% url 'app:status_return_back_buses_list'%}">Status of Return Back Buses</a></li>
-											</ul>
-								</li>
+								{% if request.session.user_type == 'PARKING' or request.session.user_type == 'Super_admin' %}
 
+									<li class="slide">
+										<a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'app:buses_on_hand_list'%}">
+											<img alt="Logo" src="{% static 'images/sidebar/icons8-department-100.png' %}" class="side-menu__icon"/>
+											<span class="side-menu__label">Buses On Hand</span>
+										</a>
+									</li>
+								{% endif %}
+
+								{% if request.session.user_type == 'OFFICERS' or request.session.user_type == 'Super_admin' %}
+
+									<li class="slide">
+										<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
+											<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+											<span class="side-menu__label">Reports</span>
+											<i class="angle fa fa-angle-right"></i>
+										</a>
+										<ul class="slide-menu">
+											<li><a class="slide-item" href="{% url 'app:summary_sending_buses_list'%}">Summary of Sending Buses</a></li>
+											<li><a class="slide-item" href="{% url 'app:performance_of_buses_list'%}">Performance of Buses</a></li>
+											<li><a class="slide-item" href="{% url 'app:status_return_back_buses_list'%}">Status of Return Back Buses</a></li>
+										</ul>
+									</li>
+								{% endif %}
 
 
 
@@ -444,10 +474,25 @@
 					success: function(data) {
 						var vehicle_number_select = $('#vehicle_number');
 						vehicle_number_select.empty();
-						$.each(data.vehicle_details, function(index, vehicle_detail) {
-							vehicle_number_select.append('<option value="' + vehicle_detail.bus_number + '">' + vehicle_detail.bus_number + '</option>');
-						});
-					}
+						if (data.vehicle_details && data.vehicle_details.length > 0) {
+                			$.each(data.vehicle_details, function(index, vehicle_detail) {
+                    			vehicle_number_select.append('<option value="' + vehicle_detail.bus_number + '">' + vehicle_detail.bus_number + '</option>');
+                			});
+            			} else if (data.error && data.error === "Selected Depot has no bus numbers available") {
+                			var errorMessage = data.error;
+                			console.log("message:", errorMessage);
+            			}
+        			},
+        			error: function(xhr, status, error) {
+            			var responseJSON = JSON.parse(xhr.responseText);
+            			var errorMessage = responseJSON.error;
+            			console.log("Error message:", errorMessage)
+            			$('.alert-danger').remove();
+            			$('#vehicle_number').empty();
+            			$('#error-container').html('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                        '<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">' +
+                        '<span aria-hidden="True">&times;</span></button>' + errorMessage + '</div>');
+        			}
 				});
 			});
 
@@ -458,28 +503,6 @@
 				},
 				pageLength: 10,
          	});
-
-<!--         	$('#out_depot_send_back_log_sheet_no').on('blur', function() {-->
-<!--        		var logSheetNo = $(this).val();-->
-<!--        		console.log("Log sheet number:", logSheetNo);-->
-<!--        		$.ajax({-->
-<!--            		url: '/out/depot/buses/send/back/validate/log/sheet',-->
-<!--            		type: 'GET',-->
-<!--            		data: {-->
-<!--                		'log_sheet_no': logSheetNo-->
-<!--            		},-->
-<!--            		success: function(data) {-->
-<!--            			console.log("AJAX success");-->
-<!--                		if (data.exists) {-->
-<!--                			console.log("Log sheet number exists");-->
-<!--                    		$('#log_sheet_no_error').html('');-->
-<!--                		} else {-->
-<!--                			console.log("Log sheet number does not exist");-->
-<!--                    		$('#log_sheet_no_error').html('Log sheet number does not exist');-->
-<!--                		}-->
-<!--            		}-->
-<!--        		});-->
-<!--    		});-->
 
     		$("#out_depot_vehicle_receive_unique_no").change(function() {
             	var selectedUniqueNo = $(this).val();
@@ -493,6 +516,9 @@
 					}
 				});
 			});
+
+			//Select2 on the dropdown with class
+        	$('.form-control.custom-select').select2();
 
         });
 

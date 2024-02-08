@@ -38,6 +38,7 @@
 											</div>
 										{% endfor %}
 									{% endif %}
+									<div id="error-container"></div>
 								</center>
 							</div>
 
@@ -51,8 +52,8 @@
 										<div class="card-body bg-light">
 											<form class="form-horizontal row" action="{% url 'app:spl_bus_data_entry_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 												<div class="card mb-3">
-            <div class="card-body">
-				<div class="row">
+            									<div class="card-body">
+												<div class="row">
 											    <div class="form-group col-md-6">
                                                     <label class="form-label" for="special_bus_sending_depot">Special Bus Sending Depot</label>
 													<select class="form-control custom-select" name="special_bus_sending_depot" id="special_bus_sending_depot" required>
@@ -106,11 +107,13 @@
                                                     <label class="form-label" for="log_sheet_no">Log Sheet No</label>
                                                     <input type="text" id="log_sheet_no" name="log_sheet_no" class="form-control" required>
 												</div>
-			</div></div></div>
+												</div>
+												</div>
+												</div>
 
 												<div class="card mb-4">
-            <div class="card-body">
-				<div class="row">
+            									<div class="card-body">
+												<div class="row">
 
 												<h3 class="card-title">Driver1 Info</h3>
 
@@ -131,11 +134,13 @@
                                                     <input type="text" id="driver1_phone_number" name="driver1_phone_number" class="form-control" required>
 												</div>
 
-				</div></div></div>
+												</div>
+												</div>
+												</div>
 
 												<div class="card mb-4">
-            <div class="card-body">
-				<div class="row">
+            									<div class="card-body">
+												<div class="row">
 												<h3 class="card-title">Driver2 Info</h3>
 
 												<div class="form-group col-md-6">
@@ -154,10 +159,13 @@
                                                     <label class="form-label" for="driver2_phone_number">Driver2 Phone Number</label>
                                                     <input type="text" id="driver2_phone_number" name="driver2_phone_number" class="form-control" required>
 												</div>
-					</div></div></div>
-					<div class="card mb-4">
-            <div class="card-body">
-				<div class="row">
+												</div>
+												</div>
+												</div>
+
+												<div class="card mb-4">
+            									<div class="card-body">
+												<div class="row">
 
 												<h3 class="card-title">Incharge Info</h3>
 
@@ -170,7 +178,10 @@
                                                     <label class="form-label" for="incharge_phone_number">Incharge Phone Number</label>
                                                     <input type="text" id="incharge_phone_number" name="incharge_phone_number" class="form-control" required>
 												</div>
-					</div></div></div>
+
+												</div>
+												</div>
+												</div>
 
 
 												<div class="form-group mt-3">
@@ -194,18 +205,5 @@
 					</div>
 				</div>
 				<!-- CONTAINER CLOSED -->
-	<!-- JQUERY JS -->
-	<script src="{% static 'js/jquery.min.js' %}"></script>
-	<!-- SELECT2 JS -->
-	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
-
-<script>
-    $(document).ready(function() {
-        //Select2 on the dropdown
-        $('#special_bus_reporting_depot').select2();
-        $('#opt_type').select2();
-        $('#special_bus_sending_depot').select2();
-    });
-</script>
 
 {% endblock %}

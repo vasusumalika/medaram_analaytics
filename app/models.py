@@ -50,6 +50,7 @@ class User(models.Model):
 class UserType(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256, null=True, blank=True)
+    employee_designation = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")

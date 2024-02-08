@@ -57,7 +57,6 @@ def index(request):
 def do_login(request):
     user_email_phone = request.POST.get('user_email_phone')
     user_password = request.POST.get('password')
-    print("User", user_email_phone, user_password)
     if request.method == "POST":
         if not (user_email_phone and user_password):
             messages.error(request, "Please provide all the details!!")
@@ -67,7 +66,6 @@ def do_login(request):
             encrypted_password = ast.literal_eval(user_login_data.password)
             decrypted_password = cipher_suite.decrypt(encrypted_password).decode()
             if decrypted_password == user_password:
-                print(request.user.id)
                 request.session['user_id'] = user_login_data.id
                 request.session['user_type'] = user_login_data.user_type.name
                 request.session['point_name'] = user_login_data.point_name.point_name
@@ -113,6 +111,7 @@ def users_list(request):
             'id': user.id,
             'name': user.name,
             'email': user.email,
+            'employee_designation': user.user_type.employee_designation,
             'phone': user.phone_number,
             'user_type': user.user_type.name,
             'depot': user.depot.name,
@@ -128,7 +127,8 @@ def users_list(request):
                 print(e)
                 messages.error(request, ' Failed!!')
         users_data_list.append(user_data)
-    return render(request, 'users/list.html', {"users": users_data_list})
+    return render(request, 'users/list.html', {"users": users_data_list,
+                                               'employee_designations': settings.EMPLOYEE_DESIGNATION})
 
 
 @custom_login_required
@@ -252,17 +252,19 @@ def user_type_list(request):
 def user_type_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
+        designation = request.POST.get('employee_designation')
         user_status = 0
         try:
             user_data = User.objects.get(id=request.session['user_id'])
-            user_type = UserType.objects.create(name=name, status=user_status, created_by=user_data)
+            user_type = UserType.objects.create(name=name, status=user_status, created_by=user_data,
+                                                employee_designation=designation)
             user_type.save()
             messages.success(request, 'User Type Created Successfully')
         except Exception as e:
             print(e)
             messages.error(request, 'User Type Creation Failed!!')
         return redirect("app:user_type_list")
-    return render(request, 'user_type/add.html')
+    return render(request, 'user_type/add.html', {'employee_designations': settings.EMPLOYEE_DESIGNATION})
 
 
 @custom_login_required
@@ -271,7 +273,8 @@ def user_type_edit(request):
     if user_type_id:
         user_type_data = UserType.objects.get(id=user_type_id)
     try:
-        return render(request, 'user_type/edit.html', {"user_type": user_type_data})
+        return render(request, 'user_type/edit.html', {"user_type": user_type_data,
+                                                       'employee_designations': settings.EMPLOYEE_DESIGNATION})
     except Exception as e:
         print(e)
         return render(request, 'user_type/edit.html', {})
@@ -281,12 +284,14 @@ def user_type_edit(request):
 def user_type_update(request):
     user_type_id = request.POST.get('id')
     name = request.POST.get('name')
+    designation = request.POST.get('employee_designation')
     user_status = 0
     if user_type_id:
         try:
             user_type_data = UserType.objects.get(id=user_type_id)
             user_type_data.name = name
             user_type_data.status = user_status
+            user_type_data.employee_designation = designation
             user_data = User.objects.get(id=request.session['user_id'])
             user_type_data.updated_by = user_data
             user_type_data.save()
@@ -462,14 +467,14 @@ def vehicle_edit(request):
 def vehicle_update(request):
     vehicle_id = request.POST.get('id')
     name = request.POST.get('name')
-    vehicle_owner = request.POST.get('vehicle_owner')
+    # vehicle_owner = request.POST.get('vehicle_owner')
     status = 0
     if vehicle_id:
         try:
             vehicle_data = Vehicle.objects.get(id=vehicle_id)
             vehicle_data.name = name
             vehicle_data.status = status
-            vehicle_data.vehicle_owner = vehicle_owner
+            # vehicle_data.vehicle_owner = vehicle_owner
             user_data = User.objects.get(id=request.session['user_id'])
             vehicle_data.updated_by = user_data
             vehicle_data.save()
@@ -684,8 +689,11 @@ def spl_bus_data_entry_add(request):
 def get_depot_vehicle_number(request):
     depot_id = request.GET.get('depot_id')
     vehicle_details_data = VehicleDetails.objects.filter(depot=depot_id).values('id', 'bus_number')
-    vehicle_details = list(vehicle_details_data)
-    return JsonResponse({'vehicle_details': vehicle_details})
+    if vehicle_details_data.exists():
+        vehicle_details = list(vehicle_details_data)
+        return JsonResponse({'vehicle_details': vehicle_details})
+    else:
+        return JsonResponse({'error': "Selected Depot has no bus numbers available"}, status=400)
 
 
 @custom_login_required
