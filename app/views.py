@@ -1602,9 +1602,45 @@ def search_depot_list(request):
 
 def display_operating_depot_list(request):
     operating_depot_name = request.GET.get('id')
-    out_depot_bus_reporting_depot = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=operating_depot_name)
+    depot = Depot.objects.get(id=operating_depot_name)
+    depot_name = depot.name
+
+    out_depot_bus_reporting_depot = OutDepotVehicleReceive.objects.filter(
+        out_depot_bus_reporting_depot=operating_depot_name)
+    operating_details = []
+    for out_depot_bus_reporting in out_depot_bus_reporting_depot:
+        bus_number = VehicleDetails.objects.get(bus_number=out_depot_bus_reporting.bus_number.bus_number)
+        unique_no = out_depot_bus_reporting.unique_no
+        no_of_trips = TripStatistics.objects.filter(unique_code=unique_no).count()
+        total_passengers = TripStatistics.objects.filter(unique_code=unique_no).aggregate(
+            total_adult_passengers=Sum('total_adult_passengers'),
+            total_child_passengers=Sum('total_child_passengers'),
+            mhl_adult_passengers=Sum('mhl_adult_passengers'),
+            mhl_child_passengers=Sum('mhl_child_passengers')
+        )
+        total_passengers_count = total_passengers['total_adult_passengers'] + total_passengers[
+            'total_child_passengers'] + total_passengers['mhl_adult_passengers'] + \
+                                 total_passengers['mhl_child_passengers']
+
+        total_earnings = TripStatistics.objects.filter(unique_code=unique_no).aggregate(
+            total_ticket_amount=Sum('total_ticket_amount'),
+            mhl_adult_amount=Sum('mhl_adult_amount'),
+            mhl_child_amount=Sum('mhl_child_amount')
+        )
+
+        total_earnings_count = total_earnings['total_ticket_amount'] + total_earnings[
+            'mhl_adult_amount'] + total_earnings['mhl_child_amount']
+
+        operating_details.append({
+            'bus_number': bus_number.bus_number,
+            'unique_no': unique_no,
+            'no_of_trips': no_of_trips,
+            'total_passengers_count': total_passengers_count,
+            'total_earnings_count': total_earnings_count,
+        })
+
     return render(request, 'reports/display_operating_depot_list.html',
-                  {'display_operating_depot_data': out_depot_bus_reporting_depot})
+                  {'depot_name': depot_name, 'operating_details': operating_details})
 
 
 def status_return_back_buses_list(request):
