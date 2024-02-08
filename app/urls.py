@@ -115,6 +115,7 @@ urlpatterns = [
     path('reports/search/depot/list', views.search_depot_list, name='search_depot_list'),
 
     path('reports/display/operating/depot/list', views.display_operating_depot_list, name='display_operating_depot_list'),
+
     path('reports/status/return/back/buses/list', views.status_return_back_buses_list,
          name='status_return_back_buses_list'),
     path('reports/buses/sending/back/list', views.buses_sending_back_list,

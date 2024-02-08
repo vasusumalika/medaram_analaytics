@@ -1644,12 +1644,28 @@ def display_operating_depot_list(request):
 
 
 def status_return_back_buses_list(request):
-    status_return_back_buses_data = OutDepotVehicleReceive.objects.values('bus_number',
-                                                                          'special_bus_data_entry__special_bus_sending_depot__name').annotate(
-        bus_count=Count('bus_number'))
+    status_return_back_buses = []
+    status_return_back_buses_list = OutDepotVehicleReceive.objects.values_list('out_depot_bus_reporting_depot', flat=True).distinct()
+    for status_return_back_bus in status_return_back_buses_list:
+
+        operating_depot_name = Depot.objects.get(id=status_return_back_bus)
+
+        no_of_buses_reporting = OutDepotVehicleReceive.objects.\
+            filter(out_depot_bus_reporting_depot=status_return_back_bus).count()
+
+        bus_number = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=status_return_back_bus)\
+            .values_list('bus_number__bus_number', flat=True)
+
+        no_of_buses_send_back = OutDepotVehicleSentBack.objects.filter(bus_number__in=bus_number).count()
+
+        status_return_back_buses.append({
+            'operating_depot_name': operating_depot_name.name,
+            'no_of_buses_reporting': no_of_buses_reporting,
+            'no_of_buses_send_back': no_of_buses_send_back,
+        })
 
     return render(request, 'reports/status_return_back_buses_list.html',
-                  {'status_return_back_buses_data': status_return_back_buses_data})
+                  {'status_return_back_buses': status_return_back_buses})
 
 
 @custom_login_required

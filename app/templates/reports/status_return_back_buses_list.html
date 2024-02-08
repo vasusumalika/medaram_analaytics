@@ -65,11 +65,11 @@
 														</tr>
 													</thead>
 													<tbody>
-														{% for status_return_back_buses in status_return_back_buses_data %}
+														{% for status_return_back in status_return_back_buses %}
                                                           <tr>
-															  <td>{{ status_return_back_buses.special_bus_data_entry__special_bus_sending_depot__name }}</td>
-                                                              <td>{{ status_return_back_buses.bus_count }}</td>
-															  <td><a style="text-decoration:underline" href="{% url 'app:buses_sending_back_list' %}">{{ status_return_back_buses.bus_count }}</a></td>
+															  <td>{{ status_return_back.operating_depot_name }}</td>
+                                                              <td>{{ status_return_back.no_of_buses_reporting }}</td>
+															  <td><a style="text-decoration:underline" href="{% url 'app:buses_sending_back_list' %}">{{ status_return_back.no_of_buses_send_back }}</a></td>
 
 														  </tr>
                                                         {% endfor %}
