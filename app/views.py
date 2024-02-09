@@ -31,6 +31,7 @@ if ENCRYPTION_KEY is None:
 cipher_suite = Fernet(ENCRYPTION_KEY)
 
 from django.db.models import Sum
+from django.db.models.functions import Coalesce
 
 
 def custom_login_required(view_func):
@@ -1528,32 +1529,32 @@ def search_depot_list(request):
 
                 total_earnings_up = TripStatistics.objects.filter(entry_type='up').filter(
                     start_from_location__in=depot_points).aggregate(
-                    total_ticket_amount_sum=Sum('total_ticket_amount'),
-                    mhl_adult_amount_sum=Sum('mhl_adult_amount'),
-                    mhl_child_amount_sum=Sum('mhl_child_amount')
+                    total_ticket_amount_sum=Coalesce(Sum('total_ticket_amount'), 0),
+                    mhl_adult_amount_sum=Coalesce(Sum('mhl_adult_amount'), 0),
+                    mhl_child_amount_sum=Coalesce(Sum('mhl_child_amount'), 0)
                 )
 
                 total_earnings_down = TripStatistics.objects.filter(entry_type='down').filter(
                     start_to_location__in=depot_points).aggregate(
-                    total_ticket_amount_sum=Sum('total_ticket_amount'),
-                    mhl_adult_amount_sum=Sum('mhl_adult_amount'),
-                    mhl_child_amount_sum=Sum('mhl_child_amount')
+                    total_ticket_amount_sum=Coalesce(Sum('total_ticket_amount'), 0),
+                    mhl_adult_amount_sum=Coalesce(Sum('mhl_adult_amount'), 0),
+                    mhl_child_amount_sum=Coalesce(Sum('mhl_child_amount'), 0)
                 )
 
                 total_passenger_up = TripStatistics.objects.filter(entry_type='up').filter(
                     start_from_location__in=depot_points).aggregate(
-                    total_adult_passengers=Sum('total_adult_passengers'),
-                    total_child_passengers=Sum('total_child_passengers'),
-                    mhl_adult_passengers=Sum('mhl_adult_passengers'),
-                    mhl_child_passengers=Sum('mhl_child_passengers')
+                    total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+                    total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+                    mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+                    mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
                 )
 
                 total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
                     start_to_location__in=depot_points).aggregate(
-                    total_adult_passengers=Sum('total_adult_passengers'),
-                    total_child_passengers=Sum('total_child_passengers'),
-                    mhl_adult_passengers=Sum('mhl_adult_passengers'),
-                    mhl_child_passengers=Sum('mhl_child_passengers')
+                    total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+                    total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+                    mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+                    mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
                 )
 
                 total_passengers = {
@@ -1588,10 +1589,10 @@ def search_depot_list(request):
                     'total_earnings_count': total_earnings_count,
                 })
 
-                # messages.error(request, 'Selected Unique No has no TripStatistic details!!')
-                return render(request, 'reports/performance_of_buses_list.html',
-                              {'performance_depot_result': performance_depot_result,
-                               'special_bus_sending_depot': special_bus_sending_depot})
+            # messages.error(request, 'Selected Unique No has no TripStatistic details!!')
+            return render(request, 'reports/performance_of_buses_list.html',
+                          {'performance_depot_result': performance_depot_result,
+                           'special_bus_sending_depot': special_bus_sending_depot})
         else:
             return render(request, 'reports/performance_of_buses_list.html',
                           {'special_bus_sending_depot': special_bus_sending_depot})
@@ -1611,7 +1612,14 @@ def display_operating_depot_list(request):
     for out_depot_bus_reporting in out_depot_bus_reporting_depot:
         bus_number = VehicleDetails.objects.get(bus_number=out_depot_bus_reporting.bus_number.bus_number)
         unique_no = out_depot_bus_reporting.unique_no
-        no_of_trips = TripStatistics.objects.filter(unique_code=unique_no).count()
+
+        no_of_trips_up_count = TripStatistics.objects.filter(entry_type='up').filter(
+            unique_code=unique_no).count()
+        no_of_trips_down_count = TripStatistics.objects.filter(entry_type='down').filter(
+            unique_code=unique_no).count()
+
+        no_of_trips = no_of_trips_up_count + no_of_trips_down_count
+
         total_passengers = TripStatistics.objects.filter(unique_code=unique_no).aggregate(
             total_adult_passengers=Sum('total_adult_passengers'),
             total_child_passengers=Sum('total_child_passengers'),
@@ -1635,6 +1643,8 @@ def display_operating_depot_list(request):
             'bus_number': bus_number.bus_number,
             'unique_no': unique_no,
             'no_of_trips': no_of_trips,
+            'no_of_trips_up_count': no_of_trips_up_count,
+            'no_of_trips_down_count': no_of_trips_down_count,
             'total_passengers_count': total_passengers_count,
             'total_earnings_count': total_earnings_count,
         })
@@ -1645,15 +1655,15 @@ def display_operating_depot_list(request):
 
 def status_return_back_buses_list(request):
     status_return_back_buses = []
-    status_return_back_buses_list = OutDepotVehicleReceive.objects.values_list('out_depot_bus_reporting_depot', flat=True).distinct()
+    status_return_back_buses_list = OutDepotVehicleReceive.objects.values_list('out_depot_bus_reporting_depot',
+                                                                               flat=True).distinct()
     for status_return_back_bus in status_return_back_buses_list:
-
         operating_depot_name = Depot.objects.get(id=status_return_back_bus)
 
-        no_of_buses_reporting = OutDepotVehicleReceive.objects.\
+        no_of_buses_reporting = OutDepotVehicleReceive.objects. \
             filter(out_depot_bus_reporting_depot=status_return_back_bus).count()
 
-        bus_number = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=status_return_back_bus)\
+        bus_number = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=status_return_back_bus) \
             .values_list('bus_number__bus_number', flat=True)
 
         no_of_buses_send_back = OutDepotVehicleSentBack.objects.filter(bus_number__in=bus_number).count()
