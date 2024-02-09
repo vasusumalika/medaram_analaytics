@@ -161,4 +161,7 @@ urlpatterns = [
     path("api/get-all-hsd-oil-submission/", views.GetAllHSDOilSubmissionAPIView.as_view()),
     path("api/hsd-oil-submission/", views.HSDOilSubmissionAPIView.as_view()),
 
+    path("api/get-all-buses-on-hand/", views.GetAllBusesOnHandAPIView.as_view()),
+    path("api/buses-on-hand/", views.BusesOnHandAPIView.as_view()),
+
 ]
