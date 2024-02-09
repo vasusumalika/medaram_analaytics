@@ -46,7 +46,8 @@ class GetOutDepotVehicleSendBackSerializer(serializers.Serializer):
 
 class OutDepotVehicleSendBackSerializer(serializers.Serializer):
     user_id = serializers.IntegerField(required=True)
-    unique_no_or_bus_number = serializers.CharField(required=True)
+    unique_no = serializers.CharField(required=True)
+    bus_number = serializers.CharField(required=True)
     log_sheet_no = serializers.IntegerField(required=True)
 
 class GetOwnDepotBusDetailSerializer(serializers.Serializer):
@@ -97,3 +98,12 @@ class HSDOilSubmissionSerializer(serializers.Serializer):
     point_name = serializers.CharField(required=True)
     hsd_liters = serializers.CharField(required=True)
     mts_no = serializers.CharField(required=True)
+
+class GetBusesOnHandSerializer(serializers.Serializer):
+   buses_on_hand_id = serializers.IntegerField(required=True)
+
+class BusesOnHandSerializer(serializers.Serializer):
+   user_id = serializers.IntegerField(required=True)
+   point_name = serializers.CharField(required=True)
+   unique_code = serializers.CharField(required=True)
+   bus_in_out = serializers.CharField(required=True)
