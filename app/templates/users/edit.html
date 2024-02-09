@@ -26,6 +26,12 @@
 							</div>
 							<!-- PAGE-HEADER END -->
 
+							<div class="container">
+								<center>
+									<div id="error-container"></div>
+								</center>
+							</div>
+
 							<!-- row -->
 							<div class="row row-sm">
 								<div class="col-lg-12 col-xl-12 col-md-12 col-sm-12">
@@ -51,7 +57,7 @@
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="password">Password</label>
-                                                    <input type="password" id="password" name="password" class="form-control" value="{{user.password}}" required>
+                                                    <input type="text" id="password" name="password" class="form-control" value="{{original_password}}" required>
 												</div>
 
 												<div class="form-group col-md-6">
@@ -73,7 +79,7 @@
 												<div class="col-sm-12 col-md-12 col-xl-6">
 													<div class="form-group">
 														<label class="form-label text-muted">Depot: </label>
-														<select class="form-control custom-select" id="depot_id" name="depot_id" data-placeholder="Choose Depot Id..." tabindex="-1" aria-hidden="true" required>
+														<select class="form-control custom-select" id="user_depot_id" name="user_depot_id" data-placeholder="Choose Depot Id..." tabindex="-1" aria-hidden="true" required>
 															{% for depot in depot_data %}
 																<option value="{{ depot.id }}"{% if depot.id in depot_id_list %} selected{% endif %}>{{ depot.name }}</option>
 															{% endfor %}
@@ -84,9 +90,9 @@
 												<div class="col-sm-12 col-md-12 col-xl-6">
 													<div class="form-group">
 														<label class="form-label text-muted">Point Name: </label>
-														<select class="form-control custom-select" id="point_name_id" name="point_name_id" data-placeholder="Choose Point Name Id..." tabindex="-1" aria-hidden="true" required>
+														<select class="form-control custom-select" id="user_point_name" name="user_point_name" tabindex="-1" aria-hidden="true" required>
 															{% for point_name in point_name_data %}
-																<option value="{{ point_name.id }}"{% if point_name.id in point_name_id_list %} selected{% endif %}>{{ point_name.point_name }}</option>
+																<option value="{{ point_name.point_name }}"{% if point_name.point_name in point_name_id_list %} selected{% endif %}>{{ point_name.point_name }}</option>
 															{% endfor %}
 														</select>
 													</div>

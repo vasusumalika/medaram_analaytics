@@ -139,10 +139,10 @@ def user_add(request):
         phone = request.POST.get('phone')
         email = request.POST.get('email')
         password = request.POST.get('password')
-        point_name = request.POST.get('point_name')
+        point_name = request.POST.get('user_point_name')
         user_status = 0
         user_type = request.POST.get('user_type')
-        depot = request.POST.get('depot_id')
+        depot = request.POST.get('user_depot_id')
         try:
             # phone_count = Users.objects.filter(Q(phone__iexact=phone) & ~Q(status=2))
             # if phone_count.exists():
@@ -153,7 +153,7 @@ def user_add(request):
             #     messages.error(request, 'Email already exist. Please try again')
             #     return redirect('app:user_add')
             user_type_data = UserType.objects.get(id=user_type)
-            point_name_data = PointData.objects.get(id=point_name)
+            point_name_data = PointData.objects.get(point_name=point_name)
             depot_data = Depot.objects.get(id=depot)
             encrypted_password = cipher_suite.encrypt(password.encode())
             user = User.objects.create(name=name, email=email, password=encrypted_password, phone_number=phone,
@@ -168,12 +168,22 @@ def user_add(request):
     try:
         user_type_data = UserType.objects.filter(Q(status=0) | Q(status=1))
         depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
-        point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
-        return render(request, 'users/add.html', {'user_type_data': user_type_data, "depot_data": depot_data,
-                                                  "point_name_data": point_name_data})
+        # point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
+        return render(request, 'users/add.html', {'user_type_data': user_type_data, "depot_data": depot_data})
     except Exception as e:
         print(e)
         return render(request, 'users/add.html', {})
+
+
+@custom_login_required
+def get_depot_point_names(request):
+    depot_id = request.GET.get('depot_id')
+    point_data = PointData.objects.filter(depot_name=depot_id).values('id', 'point_name')
+    if point_data.exists():
+        point_details = list(point_data)
+        return JsonResponse({'point_details': point_details})
+    else:
+        return JsonResponse({'error': "Selected Depot has no point names"}, status=400)
 
 
 @custom_login_required
@@ -181,6 +191,9 @@ def user_edit(request):
     user_id = request.GET.get('id')
     if user_id:
         user_data = User.objects.get(id=user_id)
+        encrypted_password = ast.literal_eval(user_data.password)
+        decrypted_password = cipher_suite.decrypt(encrypted_password).decode()
+        original_password = decrypted_password
         user_type_id_list = []
         point_name_id_list = []
         depot_id_list = []
@@ -189,7 +202,7 @@ def user_edit(request):
         if user_data.depot:
             depot_id_list.append(user_data.depot.id)
         if user_data.point_name:
-            point_name_id_list.append(user_data.point_name.id)
+            point_name_id_list.append(user_data.point_name.point_name)
     try:
         user_type_data = UserType.objects.filter(Q(status=0) | Q(status=1))
         depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
@@ -198,7 +211,8 @@ def user_edit(request):
                                                    'user': user_data, "point_name_data": point_name_data,
                                                    'user_type_id_list': user_type_id_list,
                                                    'depot_id_list': depot_id_list,
-                                                   'point_name_id_list': point_name_id_list})
+                                                   'point_name_id_list': point_name_id_list,
+                                                   'original_password': original_password})
     except Exception as e:
         print(e)
         return render(request, 'users/edit.html', {})
@@ -213,8 +227,8 @@ def user_update(request):
     password = request.POST.get('password')
     user_status = 0
     user_type = request.POST.get('user_type_id')
-    depot = request.POST.get('depot_id')
-    point_name = request.POST.get('point_name_id')
+    depot = request.POST.get('user_depot_id')
+    point_name = request.POST.get('user_point_name')
     if user_id:
         try:
             user_data = User.objects.get(id=user_id)
@@ -229,7 +243,7 @@ def user_update(request):
             user_data.user_type = user_type_data
             depot_data = Depot.objects.get(id=depot)
             user_data.depot = depot_data
-            point_name_data = PointData.objects.get(id=point_name)
+            point_name_data = PointData.objects.get(point_name=point_name)
             user_data.point_name = point_name_data
             user_data.save()
             messages.success(request, 'User updated  successfully!!')
@@ -651,6 +665,9 @@ def spl_bus_data_entry_add(request):
         incharge_phone_number = request.POST.get('incharge_phone_number')
         status = 0
         try:
+            if special_bus_sending_depot == special_bus_reporting_depot:
+                messages.error(request, 'Sending Depot and Reporting Depot should not be same!!')
+                return redirect("app:spl_bus_data_entry_add")
             sending_depot_data = Depot.objects.get(id=special_bus_sending_depot)
             reporting_depot_data = Depot.objects.get(id=special_bus_reporting_depot)
             bus_type_data = OperationType.objects.get(id=bus_type)
@@ -691,7 +708,12 @@ def get_depot_vehicle_number(request):
     depot_id = request.GET.get('depot_id')
     vehicle_details_data = VehicleDetails.objects.filter(depot=depot_id).values('id', 'bus_number')
     if vehicle_details_data.exists():
-        vehicle_details = list(vehicle_details_data)
+        vehicle_details = []
+        for bus_number in vehicle_details_data:
+            special_bus_entry = SpecialBusDataEntry.objects.filter(bus_number__bus_number=bus_number['bus_number'])
+            if special_bus_entry.count() == 0:
+                vehicle_details.append(bus_number)
+                # vehicle_details = list(vehicle_details_data)
         return JsonResponse({'vehicle_details': vehicle_details})
     else:
         return JsonResponse({'error': "Selected Depot has no bus numbers available"}, status=400)
@@ -1080,6 +1102,8 @@ def own_depot_bus_details_entry_add(request):
         driver2_phone_number = request.POST.get('driver2_phone_number')
         status = 0
         try:
+            vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
+            depot_data = Depot.objects.get(id=vehicle_details.depot.id)
             user_data = User.objects.get(id=request.session['user_id'])
             own_depot_bus_detail_entry = OwnDepotBusDetailsEntry.objects.create(bus_number=bus_number,
                                                                                 bus_type=bus_type,
@@ -1090,7 +1114,7 @@ def own_depot_bus_details_entry_add(request):
                                                                                 driver2_name=driver2_name,
                                                                                 driver2_phone_number=driver2_phone_number,
                                                                                 status=status,
-                                                                                created_by=user_data)
+                                                                                created_by=user_data, depot=depot_data)
             own_depot_bus_detail_entry.save()
             messages.success(request, 'Own Depot Bus Detail Entry Saved Successfully')
         except Exception as e:
@@ -1136,6 +1160,9 @@ def own_depot_bus_details_entry_update(request):
             own_depot_bus_details_entry_data.driver2_name = driver2_name
             own_depot_bus_details_entry_data.driver2_phone_number = driver2_phone_number
             own_depot_bus_details_entry_data.status = status
+            vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
+            depot_data = Depot.objects.get(id=vehicle_details.depot.id)
+            own_depot_bus_details_entry_data.depot = depot_data
             user_data = User.objects.get(id=request.session['user_id'])
             own_depot_bus_details_entry_data.updated_by = user_data
             own_depot_bus_details_entry_data.save()
@@ -1160,10 +1187,12 @@ def own_depot_bus_withdraw_add(request):
         bus_number = request.POST.get('bus_number')
         status = 0
         try:
+            vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
+            depot_data = Depot.objects.get(id=vehicle_details.depot.id)
             user_data = User.objects.get(id=request.session['user_id'])
             own_depot_bus_withdraw = OwnDepotBusWithdraw.objects.create(bus_number=bus_number,
                                                                         status=status,
-                                                                        created_by=user_data)
+                                                                        created_by=user_data, depot=depot_data)
             own_depot_bus_withdraw.save()
             messages.success(request, 'Own Depot Bus Withdraw Saved Successfully')
         except Exception as e:
@@ -1195,6 +1224,9 @@ def own_depot_bus_withdraw_update(request):
             own_depot_bus_withdraw_data = OwnDepotBusWithdraw.objects.get(id=own_depot_bus_withdraw_id)
             own_depot_bus_withdraw_data.bus_number = bus_number
             own_depot_bus_withdraw_data.status = status
+            vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
+            depot_data = Depot.objects.get(id=vehicle_details.depot.id)
+            own_depot_bus_withdraw_data.depot = depot_data
             user_data = User.objects.get(id=request.session['user_id'])
             own_depot_bus_withdraw_data.updated_by = user_data
             own_depot_bus_withdraw_data.save()
