@@ -114,13 +114,14 @@ urlpatterns = [
 
 
     path('reports/search/depot/list', views.search_depot_list, name='search_depot_list'),
-
     path('reports/display/operating/depot/list', views.display_operating_depot_list, name='display_operating_depot_list'),
 
     path('reports/status/return/back/buses/list', views.status_return_back_buses_list,
          name='status_return_back_buses_list'),
     path('reports/buses/sending/back/list', views.buses_sending_back_list,
          name='buses_sending_back_list'),
+
+    path('reports/search/handling/bus/details/list', views.search_handling_bus_details_list, name='search_handling_bus_details_list'),
 
     path('point_data/list', views.point_data_list, name='point_data_list'),
     path('point_data/import', views.point_data_import, name='point_data_import'),

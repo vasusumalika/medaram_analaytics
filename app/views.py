@@ -1,3 +1,4 @@
+import pytz
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
@@ -1708,6 +1709,47 @@ def status_return_back_buses_list(request):
 
     return render(request, 'reports/status_return_back_buses_list.html',
                   {'status_return_back_buses': status_return_back_buses})
+
+#
+# @custom_login_required
+def search_handling_bus_details_list(request):
+    point_names = PointData.objects.filter(~Q(status=2))
+    if request.method == "POST":
+        point_name = request.POST.get('point_name')
+        point_names_result = []
+        buses_on_hand_data = BusesOnHand.objects.filter(point_name=point_name)
+        if len(buses_on_hand_data) > 0:
+            for buses_on_hand in buses_on_hand_data:
+                unique_code = buses_on_hand.unique_code
+                parent_depot = OutDepotVehicleReceive.objects.get(special_bus_data_entry=buses_on_hand.special_bus_data_entry)
+                parent_depot_name = parent_depot.out_depot_bus_sending_depot.name
+                bus_number = parent_depot.bus_number.bus_number
+                alloted_depot_name = parent_depot.out_depot_bus_reporting_depot.name
+
+                entry_time_in_parking_yard = BusesOnHand.objects.filter(id=buses_on_hand.id).filter(bus_in_out='in')
+                created_at = entry_time_in_parking_yard[0].created_at
+                indian_timezone = pytz.timezone(settings.TIME_ZONE)
+                entry_time_in = created_at.astimezone(indian_timezone)
+                check_time = entry_time_in.strftime("%H:%M:%S %p %Z")
+
+                point_names_result.append({
+                    'unique_code': unique_code,
+                    'parent_depot_name': parent_depot_name,
+                    'bus_number': bus_number,
+                    'alloted_depot_name': alloted_depot_name,
+                    'check_time': check_time
+
+                })
+
+            # messages.error(request, 'Selected Unique No has no TripStatistic details!!')
+            return render(request, 'reports/handling_bus_details.html',
+                          {'point_names': point_names, 'point_names_result': point_names_result})
+        else:
+            return render(request, 'reports/handling_bus_details.html',
+                          {'point_names': point_names})
+    else:
+        return render(request, 'reports/handling_bus_details.html',
+                      {'point_names': point_names})
 
 
 @custom_login_required
