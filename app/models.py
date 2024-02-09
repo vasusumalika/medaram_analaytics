@@ -34,7 +34,7 @@ class User(models.Model):
             "name": self.name,
             "email": self.email,
             "phone": self.phone_number,
-            "user_type": self.user_type
+            # "user_type": self.user_type
         }
 
     def display_password(self, requesting_user_type):
@@ -250,7 +250,8 @@ class OutDepotVehicleSentBack(models.Model):
     def get_complete_details(self):
         return {
             # "id":self.id,
-            "unique_no_bus_no": self.unique_no_bus_no,
+            "unique_no": self.unique_no,
+            "bus_number": self.bus_number,
             "log_sheet_no": self.log_sheet_no,
         }
 
@@ -406,3 +407,12 @@ class BusesOnHand(models.Model):
                                    related_name='buses_on_hand_updated_user',
                                    null=True, blank=True, default="")
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
+
+    def get_complete_details(self):
+       return{
+           # "id":self.id,
+           "point_name":self.point_name.point_name,
+           "unique_code":self.unique_code,
+           "bus_in_out":self.bus_in_out,
+           "spl_bus_entry_id":self.special_bus_data_entry.id
+       }
