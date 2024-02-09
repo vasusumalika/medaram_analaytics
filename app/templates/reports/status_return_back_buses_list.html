@@ -69,7 +69,7 @@
                                                           <tr>
 															  <td>{{ status_return_back.operating_depot_name }}</td>
                                                               <td>{{ status_return_back.no_of_buses_reporting }}</td>
-															  <td><a style="text-decoration:underline" href="{% url 'app:buses_sending_back_list' %}">{{ status_return_back.no_of_buses_send_back }}</a></td>
+															  <td><b><a style="text-decoration:underline" href="{% url 'app:buses_sending_back_list' %}">{{ status_return_back.no_of_buses_send_back }}</a><b></td>
 
 														  </tr>
                                                         {% endfor %}
