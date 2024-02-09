@@ -1,3 +1,4 @@
+import pytz
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
@@ -24,6 +25,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from app import serializers as app_serializers
+import datetime
 
 ENCRYPTION_KEY = getattr(settings, 'ENCRYPTION_KEY', None)
 if ENCRYPTION_KEY is None:
@@ -32,6 +34,7 @@ if ENCRYPTION_KEY is None:
 cipher_suite = Fernet(ENCRYPTION_KEY)
 
 from django.db.models import Sum
+from django.db.models.functions import Coalesce
 
 
 def custom_login_required(view_func):
@@ -1596,32 +1599,32 @@ def search_depot_list(request):
 
                 total_earnings_up = TripStatistics.objects.filter(entry_type='up').filter(
                     start_from_location__in=depot_points).aggregate(
-                    total_ticket_amount_sum=Sum('total_ticket_amount'),
-                    mhl_adult_amount_sum=Sum('mhl_adult_amount'),
-                    mhl_child_amount_sum=Sum('mhl_child_amount')
+                    total_ticket_amount_sum=Coalesce(Sum('total_ticket_amount'), 0),
+                    mhl_adult_amount_sum=Coalesce(Sum('mhl_adult_amount'), 0),
+                    mhl_child_amount_sum=Coalesce(Sum('mhl_child_amount'), 0)
                 )
 
                 total_earnings_down = TripStatistics.objects.filter(entry_type='down').filter(
                     start_to_location__in=depot_points).aggregate(
-                    total_ticket_amount_sum=Sum('total_ticket_amount'),
-                    mhl_adult_amount_sum=Sum('mhl_adult_amount'),
-                    mhl_child_amount_sum=Sum('mhl_child_amount')
+                    total_ticket_amount_sum=Coalesce(Sum('total_ticket_amount'), 0),
+                    mhl_adult_amount_sum=Coalesce(Sum('mhl_adult_amount'), 0),
+                    mhl_child_amount_sum=Coalesce(Sum('mhl_child_amount'), 0)
                 )
 
                 total_passenger_up = TripStatistics.objects.filter(entry_type='up').filter(
                     start_from_location__in=depot_points).aggregate(
-                    total_adult_passengers=Sum('total_adult_passengers'),
-                    total_child_passengers=Sum('total_child_passengers'),
-                    mhl_adult_passengers=Sum('mhl_adult_passengers'),
-                    mhl_child_passengers=Sum('mhl_child_passengers')
+                    total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+                    total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+                    mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+                    mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
                 )
 
                 total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
                     start_to_location__in=depot_points).aggregate(
-                    total_adult_passengers=Sum('total_adult_passengers'),
-                    total_child_passengers=Sum('total_child_passengers'),
-                    mhl_adult_passengers=Sum('mhl_adult_passengers'),
-                    mhl_child_passengers=Sum('mhl_child_passengers')
+                    total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+                    total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+                    mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+                    mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
                 )
 
                 total_passengers = {
@@ -1656,10 +1659,10 @@ def search_depot_list(request):
                     'total_earnings_count': total_earnings_count,
                 })
 
-                # messages.error(request, 'Selected Unique No has no TripStatistic details!!')
-                return render(request, 'reports/performance_of_buses_list.html',
-                              {'performance_depot_result': performance_depot_result,
-                               'special_bus_sending_depot': special_bus_sending_depot})
+            # messages.error(request, 'Selected Unique No has no TripStatistic details!!')
+            return render(request, 'reports/performance_of_buses_list.html',
+                          {'performance_depot_result': performance_depot_result,
+                           'special_bus_sending_depot': special_bus_sending_depot})
         else:
             return render(request, 'reports/performance_of_buses_list.html',
                           {'special_bus_sending_depot': special_bus_sending_depot})
@@ -1679,7 +1682,14 @@ def display_operating_depot_list(request):
     for out_depot_bus_reporting in out_depot_bus_reporting_depot:
         bus_number = VehicleDetails.objects.get(bus_number=out_depot_bus_reporting.bus_number.bus_number)
         unique_no = out_depot_bus_reporting.unique_no
-        no_of_trips = TripStatistics.objects.filter(unique_code=unique_no).count()
+
+        no_of_trips_up_count = TripStatistics.objects.filter(entry_type='up').filter(
+            unique_code=unique_no).count()
+        no_of_trips_down_count = TripStatistics.objects.filter(entry_type='down').filter(
+            unique_code=unique_no).count()
+
+        no_of_trips = no_of_trips_up_count + no_of_trips_down_count
+
         total_passengers = TripStatistics.objects.filter(unique_code=unique_no).aggregate(
             total_adult_passengers=Sum('total_adult_passengers'),
             total_child_passengers=Sum('total_child_passengers'),
@@ -1703,6 +1713,8 @@ def display_operating_depot_list(request):
             'bus_number': bus_number.bus_number,
             'unique_no': unique_no,
             'no_of_trips': no_of_trips,
+            'no_of_trips_up_count': no_of_trips_up_count,
+            'no_of_trips_down_count': no_of_trips_down_count,
             'total_passengers_count': total_passengers_count,
             'total_earnings_count': total_earnings_count,
         })
@@ -1713,15 +1725,15 @@ def display_operating_depot_list(request):
 
 def status_return_back_buses_list(request):
     status_return_back_buses = []
-    status_return_back_buses_list = OutDepotVehicleReceive.objects.values_list('out_depot_bus_reporting_depot', flat=True).distinct()
+    status_return_back_buses_list = OutDepotVehicleReceive.objects.values_list('out_depot_bus_reporting_depot',
+                                                                               flat=True).distinct()
     for status_return_back_bus in status_return_back_buses_list:
-
         operating_depot_name = Depot.objects.get(id=status_return_back_bus)
 
-        no_of_buses_reporting = OutDepotVehicleReceive.objects.\
+        no_of_buses_reporting = OutDepotVehicleReceive.objects. \
             filter(out_depot_bus_reporting_depot=status_return_back_bus).count()
 
-        bus_number = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=status_return_back_bus)\
+        bus_number = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=status_return_back_bus) \
             .values_list('bus_number__bus_number', flat=True)
 
         no_of_buses_send_back = OutDepotVehicleSentBack.objects.filter(bus_number__in=bus_number).count()
@@ -1734,6 +1746,47 @@ def status_return_back_buses_list(request):
 
     return render(request, 'reports/status_return_back_buses_list.html',
                   {'status_return_back_buses': status_return_back_buses})
+
+#
+# @custom_login_required
+def search_handling_bus_details_list(request):
+    point_names = PointData.objects.filter(~Q(status=2))
+    if request.method == "POST":
+        point_name = request.POST.get('point_name')
+        point_names_result = []
+        buses_on_hand_data = BusesOnHand.objects.filter(point_name=point_name)
+        if len(buses_on_hand_data) > 0:
+            for buses_on_hand in buses_on_hand_data:
+                unique_code = buses_on_hand.unique_code
+                parent_depot = OutDepotVehicleReceive.objects.get(special_bus_data_entry=buses_on_hand.special_bus_data_entry)
+                parent_depot_name = parent_depot.out_depot_bus_sending_depot.name
+                bus_number = parent_depot.bus_number.bus_number
+                alloted_depot_name = parent_depot.out_depot_bus_reporting_depot.name
+
+                entry_time_in_parking_yard = BusesOnHand.objects.filter(id=buses_on_hand.id).filter(bus_in_out='in')
+                created_at = entry_time_in_parking_yard[0].created_at
+                indian_timezone = pytz.timezone(settings.TIME_ZONE)
+                entry_time_in = created_at.astimezone(indian_timezone)
+                check_time = entry_time_in.strftime("%H:%M:%S %p %Z")
+
+                point_names_result.append({
+                    'unique_code': unique_code,
+                    'parent_depot_name': parent_depot_name,
+                    'bus_number': bus_number,
+                    'alloted_depot_name': alloted_depot_name,
+                    'check_time': check_time
+
+                })
+
+            # messages.error(request, 'Selected Unique No has no TripStatistic details!!')
+            return render(request, 'reports/handling_bus_details.html',
+                          {'point_names': point_names, 'point_names_result': point_names_result})
+        else:
+            return render(request, 'reports/handling_bus_details.html',
+                          {'point_names': point_names})
+    else:
+        return render(request, 'reports/handling_bus_details.html',
+                      {'point_names': point_names})
 
 
 @custom_login_required
@@ -2084,14 +2137,23 @@ class LoginAPIView(APIView):
 
         user_login_data = User.objects.filter(
             Q(email=serialized_data.get("user_email_phone")) | Q(phone_number=serialized_data.get("user_email_phone"))
-        ).filter(password=serialized_data.get("user_password")).last()
+        ).first()
 
-        if user_login_data:  # and check_password(serialized_data.get("user_password"), user_login_data.password) this needs to be implementd.
-            return Response(status=status.HTTP_200_OK, data={
-                "code": "Success",
-                "message": "User Login Successful.",
-                "result": user_login_data.get_details()
-            })
+        if user_login_data:
+            encrypted_password = ast.literal_eval(user_login_data.password)
+            decrypted_password = cipher_suite.decrypt(encrypted_password).decode()
+            if decrypted_password == serialized_data.get("user_password"): # and check_password(serialized_data.get("user_password"), user_login_data.password) this needs to be implementd.
+                return Response(status=status.HTTP_200_OK, data={
+                    "code": "Success",
+                    "message": "User Login Successful.",
+                    "result": user_login_data.get_details()
+                })
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                    "code": "Fail",
+                    "message": "Something Went Wrong. Login unsuccessful.",
+                    "result": []
+                })
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
                 "code": "Fail",
@@ -2154,7 +2216,7 @@ class DepotVehicleAPIView(APIView):
 
 class AllSplBusEntryAPIView(APIView):
     def get(self, request):
-        spl_bus_entry_instances = SpecialBusDataEntry.objects.all()
+        spl_bus_entry_instances = SpecialBusDataEntry.objects.filter(status=0)
         spl_buses_details = [bus.get_basic_details() for bus in spl_bus_entry_instances]
         return Response(status=status.HTTP_200_OK, data={
             "code": "Success",
@@ -2278,8 +2340,8 @@ class GetAllOutDepotVehicleReceiveAPIView(APIView):
         out_depot_vehicle_instances = OutDepotVehicleReceive.objects.filter(~Q(status=2))
         out_depot_vehicle_receive_details = [bus.get_complete_details() for bus in out_depot_vehicle_instances]
         return Response(status=status.HTTP_200_OK, data={
-            "code": "Success",
-            "message": "All Out Depot Vehicle Receive Data Fetched Successfully.",
+            "code":"Success",
+            "message":"All Out Depot Vehicle Receive Data Fetched Successfully.",
             "result": out_depot_vehicle_receive_details
         })
 
@@ -2288,7 +2350,7 @@ class OutDepotVehicleReceiveAPIView(APIView):
     def get(self, request):
         out_depot_vehicle_receive_id = request.GET.get("out_depot_vehicle_receive_id")
         serializer_instance = app_serializers.GetOutDepotVehicleReceiveSerializer(
-            data={"out_depot_vehicle_receive_id": out_depot_vehicle_receive_id}
+            data={"out_depot_vehicle_receive_id":out_depot_vehicle_receive_id}
         )
         if not serializer_instance.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
@@ -2300,15 +2362,15 @@ class OutDepotVehicleReceiveAPIView(APIView):
                 id=serialized_data.get("out_depot_vehicle_receive_id")
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code": "Success",
-                "message": "Special Bus Entry Data Fetched Successfully.",
+                "code":"Success",
+                "message":"Special Bus Entry Data Fetched Successfully.",
                 "result": out_depot_vehicle_receive_instance.get_complete_detail()
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code": "Fail",
-                "message": "Something Went Wrong.",
-                "result": []
+                "code":"Fail",
+                "message":"Something Went Wrong.",
+                "result":[]
             })
 
     def post(self, request):
@@ -2330,21 +2392,21 @@ class OutDepotVehicleReceiveAPIView(APIView):
                 new_log_sheet_no=serialized_data.get("new_log_sheet_no"),
                 hsd_top_oil_liters=serialized_data.get("hsd_top_oil_lts"),
                 mts_no=serialized_data.get("mts_no"),
-                bus_reported_date=serialized_data.get("bus_reported_date"),
-                bus_reported_time=serialized_data.get("bus_reported_time"),
+                bus_reported_date=datetime.datetime.strptime(serialized_data.get("bus_reported_date"), "%Y-%m-%d"),
+                bus_reported_time=datetime.datetime.strptime(serialized_data.get("bus_reported_time"), '%H:%M:%S'),
                 created_by=user_data,
                 status=0
             )
             return Response(status=status.HTTP_200_OK, data={
-                "code": "Success",
-                "message": "Out Depot Vehicle Receive Data Added Successfully.",
+                "code":"Success",
+                "message":"Out Depot Vehicle Receive Data Added Successfully.",
                 "result": []
             })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
-                "code": "Fail",
-                "message": "Something Went Wrong.",
-                "result": []
+                "code":"Fail",
+                "message":"Something Went Wrong.",
+                "result":[]
             })
 
 
@@ -2397,19 +2459,27 @@ class OutDepotVehicleSendBackAPIView(APIView):
         try:
             special_bus_data = SpecialBusDataEntry.objects.get(log_sheet_no=serialized_data.get("log_sheet_no"))
             user_data = User.objects.get(id=serialized_data.get("user_id"))
-            out_depo_buse_send_back_detail = OutDepotVehicleSentBack.objects.create(
-                unique_no_bus_no=serialized_data.get("unique_no_or_bus_number"),
-                log_sheet_no=serialized_data.get("log_sheet_no"),
-                special_bus_data_entry=
-                special_bus_data,
-                created_by=user_data,
-                status=0
-            )
-            return Response(status=status.HTTP_200_OK, data={
-                "code": "Success",
-                "message": "Out Depot Vehicle Send Back Data Added Successfully.",
-                "result": []
-            })
+            
+            if special_bus_data:
+                out_depo_buse_send_back_detail = OutDepotVehicleSentBack.objects.create(
+                    unique_no=serialized_data.get("unique_no"),
+                    bus_number=serialized_data.get("bus_number"),
+                    log_sheet_no=serialized_data.get("log_sheet_no"),
+                    special_bus_data_entry=special_bus_data,
+                    created_by=user_data,
+                    status=0
+                )
+                return Response(status=status.HTTP_200_OK, data={
+                    "code": "Success",
+                    "message": "Out Depot Vehicle Send Back Data Added Successfully.",
+                    "result": []
+                })
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                    "code": "Fail",
+                    "message": "Something Went Wrong.",
+                    "result": []
+                })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
                 "code": "Fail",
@@ -2777,3 +2847,82 @@ class HSDOilSubmissionAPIView(APIView):
                 "message": "Something Went Wrong.",
                 "result": []
             })
+
+class GetAllBusesOnHandAPIView(APIView):
+   def get(self, request):
+       buses_on_hand_instances = BusesOnHand.objects.filter(~Q(status=2))
+       buses_on_details = [instance.get_complete_details() for instance in buses_on_hand_instances]
+       return Response(status=status.HTTP_200_OK, data={
+           "code":"Success",
+           "message":"All Buses On hand Data Fetched Successfully.",
+           "result": buses_on_details
+       })
+  
+class BusesOnHandAPIView(APIView):
+   def get(self, request):
+       buses_on_hand_id = request.GET.get("buses_on_hand_id")
+       serializer_instance = app_serializers.GetBusesOnHandSerializer(
+           data={"buses_on_hand_id":buses_on_hand_id}
+       )
+       if not serializer_instance.is_valid():
+           return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
+
+
+       serialized_data = serializer_instance.validated_data
+
+
+       try:
+           buses_on_hand_instance = BusesOnHand.objects.get(
+               id=serialized_data.get("buses_on_hand_id")
+           )
+           return Response(status=status.HTTP_200_OK, data={
+               "code":"Success",
+               "message":"Buses On Hand Data Fetched Successfully.",
+               "result": buses_on_hand_instance.get_complete_details()
+           })
+       except Exception as e:
+           return Response(status=status.HTTP_400_BAD_REQUEST, data={
+               "code":"Fail",
+               "message":"Something Went Wrong.",
+               "result":[]
+           })
+
+
+   def post(self, request):
+       serializer_instance = app_serializers.BusesOnHandSerializer(data=request.data)
+
+
+       if not serializer_instance.is_valid():
+           return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
+
+
+       serialized_data = serializer_instance.validated_data
+
+
+       try:
+           out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(
+               unique_no=serialized_data.get("unique_code")
+           )
+           special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
+           user_data = User.objects.get(id=serialized_data.get("user_id"))
+           buses_on_hand_detail = BusesOnHand.objects.create(
+               unique_code=serialized_data.get("unique_code"),
+               status=0,
+               special_bus_data_entry=special_bus_data,
+               created_by=user_data,
+               bus_in_out=serialized_data.get("bus_in_out"),
+               point_name=serialized_data.get("point_name")
+           )
+
+
+           return Response(status=status.HTTP_200_OK, data={
+               "code":"Success",
+               "message":"Buses On Hand Data Added Successfully.",
+               "result": []
+           })
+       except Exception as e:
+           return Response(status=status.HTTP_400_BAD_REQUEST, data={
+               "code":"Fail",
+               "message":"Something Went Wrong.",
+               "result":[]
+           })
