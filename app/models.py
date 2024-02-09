@@ -264,6 +264,7 @@ class OwnDepotBusDetailsEntry(models.Model):
     driver1_phone_number = models.CharField(max_length=256, null=True, blank=True)
     driver2_name = models.CharField(max_length=256, null=True, blank=True)
     driver2_phone_number = models.CharField(max_length=256, null=True, blank=True)
+    depot = models.ForeignKey(Depot, on_delete=models.CASCADE, null=True, blank=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -290,6 +291,7 @@ class OwnDepotBusDetailsEntry(models.Model):
 
 class OwnDepotBusWithdraw(models.Model):
     bus_number = models.CharField(max_length=256, null=True, blank=True)
+    depot = models.ForeignKey(Depot, on_delete=models.CASCADE, null=True, blank=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

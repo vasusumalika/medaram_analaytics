@@ -46,7 +46,7 @@
 
 												<div class="col-sm-12 col-md-12 col-xl-6">
 													<div class="form-group">
-														<label class="form-label text-muted">Point Name: </label>
+														<label class="form-label text-muted">Employee Designation: </label>
 														<select class="form-control custom-select" id="employee_designation" name="employee_designation" data-placeholder="Choose Employee Designation..." tabindex="-1" aria-hidden="true" required>
 															{% for key, label in employee_designations.items %}
 																<option value="{{ key }}"{% if key == user_type.employee_designation %} selected{% endif %}>{{ label }}</option>
