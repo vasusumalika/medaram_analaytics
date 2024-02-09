@@ -74,6 +74,8 @@ urlpatterns = [
     path('statistics/trip/start/add', views.trip_start_add, name='trip_start_add'),
     path('statistics/search/trip/end/form', views.search_trip_end_form, name='search_trip_end_form'),
     path('statistics/trip/end/add', views.trip_end_add, name='trip_end_add'),
+    path('get/out/own/depot/bus/number', views.get_out_and_own_depot_bus_number,
+         name='get_out_and_own_depot_bus_number'),
 
 
     path('out/depot/buses/send/back/list', views.out_depot_vehicle_send_back_list,
