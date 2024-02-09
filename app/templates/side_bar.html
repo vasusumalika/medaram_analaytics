@@ -547,6 +547,19 @@
         			}
 				});
 			});
+
+			$("#trip_start_unique_no").change(function() {
+            	var selectedUniqueNo = $(this).val();
+            	console.log(selectedUniqueNo);
+				$.ajax({
+					url: '{% url "app:get_out_and_own_depot_bus_number" %}',
+					data: { unique_no: selectedUniqueNo },
+					dataType: 'json',
+					success: function(data) {
+						$('#trip_start_bus_number').val(data.bus_number);
+					}
+				});
+			});
         });
 
         function validateInput() {

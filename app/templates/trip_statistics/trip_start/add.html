@@ -101,20 +101,20 @@
                                                {% endif %}
 
 												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="out_depot_vehicle_receive_unique_no">Unique No</label>
-													<select class="form-control custom-select" name="out_depot_vehicle_receive_unique_no" id="out_depot_vehicle_receive_unique_no" required>
+                                                    <label class="form-label" for="trip_start_unique_no">Unique No</label>
+													<select class="form-control custom-select" name="trip_start_unique_no" id="trip_start_unique_no" required>
                                                      	<option value="">Select Option</option>
-                                                        	{% for out_depot_vehicle_receive in out_depot_vehicle_receive_data %}
-                                                            	<option value="{{ out_depot_vehicle_receive.unique_no }}">
-                                                                	{{ out_depot_vehicle_receive.unique_no }}
+                                                        	{% for data in combined_data %}
+                                                            	<option value="{{ data.unique_no }}">
+                                                                	{{ data.unique_no }}
                                                                 </option>
                                                             {% endfor %}
                                                     </select>
 												</div>
 
 												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="out_depot_vehicle_receive_bus_number">Bus Number</label>
-                                                    <input type="text" id="out_depot_vehicle_receive_bus_number" name="out_depot_vehicle_receive_bus_number" class="form-control" readonly>
+                                                    <label class="form-label" for="trip_start_bus_number">Bus Number</label>
+                                                    <input type="text" id="trip_start_bus_number" name="trip_start_bus_number" class="form-control" readonly>
 												</div>
 
 												<div class="form-group col-md-6">

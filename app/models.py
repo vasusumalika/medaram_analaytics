@@ -204,7 +204,7 @@ class OutDepotVehicleReceive(models.Model):
     out_depot_bus_reporting_depot = models.ForeignKey(Depot, on_delete=models.CASCADE,
                                                       related_name="out_depot_bus_reporting_depot", null=True,
                                                       blank=True)
-    unique_no = models.IntegerField()
+    unique_no = models.CharField(max_length=256, null=True, blank=True)
     new_log_sheet_no = models.IntegerField()
     hsd_top_oil_liters = models.IntegerField()
     mts_no = models.IntegerField()
@@ -311,7 +311,7 @@ class OwnDepotBusWithdraw(models.Model):
 
 class TripStatistics(models.Model):
     id = models.AutoField(primary_key=True)
-    unique_code = models.IntegerField(null=True, blank=True)
+    unique_code = models.CharField(max_length=256, null=True, blank=True)
     bus_number = models.CharField(max_length=256, null=True, blank=True)
     total_ticket_amount = models.IntegerField(null=True, blank=True)
     total_adult_passengers = models.IntegerField(null=True, blank=True)

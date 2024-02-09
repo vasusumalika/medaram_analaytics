@@ -17,6 +17,7 @@ from cryptography.fernet import Fernet
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 import ast
+from itertools import chain
 
 # RESTAPI IMPORT STARTS HERE
 from rest_framework.views import APIView
@@ -70,6 +71,7 @@ def do_login(request):
                 request.session['user_id'] = user_login_data.id
                 request.session['user_type'] = user_login_data.user_type.name
                 request.session['point_name'] = user_login_data.point_name.point_name
+                request.session['depot_id'] = user_login_data.depot.id
                 return redirect("app:dashboard")
             else:
                 messages.error(request, 'Invalid Login Credentials!!')
@@ -910,8 +912,8 @@ def vehicle_details_import(request):
 @custom_login_required
 def trip_start_add(request):
     if request.method == "POST":
-        unique_code = request.POST.get('out_depot_vehicle_receive_unique_no')
-        bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
+        unique_code = request.POST.get('trip_start_unique_no')
+        bus_number = request.POST.get('trip_start_bus_number')
         total_ticket_amount = request.POST.get('total_ticket_amount')
         total_adult_passengers = request.POST.get('total_adult_passengers')
         total_child_passengers = request.POST.get('total_child_passengers')
@@ -953,10 +955,29 @@ def trip_start_add(request):
             messages.error(request, 'Statistics Trip Data Creation Failed!!')
             return redirect("app:trip_start_add")
     else:
-        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
+        depot_data = Depot.objects.get(id=request.session['depot_id'])
+        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=depot_data)
+        own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(depot=depot_data)
+        combined_data = list(chain(out_depot_vehicle_receive_data, own_depot_vehicle_receive_data))
         point_data = PointData.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'trip_statistics/trip_start/add.html',
-                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data, 'point_data': point_data})
+                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data, 'point_data': point_data,
+                       'own_depot_vehicle_receive_data': own_depot_vehicle_receive_data, 'combined_data': combined_data})
+
+
+@custom_login_required
+def get_out_and_own_depot_bus_number(request):
+    unique_no = request.GET.get('unique_no')
+    depot_id = request.session['depot_id']
+    out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(unique_no=unique_no) &
+                                                                           Q(out_depot_bus_reporting_depot_id=depot_id))
+    own_depot_bus_entry_data = OwnDepotBusDetailsEntry.objects.filter(Q(unique_no=unique_no) & Q(depot_id=depot_id))
+    if out_depot_vehicle_receive_data.exists():
+        special_bus_data = out_depot_vehicle_receive_data[0].special_bus_data_entry
+        return JsonResponse({'bus_number': special_bus_data.bus_number.bus_number})
+    if own_depot_bus_entry_data.exists():
+        return JsonResponse({'bus_number': own_depot_bus_entry_data[0].bus_number})
+    return JsonResponse({}, status=400)
 
 
 @custom_login_required
@@ -1041,6 +1062,9 @@ def search_special_bus_data(request):
 
 @custom_login_required
 def out_depot_buses_receive_add(request):
+    special_bus_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
+    already_received_bus_numbers = OutDepotVehicleReceive.objects.values_list('bus_number__bus_number', flat=True)
+    special_bus_data = special_bus_data.exclude(bus_number__bus_number__in=already_received_bus_numbers)
     if request.method == "POST":
         bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
         unique_no = request.POST.get('unique_no')
@@ -1051,6 +1075,11 @@ def out_depot_buses_receive_add(request):
         bus_reported_time = request.POST.get('bus_reported_time')
         out_depot_buses_receive_status = 0
         try:
+            out_depot_buses_receive_unique_count = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
+            if out_depot_buses_receive_unique_count.exists():
+                messages.error(request, 'Unique number already exists!!')
+                return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html',
+                              {'special_bus_numbers_data': special_bus_data})
             vehicle_detail_data = VehicleDetails.objects.get(bus_number=bus_number)
             special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail_data)
             out_depot_bus_sending_depot = Depot.objects.get(id=special_bus_data.special_bus_sending_depot.id)
@@ -1075,8 +1104,11 @@ def out_depot_buses_receive_add(request):
             print(e)
             messages.error(request, 'Out Depot Vehicle Receive Details Creation Failed!!')
         return redirect("app:out_depot_buses_receive_list")
+
+    if not special_bus_data.exists():
+        messages.error(request, "No special bus numbers left to show and receive.")
+        return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html', {})
     try:
-        special_bus_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
         return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html',
                       {'special_bus_numbers_data': special_bus_data})
     except Exception as e:
@@ -1102,6 +1134,10 @@ def own_depot_bus_details_entry_add(request):
         driver2_phone_number = request.POST.get('driver2_phone_number')
         status = 0
         try:
+            own_depot_buses_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
+            if own_depot_buses_entry_unique_count.exists():
+                messages.error(request, 'Unique number already exists!!')
+                return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html',)
             vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
             depot_data = Depot.objects.get(id=vehicle_details.depot.id)
             user_data = User.objects.get(id=request.session['user_id'])
@@ -1733,6 +1769,10 @@ def out_depot_vehicle_receive_update(request):
     out_depot_buses_receive_status = 0
     if out_depot_vehicle_receive_id:
         try:
+            out_depot_buses_receive_unique_count = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
+            if out_depot_buses_receive_unique_count.exists():
+                messages.error(request, 'Unique number already exists update  failed!!')
+                return redirect("app:out_depot_buses_receive_list")
             out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(id=out_depot_vehicle_receive_id)
             out_depot_vehicle_receive_data.unique_no = unique_no
             out_depot_vehicle_receive_data.new_log_sheet_no = new_log_sheet_no
