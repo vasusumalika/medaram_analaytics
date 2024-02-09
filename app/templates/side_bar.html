@@ -467,6 +467,7 @@
 			$("#special_bus_sending_depot").change(function() {
             	var selectedDepotId = $(this).val();
             	console.log(selectedDepotId);
+            	$('#error-container').empty();
 				$.ajax({
 					url: '{% url "app:get_depot_vehicle_number" %}',
 					data: { depot_id: selectedDepotId },
@@ -504,28 +505,6 @@
 				pageLength: 10,
          	});
 
-<!--         	$('#out_depot_send_back_log_sheet_no').on('blur', function() {-->
-<!--        		var logSheetNo = $(this).val();-->
-<!--        		console.log("Log sheet number:", logSheetNo);-->
-<!--        		$.ajax({-->
-<!--            		url: '/out/depot/buses/send/back/validate/log/sheet',-->
-<!--            		type: 'GET',-->
-<!--            		data: {-->
-<!--                		'log_sheet_no': logSheetNo-->
-<!--            		},-->
-<!--            		success: function(data) {-->
-<!--            			console.log("AJAX success");-->
-<!--                		if (data.exists) {-->
-<!--                			console.log("Log sheet number exists");-->
-<!--                    		$('#log_sheet_no_error').html('');-->
-<!--                		} else {-->
-<!--                			console.log("Log sheet number does not exist");-->
-<!--                    		$('#log_sheet_no_error').html('Log sheet number does not exist');-->
-<!--                		}-->
-<!--            		}-->
-<!--        		});-->
-<!--    		});-->
-
     		$("#out_depot_vehicle_receive_unique_no").change(function() {
             	var selectedUniqueNo = $(this).val();
             	console.log(selectedUniqueNo);
@@ -542,6 +521,32 @@
 			//Select2 on the dropdown with class
         	$('.form-control.custom-select').select2();
 
+    		$("#user_depot_id").change(function() {
+            	var selectedDepotId = $(this).val();
+            	$('#error-container').empty();
+				$.ajax({
+					url: '{% url "app:get_depot_point_names" %}',
+					data: { depot_id: selectedDepotId },
+					dataType: 'json',
+					success: function(data) {
+						var point_name_select = $('#user_point_name');
+						point_name_select.empty();
+						$.each(data.point_details, function(index, point_detail) {
+							point_name_select.append('<option value="' + point_detail.point_name + '">' + point_detail.point_name + '</option>');
+						});
+					},
+        			error: function(xhr, status, error) {
+            			var responseJSON = JSON.parse(xhr.responseText);
+            			var errorMessage = responseJSON.error;
+            			console.log("Error message:", errorMessage)
+            			$('.alert-danger').remove();
+            			$('#user_point_name').empty();
+            			$('#error-container').html('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                        '<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">' +
+                        '<span aria-hidden="True">&times;</span></button>' + errorMessage + '</div>');
+        			}
+				});
+			});
         });
 
         function validateInput() {
@@ -565,7 +570,6 @@
             	validation_message.innerHTML = 'Please enter upto 3 digits only.';
         	}
     	}
-
 
 	</script>
 
