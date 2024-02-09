@@ -1189,6 +1189,10 @@ def own_depot_bus_details_entry_update(request):
     status = 0
     if own_depot_bus_details_entry_id:
         try:
+            own_depot_buses_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
+            if own_depot_buses_entry_unique_count.exists():
+                messages.error(request, 'Unique number already exists!update failed!')
+                redirect("app:own_depot_bus_details_entry_list")
             own_depot_bus_details_entry_data = OwnDepotBusDetailsEntry.objects.get(id=own_depot_bus_details_entry_id)
             own_depot_bus_details_entry_data.bus_number = bus_number
             own_depot_bus_details_entry_data.unique_no = unique_no
