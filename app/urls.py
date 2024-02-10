@@ -128,6 +128,12 @@ urlpatterns = [
     path('reports/display/bus/no/crew/details', views.display_bus_no_crew_details,
          name='display_bus_no_crew_details'),
 
+    path('reports/search/bus/details', views.search_bus_details, name='search_bus_details'),
+
+    path('reports/search/route/wise/buses/to/list', views.search_route_wise_buses_to_list, name='search_route_wise_buses_to_list'),
+    path('reports/search/route/wise/buses/from/list', views.search_route_wise_buses_from_list,
+         name='search_route_wise_buses_from_list'),
+
     path('point_data/list', views.point_data_list, name='point_data_list'),
     path('point_data/import', views.point_data_import, name='point_data_import'),
     path('point_data/add', views.point_name_add, name='point_name_add'),

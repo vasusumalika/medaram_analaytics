@@ -1,3 +1,5 @@
+import re
+
 import pytz
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect
@@ -965,7 +967,8 @@ def trip_start_add(request):
         point_data = PointData.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'trip_statistics/trip_start/add.html',
                       {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data, 'point_data': point_data,
-                       'own_depot_vehicle_receive_data': own_depot_vehicle_receive_data, 'combined_data': combined_data})
+                       'own_depot_vehicle_receive_data': own_depot_vehicle_receive_data,
+                       'combined_data': combined_data})
 
 
 @custom_login_required
@@ -1140,7 +1143,7 @@ def own_depot_bus_details_entry_add(request):
             own_depot_buses_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
             if own_depot_buses_entry_unique_count.exists():
                 messages.error(request, 'Unique number already exists!!')
-                return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html',)
+                return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', )
             vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
             depot_data = Depot.objects.get(id=vehicle_details.depot.id)
             user_data = User.objects.get(id=request.session['user_id'])
@@ -1816,6 +1819,128 @@ def display_bus_no_crew_details(request):
     bus_number_crew_details = OutDepotVehicleReceive.objects.get(bus_number=bus_data)
     return render(request, 'reports/display_bus_no_crew_details.html',
                   {'bus_number_crew_details': bus_number_crew_details})
+
+
+@custom_login_required
+def search_bus_details(request):
+    if request.method == "POST":
+        unique_bus_no = request.POST.get('unique_bus_no')
+        pattern = r'^[A-Z]{2}\d{2}[A-Z]\d{4}$'
+        pattern_numeric = r'^\d+$'
+        if re.match(pattern, unique_bus_no):
+            bus_data = VehicleDetails.objects.get(bus_number=unique_bus_no)
+            bus_number_crew_details = OutDepotVehicleReceive.objects.filter(bus_number=bus_data).first()
+            return render(request, 'reports/search_bus_details.html',
+                          {'search_bus_details_info': bus_number_crew_details})
+        if re.match(pattern_numeric, unique_bus_no):
+            print(unique_bus_no)
+            unique_number_crew_details = OutDepotVehicleReceive.objects.filter(unique_no=unique_bus_no).first()
+            return render(request, 'reports/search_bus_details.html',
+                          {'search_bus_details_info': unique_number_crew_details})
+    else:
+        return render(request, 'reports/search_bus_details.html', {})
+
+
+@custom_login_required
+def search_route_wise_buses_to_list(request):
+    point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name='Thadvai'))
+    if request.method == "POST":
+        trip_point_result = []
+        point_name = request.POST.get('point_name')
+        date = request.POST.get('date')
+        given_date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        trip_point_data = TripStatistics.objects.filter(entry_type='up').filter(start_from_location=point_name). \
+            filter(trip_start__date=given_date)
+        if len(trip_point_data) > 0:
+            for trip_point in trip_point_data:
+                point_name = PointData.objects.get(id=trip_point.start_to_location.id)
+                no_of_buses = TripStatistics.objects.filter(entry_type='up').filter(id=trip_point.id).count()
+                total_passengers = TripStatistics.objects.filter(entry_type='up').filter(id=trip_point.id).aggregate(
+                    total_adult_passengers=Sum('total_adult_passengers'),
+                    total_child_passengers=Sum('total_child_passengers'),
+                    mhl_adult_passengers=Sum('mhl_adult_passengers'),
+                    mhl_child_passengers=Sum('mhl_child_passengers')
+                )
+                total_passengers_count = total_passengers['total_adult_passengers'] + total_passengers[
+                    'total_child_passengers'] + total_passengers['mhl_adult_passengers'] + \
+                                         total_passengers['mhl_child_passengers']
+
+                total_earnings = TripStatistics.objects.filter(entry_type='up').filter(id=trip_point.id).aggregate(
+                    total_ticket_amount=Sum('total_ticket_amount'),
+                    mhl_adult_amount=Sum('mhl_adult_amount'),
+                    mhl_child_amount=Sum('mhl_child_amount')
+                )
+
+                total_earnings_count = total_earnings['total_ticket_amount'] + total_earnings[
+                    'mhl_adult_amount'] + total_earnings['mhl_child_amount']
+
+                trip_point_result.append({
+                    'point_name': point_name.point_name,
+                    'no_of_buses': no_of_buses,
+                    'total_passengers_count': total_passengers_count,
+                    'total_earnings_count': total_earnings_count,
+                })
+
+            return render(request, 'reports/search_route_wise_buses_to_list.html',
+                          {'trip_point_result': trip_point_result,
+                           'point_names': point_names})
+        else:
+            return render(request, 'reports/search_route_wise_buses_to_list.html',
+                          {'point_names': point_names})
+    else:
+        return render(request, 'reports/search_route_wise_buses_to_list.html',
+                      {'point_names': point_names})
+
+
+@custom_login_required
+def search_route_wise_buses_from_list(request):
+    point_names = PointData.objects.filter(~Q(status=2))
+    if request.method == "POST":
+        trip_point_result = []
+        point_name = request.POST.get('point_name')
+        date = request.POST.get('date')
+        given_date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        trip_point_data = TripStatistics.objects.filter(entry_type='down').filter(start_from_location=point_name). \
+            filter(trip_start__date=given_date)
+        if len(trip_point_data) > 0:
+            for trip_point in trip_point_data:
+                point_name = PointData.objects.get(id=trip_point.start_to_location.id)
+                no_of_buses = TripStatistics.objects.filter(entry_type='down').filter(id=trip_point.id).count()
+                total_passengers = TripStatistics.objects.filter(entry_type='down').filter(id=trip_point.id).aggregate(
+                    total_adult_passengers=Sum('total_adult_passengers'),
+                    total_child_passengers=Sum('total_child_passengers'),
+                    mhl_adult_passengers=Sum('mhl_adult_passengers'),
+                    mhl_child_passengers=Sum('mhl_child_passengers')
+                )
+                total_passengers_count = total_passengers['total_adult_passengers'] + total_passengers[
+                    'total_child_passengers'] + total_passengers['mhl_adult_passengers'] + \
+                                         total_passengers['mhl_child_passengers']
+
+                total_earnings = TripStatistics.objects.filter(entry_type='down').filter(id=trip_point.id).aggregate(
+                    total_ticket_amount=Sum('total_ticket_amount'),
+                    mhl_adult_amount=Sum('mhl_adult_amount'),
+                    mhl_child_amount=Sum('mhl_child_amount')
+                )
+
+                total_earnings_count = total_earnings['total_ticket_amount'] + total_earnings[
+                    'mhl_adult_amount'] + total_earnings['mhl_child_amount']
+
+                trip_point_result.append({
+                    'point_name': point_name.point_name,
+                    'no_of_buses': no_of_buses,
+                    'total_passengers_count': total_passengers_count,
+                    'total_earnings_count': total_earnings_count,
+                })
+
+            return render(request, 'reports/search_route_wise_buses_from_list.html',
+                          {'trip_point_result': trip_point_result,
+                           'point_names': point_names})
+        else:
+            return render(request, 'reports/search_route_wise_buses_from_list.html',
+                          {'point_names': point_names})
+    else:
+        return render(request, 'reports/search_route_wise_buses_from_list.html',
+                      {'point_names': point_names})
 
 
 @custom_login_required
