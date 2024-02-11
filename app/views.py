@@ -2533,23 +2533,31 @@ class OutDepotVehicleReceiveAPIView(APIView):
             vehicle_detail_data = VehicleDetails.objects.get(bus_number=serialized_data.get("bus_number"))
             special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail_data)
             user_data = User.objects.get(id=serialized_data.get("user_id"))
-            out_depo_buse_receive_detail = OutDepotVehicleReceive.objects.create(
-                bus_number=vehicle_detail_data,
-                special_bus_data_entry=special_bus_data,
-                unique_no=serialized_data.get("unique_no"),
-                new_log_sheet_no=serialized_data.get("new_log_sheet_no"),
-                hsd_top_oil_liters=serialized_data.get("hsd_top_oil_lts"),
-                mts_no=serialized_data.get("mts_no"),
-                bus_reported_date=datetime.datetime.strptime(serialized_data.get("bus_reported_date"), "%Y-%m-%d"),
-                bus_reported_time=datetime.datetime.strptime(serialized_data.get("bus_reported_time"), '%H:%M:%S'),
-                created_by=user_data,
-                status=0
-            )
-            return Response(status=status.HTTP_200_OK, data={
-                "code": "Success",
-                "message": "Out Depot Vehicle Receive Data Added Successfully.",
-                "result": []
-            })
+            is_exists = OutDepotVehicleReceive.objects.filter(unique_no=serialized_data.get("unique_no")).exists()
+            if not is_exists:
+                out_depo_buse_receive_detail = OutDepotVehicleReceive.objects.create(
+                    bus_number=vehicle_detail_data,
+                    special_bus_data_entry=special_bus_data,
+                    unique_no=serialized_data.get("unique_no"),
+                    new_log_sheet_no=serialized_data.get("new_log_sheet_no"),
+                    hsd_top_oil_liters=serialized_data.get("hsd_top_oil_lts"),
+                    mts_no=serialized_data.get("mts_no"),
+                    bus_reported_date=datetime.datetime.strptime(serialized_data.get("bus_reported_date"), "%Y-%m-%d"),
+                    bus_reported_time=datetime.datetime.strptime(serialized_data.get("bus_reported_time"), '%H:%M:%S'),
+                    created_by=user_data,
+                    status=0
+                )
+                return Response(status=status.HTTP_200_OK, data={
+                    "code": "Success",
+                    "message": "Out Depot Vehicle Receive Data Added Successfully.",
+                    "result": []
+                })
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                    "code":"Fail",
+                    "message":"Something Went Wrong.",
+                    "result":[]
+                })
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
                 "code": "Fail",
@@ -2683,25 +2691,39 @@ class OwnDepotBusDetailAPIView(APIView):
         serialized_data = serializer_instance.validated_data
 
         try:
-            user_data = User.objects.get(id=serialized_data.get("user_id"))
-            own_depot_bus_detail_entry = OwnDepotBusDetailsEntry.objects.create(
-                bus_number=serialized_data.get("bus_number"),
-                bus_type=serialized_data.get("bus_type"),
-                unique_no=serialized_data.get("unique_number"),
-                log_sheet_no=serialized_data.get("log_sheet_no"),
-                driver1_name=serialized_data.get("driver1_name"),
-                driver1_phone_number=serialized_data.get("driver1_phone_number"),
-                driver2_name=serialized_data.get("driver2_name"),
-                driver2_phone_number=serialized_data.get("driver2_phone_number"),
-                status=0,
-                created_by=user_data
-            )
-            return Response(status=status.HTTP_200_OK, data={
-                "code": "Success",
-                "message": "Own Depot Bus Entry Data Added Successfully.",
-                "result": []
-            })
+            own_depot_buses_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(
+                unique_no=serialized_data.get("unique_number")
+            ).exists()
+            if not own_depot_buses_entry_unique_count:
+                vehicle_details = VehicleDetails.objects.get(bus_number=serialized_data.get("bus_number"))
+                depot_data = Depot.objects.get(id=vehicle_details.depot.id)
+                user_data = User.objects.get(id=serialized_data.get("user_id"))
+                own_depot_bus_detail_entry = OwnDepotBusDetailsEntry.objects.create(
+                    bus_number=serialized_data.get("bus_number"),
+                    bus_type=serialized_data.get("bus_type"),
+                    unique_no=serialized_data.get("unique_number"),
+                    log_sheet_no=serialized_data.get("log_sheet_no"),
+                    driver1_name=serialized_data.get("driver1_name"),
+                    driver1_phone_number=serialized_data.get("driver1_phone_number"),
+                    driver2_name=serialized_data.get("driver2_name"),
+                    driver2_phone_number=serialized_data.get("driver2_phone_number"),
+                    status=0,
+                    created_by=user_data,
+                    depot = depot_data
+                )
+                return Response(status=status.HTTP_200_OK, data={
+                    "code": "Success",
+                    "message": "Own Depot Bus Entry Data Added Successfully.",
+                    "result": []
+                })
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                    "code": "Fail",
+                    "message": "Something Went Wrong.",
+                    "result": []
+                })
         except Exception as e:
+            print("Exception", e)
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
                 "code": "Fail",
                 "message": "Something Went Wrong.",
@@ -2756,11 +2778,14 @@ class OwnDepotBusWithdrawAPIView(APIView):
         serialized_data = serializer_instance.validated_data
 
         try:
+            vehicle_details = VehicleDetails.objects.get(bus_number=serialized_data.get("bus_number"))
+            depot_data = Depot.objects.get(id=vehicle_details.depot.id)
             user_data = User.objects.get(id=serialized_data.get("user_id"))
             own_depot_bus_withdraw = OwnDepotBusWithdraw.objects.create(
                 bus_number=serialized_data.get("bus_number"),
                 status=0,
-                created_by=user_data
+                created_by=user_data,
+                depot=depot_data
             )
             return Response(status=status.HTTP_200_OK, data={
                 "code": "Success",
@@ -3048,6 +3073,7 @@ class BusesOnHandAPIView(APIView):
                 unique_no=serialized_data.get("unique_code")
             )
             special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
+            point_name_data = PointData.objects.get(point_name=serialized_data.get("point_name"))
             user_data = User.objects.get(id=serialized_data.get("user_id"))
             buses_on_hand_detail = BusesOnHand.objects.create(
                 unique_code=serialized_data.get("unique_code"),
@@ -3055,7 +3081,7 @@ class BusesOnHandAPIView(APIView):
                 special_bus_data_entry=special_bus_data,
                 created_by=user_data,
                 bus_in_out=serialized_data.get("bus_in_out"),
-                point_name=serialized_data.get("point_name")
+                point_name=point_name_data
             )
 
             return Response(status=status.HTTP_200_OK, data={
@@ -3064,8 +3090,19 @@ class BusesOnHandAPIView(APIView):
                 "result": []
             })
         except Exception as e:
+            print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST, data={
                 "code": "Fail",
                 "message": "Something Went Wrong.",
                 "result": []
             })
+
+class PointNameAPIView(APIView):
+    def get(self, request):
+        point_name_instances = PointData.objects.filter(~Q(status=2))
+        point_name_details = [instance.get_details() for instance in point_name_instances]
+        return Response(status=status.HTTP_200_OK, data={
+            "code": "Success",
+            "message": "All Point Data Fetched Successfully.",
+            "result": point_name_details
+        })
