@@ -1900,8 +1900,8 @@ def search_route_wise_buses_from_list(request):
         point_name = request.POST.get('point_name')
         date = request.POST.get('date')
         given_date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
-        trip_point_data = TripStatistics.objects.filter(entry_type='down').filter(start_from_location=point_name). \
-            filter(trip_start__date=given_date)
+        trip_point_data = TripStatistics.objects.filter(entry_type='down').filter(start_from_location__point_name='Thadvai').\
+            filter(start_to_location=point_name).filter(trip_start__date=given_date)
         if len(trip_point_data) > 0:
             for trip_point in trip_point_data:
                 point_name = PointData.objects.get(id=trip_point.start_to_location.id)
