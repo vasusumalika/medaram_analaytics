@@ -14,7 +14,7 @@
 							<!-- PAGE-HEADER -->
 							<div class="page-header">
 								<div>
-									<h1 class="page-title"> Trip Statistics - Trip Data</h1>
+									<h1 class="page-title"> Trip Statistics - Trip Start</h1>
 								</div>
 								<div class="ms-auto pageheader-btn">
 									<ol class="breadcrumb">
@@ -29,12 +29,12 @@
 									{% if messages %}
 										{% for message in messages %}
 											<div class="container-fluid p-0">
-											  <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %} alert-dismissible" role="alert" >
-												<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
-												  <span aria-hidden="True">&times;</span>
-												</button>
-												{{ message }}
-											  </div>
+												<div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+													<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+												  		<span aria-hidden="True">&times;</span>
+													</button>
+													{{ message }}
+												</div>
 											</div>
 										{% endfor %}
 									{% endif %}

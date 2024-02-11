@@ -102,7 +102,7 @@
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" >Point Name:</label>
-                                                    <input type="text" class="form-control" value="{{last_trip_details.start_form_location.point_name}}" readonly>
+                                                    <input type="text" class="form-control" value="{{last_trip_details.start_from_location.point_name}}" readonly>
 												</div>
 
 												<div class="form-group col-md-6">
@@ -162,7 +162,7 @@
 
 												<div class="form-group col-md-6">
 													<label class="form-label">Service Operated Date:</label>
-                                                    <input type="date"  class="form-control" name="service_operated_date" value="{{last_trip_details.service_operated_date}}" required>
+                                                    <input type="date"  class="form-control" name="service_operated_date" value="{{last_trip_details.service_operated_date|date:'Y-m-d'}}" required>
 												</div>
 
 
