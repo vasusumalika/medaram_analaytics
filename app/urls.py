@@ -178,4 +178,6 @@ urlpatterns = [
     path("api/get-all-buses-on-hand/", views.GetAllBusesOnHandAPIView.as_view()),
     path("api/buses-on-hand/", views.BusesOnHandAPIView.as_view()),
 
+    path("api/get-all-point-names/", views.PointNameAPIView.as_view()),
+
 ]
