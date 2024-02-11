@@ -134,6 +134,9 @@ urlpatterns = [
     path('reports/search/route/wise/buses/from/list', views.search_route_wise_buses_from_list,
          name='search_route_wise_buses_from_list'),
 
+    path('reports/search/hour/wise/dispatched/buses/list', views.search_hour_wise_dispatched_buses_list,
+         name='search_hour_wise_dispatched_buses_list'),
+
     path('point_data/list', views.point_data_list, name='point_data_list'),
     path('point_data/import', views.point_data_import, name='point_data_import'),
     path('point_data/add', views.point_name_add, name='point_name_add'),
