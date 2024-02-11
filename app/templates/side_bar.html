@@ -267,17 +267,20 @@
 									</li>
 								{% endif %}
 
-								<li class="slide">
-   									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
-         								<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-         								<span class="side-menu__label">Own Depot Buses</span>
-										<i class="angle fa fa-angle-right"></i>
-									</a>
-         							<ul class="slide-menu">
-            							<li><a class="slide-item" href="{% url 'app:own_depot_bus_details_entry_list'%}">Bus details entry</a></li>
-            							<li><a class="slide-item" href="{% url 'app:own_depot_bus_withdraw_list'%}">Bus Withdraw</a></li>
-         							</ul>
-								</li>
+								{% if request.session.user_type == 'Super_admin' %}
+
+									<li class="slide">
+   										<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
+         									<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+         									<span class="side-menu__label">Own Depot Buses</span>
+											<i class="angle fa fa-angle-right"></i>
+										</a>
+         								<ul class="slide-menu">
+            								<li><a class="slide-item" href="{% url 'app:own_depot_bus_details_entry_list'%}">Bus details entry</a></li>
+            								<li><a class="slide-item" href="{% url 'app:own_depot_bus_withdraw_list'%}">Bus Withdraw</a></li>
+         								</ul>
+									</li>
+								{% endif %}
 
 								{% if request.session.user_type == 'PSG UP THADVAI' or request.session.user_type == 'PSG ENTRY UP' or request.session.user_type == 'PSG ENTRY DOWN' or request.session.user_type == 'Super_admin' %}
 

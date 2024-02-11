@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.utils.datetime_safe import datetime
+# from django.utils.datetime_safe import datetime
 
 from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, \
     TripStatistics, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw, OutDepotVehicleSentBack, \
@@ -21,6 +21,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 import ast
 from itertools import chain
+from django.utils import timezone
 
 # RESTAPI IMPORT STARTS HERE
 from rest_framework.views import APIView
@@ -950,7 +951,6 @@ def trip_start_add(request):
                                                                   start_from_location=start_from_point_data,
                                                                   start_to_location=start_to_pont_data,
                                                                   data_enter_by=user_data,
-                                                                  trip_start=datetime.now(),
                                                                   service_operated_date=service_operated_date)
             statistics_data_entry.save()
             messages.success(request, 'Statistics Trip Data Created Successfully')
@@ -1011,8 +1011,8 @@ def search_trip_end_form(request):
 def trip_end_add(request):
     trip_check_id = request.POST.get('id')
     trip_verified = request.POST.get('trip_verified')
-    trip_verified_time = datetime.now()
-    trip_end = datetime.now()
+    trip_verified_time = timezone.now()
+    trip_end = timezone.now()
     service_operated_date = request.POST.get('service_operated_date')
     if trip_check_id:
         try:
@@ -1144,21 +1144,26 @@ def own_depot_bus_details_entry_add(request):
             if own_depot_buses_entry_unique_count.exists():
                 messages.error(request, 'Unique number already exists!!')
                 return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', )
-            vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
-            depot_data = Depot.objects.get(id=vehicle_details.depot.id)
-            user_data = User.objects.get(id=request.session['user_id'])
-            own_depot_bus_detail_entry = OwnDepotBusDetailsEntry.objects.create(bus_number=bus_number,
-                                                                                bus_type=bus_type,
-                                                                                unique_no=unique_no,
-                                                                                log_sheet_no=log_sheet_no,
-                                                                                driver1_name=driver1_name,
-                                                                                driver1_phone_number=driver1_phone_number,
-                                                                                driver2_name=driver2_name,
-                                                                                driver2_phone_number=driver2_phone_number,
-                                                                                status=status,
-                                                                                created_by=user_data, depot=depot_data)
-            own_depot_bus_detail_entry.save()
-            messages.success(request, 'Own Depot Bus Detail Entry Saved Successfully')
+            vehicle_details = VehicleDetails.objects.filter(bus_number=bus_number)
+            if vehicle_details:
+                depot_data = Depot.objects.get(id=vehicle_details.depot.id)
+                user_data = User.objects.get(id=request.session['user_id'])
+                own_depot_bus_detail_entry = OwnDepotBusDetailsEntry.objects.create(bus_number=bus_number,
+                                                                                    bus_type=bus_type,
+                                                                                    unique_no=unique_no,
+                                                                                    log_sheet_no=log_sheet_no,
+                                                                                    driver1_name=driver1_name,
+                                                                                    driver1_phone_number=driver1_phone_number,
+                                                                                    driver2_name=driver2_name,
+                                                                                    driver2_phone_number=driver2_phone_number,
+                                                                                    status=status,
+                                                                                    created_by=user_data,
+                                                                                    depot=depot_data)
+                own_depot_bus_detail_entry.save()
+                messages.success(request, 'Own Depot Bus Detail Entry Saved Successfully')
+            else:
+                messages.error(request, 'Own Depot Bus Detail Entry Creation Failed, Provide Valid Bus Number!!')
+                return redirect("app:own_depot_bus_details_entry_list")
         except Exception as e:
             print(e)
             messages.error(request, 'Own Depot Bus Detail Entry Creation Failed!!')
@@ -1698,19 +1703,19 @@ def display_operating_depot_list(request):
         no_of_trips = no_of_trips_up_count + no_of_trips_down_count
 
         total_passengers = TripStatistics.objects.filter(unique_code=unique_no).aggregate(
-            total_adult_passengers=Sum('total_adult_passengers'),
-            total_child_passengers=Sum('total_child_passengers'),
-            mhl_adult_passengers=Sum('mhl_adult_passengers'),
-            mhl_child_passengers=Sum('mhl_child_passengers')
+            total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+            mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+            mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
         )
         total_passengers_count = total_passengers['total_adult_passengers'] + total_passengers[
             'total_child_passengers'] + total_passengers['mhl_adult_passengers'] + \
                                  total_passengers['mhl_child_passengers']
 
         total_earnings = TripStatistics.objects.filter(unique_code=unique_no).aggregate(
-            total_ticket_amount=Sum('total_ticket_amount'),
-            mhl_adult_amount=Sum('mhl_adult_amount'),
-            mhl_child_amount=Sum('mhl_child_amount')
+            total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
+            mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
+            mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0)
         )
 
         total_earnings_count = total_earnings['total_ticket_amount'] + total_earnings[
@@ -1856,19 +1861,19 @@ def search_route_wise_buses_to_list(request):
                 point_name = PointData.objects.get(id=trip_point.start_to_location.id)
                 no_of_buses = TripStatistics.objects.filter(entry_type='up').filter(id=trip_point.id).count()
                 total_passengers = TripStatistics.objects.filter(entry_type='up').filter(id=trip_point.id).aggregate(
-                    total_adult_passengers=Sum('total_adult_passengers'),
-                    total_child_passengers=Sum('total_child_passengers'),
-                    mhl_adult_passengers=Sum('mhl_adult_passengers'),
-                    mhl_child_passengers=Sum('mhl_child_passengers')
+                    total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+                    total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+                    mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+                    mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
                 )
                 total_passengers_count = total_passengers['total_adult_passengers'] + total_passengers[
                     'total_child_passengers'] + total_passengers['mhl_adult_passengers'] + \
                                          total_passengers['mhl_child_passengers']
 
                 total_earnings = TripStatistics.objects.filter(entry_type='up').filter(id=trip_point.id).aggregate(
-                    total_ticket_amount=Sum('total_ticket_amount'),
-                    mhl_adult_amount=Sum('mhl_adult_amount'),
-                    mhl_child_amount=Sum('mhl_child_amount')
+                    total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
+                    mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
+                    mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0)
                 )
 
                 total_earnings_count = total_earnings['total_ticket_amount'] + total_earnings[
@@ -1917,9 +1922,9 @@ def search_route_wise_buses_from_list(request):
                                          total_passengers['mhl_child_passengers']
 
                 total_earnings = TripStatistics.objects.filter(entry_type='down').filter(id=trip_point.id).aggregate(
-                    total_ticket_amount=Sum('total_ticket_amount'),
-                    mhl_adult_amount=Sum('mhl_adult_amount'),
-                    mhl_child_amount=Sum('mhl_child_amount')
+                    total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
+                    mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
+                    mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0)
                 )
 
                 total_earnings_count = total_earnings['total_ticket_amount'] + total_earnings[
