@@ -13,6 +13,12 @@ class PointData(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_details(self):
+        return{
+            "id":self.id,
+            "point_names":self.point_name
+        }
+
 
 class User(models.Model):
     id = models.AutoField(primary_key=True)
