@@ -1257,14 +1257,14 @@ def own_depot_bus_details_entry_update(request):
     status = 0
     if own_depot_bus_details_entry_id:
         try:
-            own_depot_buses_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
-            if own_depot_buses_entry_unique_count.exists():
-                messages.error(request, 'Unique number already exists!update failed!')
-                redirect("app:own_depot_bus_details_entry_list")
+            # own_depot_buses_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
+            # if own_depot_buses_entry_unique_count.exists():
+            #     messages.error(request, 'Unique number already exists!update failed!')
+            #     redirect("app:own_depot_bus_details_entry_list")
             own_depot_bus_details_entry_data = OwnDepotBusDetailsEntry.objects.get(id=own_depot_bus_details_entry_id)
-            vehicle_details_id = VehicleDetails.objects.get(bus_number=bus_number)
-            own_depot_bus_details_entry_data.bus_number = vehicle_details_id
-            own_depot_bus_details_entry_data.unique_no = unique_no
+            # vehicle_details_id = VehicleDetails.objects.get(bus_number=bus_number)
+            # own_depot_bus_details_entry_data.bus_number = vehicle_details_id
+            # own_depot_bus_details_entry_data.unique_no = unique_no
             own_depot_bus_details_entry_data.bus_type = bus_type
             own_depot_bus_details_entry_data.log_sheet_no = log_sheet_no
             own_depot_bus_details_entry_data.driver1_name = driver1_name
@@ -1289,7 +1289,7 @@ def own_depot_bus_details_entry_update(request):
 
 
 def own_depot_bus_withdraw_list(request):
-    own_depot_bus_withdraw_data = OwnDepotBusWithdraw.objects.filter(~Q(status=2))
+    own_depot_bus_withdraw_data = OwnDepotBusWithdraw.objects.filter(~Q(status=2) & Q(depot=request.session['depot_id']))
     return render(request, 'own_depot_buses/own_depot_bus_withdraw/list.html',
                   {'own_depot_bus_withdraw_data': own_depot_bus_withdraw_data})
 
@@ -1299,8 +1299,12 @@ def own_depot_bus_withdraw_add(request):
         bus_number = request.POST.get('bus_number')
         status = 0
         try:
-            vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
-            depot_data = Depot.objects.get(id=vehicle_details.depot.id)
+            vehicle_details = VehicleDetails.objects.filter(bus_number=bus_number).filter(depot=request.session['depot_id'])
+            if vehicle_details.count() == 0:
+                messages.error(request, 'Bus Number not matched with depot')
+                return redirect("app:own_depot_bus_withdraw_add")
+
+            depot_data = Depot.objects.get(id=vehicle_details[0].depot.id)
             user_data = User.objects.get(id=request.session['user_id'])
             own_depot_bus_withdraw = OwnDepotBusWithdraw.objects.create(bus_number=bus_number,
                                                                         status=status,
@@ -1369,7 +1373,7 @@ def out_depot_vehicle_send_back_add(request):
         try:
             special_bus_data = SpecialBusDataEntry.objects.filter(log_sheet_no=log_sheet_no)
             if special_bus_data.count() == 0:
-                messages.error(request, 'Log Sheet number not exist!!')
+                messages.error(request, 'Parent Log Sheet number not matched!!')
                 return redirect("app:out_depot_vehicle_send_back_add")
             user_data = User.objects.get(id=request.session['user_id'])
             out_depo_buse_send_back_detail = OutDepotVehicleSentBack.objects.create(unique_no=unique_no,
