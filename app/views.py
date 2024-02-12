@@ -78,7 +78,10 @@ def do_login(request):
             if decrypted_password == user_password:
                 request.session['user_id'] = user_login_data.id
                 request.session['user_type'] = user_login_data.user_type.name
-                request.session['point_name'] = user_login_data.point_name.point_name
+                if user_login_data.point_name:
+                    request.session['point_name'] = user_login_data.point_name.point_name
+                else:
+                    request.session['point_name'] = ''
                 request.session['depot_id'] = user_login_data.depot.id
                 return redirect("app:dashboard")
             else:
