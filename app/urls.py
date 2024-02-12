@@ -134,13 +134,20 @@ urlpatterns = [
     path('reports/search/route/wise/buses/from/list', views.search_route_wise_buses_from_list,
          name='search_route_wise_buses_from_list'),
 
+    path('reports/search/hour/wise/dispatched/buses/list', views.search_hour_wise_dispatched_buses_list,
+         name='search_hour_wise_dispatched_buses_list'),
+
     path('point_data/list', views.point_data_list, name='point_data_list'),
     path('point_data/import', views.point_data_import, name='point_data_import'),
     path('point_data/add', views.point_name_add, name='point_name_add'),
     path('point_data/edit', views.point_name_edit, name='point_name_edit'),
     path('point_data/update', views.point_name_update, name='point_name_update'),
 
+    path('reports/dashboard/details/list', views.dashboard_details_list, name='dashboard_details_list'),
+    path('reports/dashboard/details/entry/type/list', views.dashboard_details_entry_type,
+         name='dashboard_details_entry_type'),
 
+    path('api/create/user/', views.create_user, name='create_user'),
 
     # Medaram REST API STARTS FROM HERE
     path("api/login/", views.LoginAPIView.as_view()),

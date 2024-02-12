@@ -58,14 +58,13 @@
                                                     <label class="form-label" for="special_bus_sending_depot">Special Bus Sending Depot</label>
 													<select class="form-control custom-select" name="special_bus_sending_depot" id="special_bus_sending_depot" required>
                                                      	<option value="">Select Option</option>
-                                                        	{% for depo in depot_data %}
-                                                            	<option value="{{ depo.id }}">
-                                                                	{{ depo.name }}
+															{% for depo in sending_depot_data %}
+																<option value="{{ depo.id }}">
+																	{{ depo.name }}
                                                                 </option>
                                                             {% endfor %}
                                                     </select>
 												</div>
-
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="special_bus_reporting_depot">Special Bus Reporting depot</label>

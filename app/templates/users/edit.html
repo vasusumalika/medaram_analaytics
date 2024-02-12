@@ -90,7 +90,8 @@
 												<div class="col-sm-12 col-md-12 col-xl-6">
 													<div class="form-group">
 														<label class="form-label text-muted">Point Name: </label>
-														<select class="form-control custom-select" id="user_point_name" name="user_point_name" tabindex="-1" aria-hidden="true" required>
+														<select class="form-control custom-select" id="user_point_name" name="user_point_name" tabindex="-1" aria-hidden="true" >
+															<option value="">Select Option</option>
 															{% for point_name in point_name_data %}
 																<option value="{{ point_name.point_name }}"{% if point_name.point_name in point_name_id_list %} selected{% endif %}>{{ point_name.point_name }}</option>
 															{% endfor %}

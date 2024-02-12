@@ -53,14 +53,26 @@
 
 												<input type="hidden" name="id" value="{{own_depot_bus_details_entry_data.id}}">
 
+<!--												<div class="form-group col-md-6">-->
+<!--                                                    <label class="form-label" for="bus_number">Bus Number</label>-->
+<!--                                                    <select class="form-control custom-select" name="bus_number" id="bus_number" required>-->
+<!--                                                     	<option value="">Select Option</option>-->
+<!--                                                            	{% for vehicle in vehicle_details %}-->
+<!--																<option readonly value="{{ vehicle.id }}"{% if vehicle.bus_number in bus_number_list %} selected{% endif %}>{{ vehicle.bus_number }}</option>-->
+<!--															    {% endfor %}-->
+<!--                                                    </select>-->
+<!--												</div>-->
+
+
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="bus_number">Bus Number</label>
-                                                    <input type="text" id="bus_number"  value="{{own_depot_bus_details_entry_data.bus_number}}" name="bus_number" class="form-control" required>
+                                                    <input type="text" id="bus_number"  value="{{own_depot_bus_details_entry_data.bus_number.bus_number}}" name="bus_number" class="form-control" readonly>
 												</div>
+
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="unique_no">Unique Number</label>
-                                                    <input type="text" id="unique_no"  value="{{own_depot_bus_details_entry_data.unique_no}}" name="unique_no" class="form-control" required>
+                                                    <input type="text" id="unique_no"  value="{{own_depot_bus_details_entry_data.unique_no}}" name="unique_no" class="form-control" readonly>
 												</div>
 
 

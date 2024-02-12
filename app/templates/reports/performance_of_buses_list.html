@@ -98,7 +98,6 @@
 														{% for performance_depot in performance_depot_result %}
                                                           <tr>
 															  <td><b><a style="text-decoration:underline" href="{% url 'app:display_operating_depot_list' %}?id={{ performance_depot.depot_id }}">{{ performance_depot.depot_name }}</a></b></td>
-															  <td><b><a style="text-decoration:underline" href="{% url 'app:display_operating_depot_list' %}?id={{ performance_depot.depot_id }}">{{ performance_depot.depot_name }}</a></b></td>
 															  <td>{{ performance_depot.buses_allotted }}</td>
                                                               <td>{{ performance_depot.no_of_trips_count }}</td>
 															  <td>{{ performance_depot.no_of_trips_up_count }}</td>
