@@ -989,8 +989,7 @@ def trip_start_add(request):
                                                                   start_from_location=start_from_point_data,
                                                                   start_to_location=start_to_pont_data,
                                                                   data_enter_by=user_data,
-                                                                  service_operated_date=service_operated_date,
-                                                                  trip_verified_time='')
+                                                                  service_operated_date=service_operated_date)
             statistics_data_entry.save()
             messages.success(request, 'Statistics Trip Data Created Successfully')
             return redirect("app:trip_start_add")
