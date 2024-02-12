@@ -554,7 +554,7 @@
 					dataType: 'json',
 					success: function(data) {
 						var point_name_select = $('#user_point_name');
-						point_name_select.empty();
+						$('#user_point_name :gt(0)').remove();
 						$.each(data.point_details, function(index, point_detail) {
 							point_name_select.append('<option value="' + point_detail.point_name + '">' + point_detail.point_name + '</option>');
 						});
@@ -564,7 +564,7 @@
             			var errorMessage = responseJSON.error;
             			console.log("Error message:", errorMessage)
             			$('.alert-danger').remove();
-            			$('#user_point_name').empty();
+<!--            			$('#user_point_name').empty();-->
             			$('#error-container').html('<div class="alert alert-danger alert-dismissible" role="alert">' +
                         '<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">' +
                         '<span aria-hidden="True">&times;</span></button>' + errorMessage + '</div>');

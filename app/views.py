@@ -118,6 +118,11 @@ def users_list(request):
     users_data_list = []
     users_data = User.objects.filter(~Q(status=2))
     for user in users_data:
+        if user.point_name:
+            point_data = PointData.objects.get(id=user.point_name.id)
+            point_name = point_data.point_name
+        else:
+            point_name = None
         user_data = {
             'id': user.id,
             'name': user.name,
@@ -126,7 +131,7 @@ def users_list(request):
             'phone': user.phone_number,
             'user_type': user.user_type.name,
             'depot': user.depot.name,
-            'point_name': user.point_name.point_name,
+            'point_name': point_name,
             'created_at': user.created_at,
         }
         if request.session['user_type'] == 'Super_admin':
@@ -163,7 +168,12 @@ def user_add(request):
             #     messages.error(request, 'Email already exist. Please try again')
             #     return redirect('app:user_add')
             user_type_data = UserType.objects.get(id=user_type)
-            point_name_data = PointData.objects.get(point_name=point_name)
+
+            if point_name:
+                point_name_data = PointData.objects.get(point_name=point_name)
+            else:
+                point_name_data = None
+
             depot_data = Depot.objects.get(id=depot)
             encrypted_password = cipher_suite.encrypt(password.encode())
             user = User.objects.create(name=name, email=email, password=encrypted_password, phone_number=phone,
@@ -213,6 +223,9 @@ def user_edit(request):
             depot_id_list.append(user_data.depot.id)
         if user_data.point_name:
             point_name_id_list.append(user_data.point_name.point_name)
+        else:
+            point_name_id_list = ''
+
     try:
         user_type_data = UserType.objects.filter(Q(status=0) | Q(status=1))
         depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
@@ -253,8 +266,12 @@ def user_update(request):
             user_data.user_type = user_type_data
             depot_data = Depot.objects.get(id=depot)
             user_data.depot = depot_data
-            point_name_data = PointData.objects.get(point_name=point_name)
-            user_data.point_name = point_name_data
+            if point_name:
+                point_name_data = PointData.objects.get(point_name=point_name)
+                user_data.point_name = point_name_data
+            else:
+                user_data.point_name = None
+
             user_data.save()
             messages.success(request, 'User updated  successfully!!')
             return redirect("app:users_list")

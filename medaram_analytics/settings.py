@@ -186,5 +186,7 @@ EMPLOYEE_DESIGNATION = {
     5: 'Parking',
     6: 'Thadvai down(Down journey)',
     7: 'Officers /Depot Managers',
-    8: 'ALL EMPLOYEES'
+    8: 'ALL EMPLOYEES',
+    9: 'Super Admin',
+    10: 'Admin',
 }
