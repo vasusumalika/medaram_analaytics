@@ -1114,7 +1114,8 @@ def search_special_bus_data(request):
 def out_depot_buses_receive_add(request):
     if request.session['user_type'] == 'BUS RECEIVING':
         depot_data = Depot.objects.filter(id=request.session['depot_id'])
-        special_bus_data = SpecialBusDataEntry.objects.filter(Q(special_bus_reporting_depot=depot_data[0]) & ~Q(status=2))
+        special_bus_data = SpecialBusDataEntry.objects.filter(
+            Q(special_bus_reporting_depot=depot_data[0]) & ~Q(status=2))
         already_received_bus_numbers = OutDepotVehicleReceive.objects.values_list('bus_number__bus_number', flat=True)
         special_bus_data = special_bus_data.exclude(bus_number__bus_number__in=already_received_bus_numbers)
     else:
@@ -1314,7 +1315,7 @@ def own_depot_bus_withdraw_add(request):
             if own_depo_entry_data.count() == 0:
                 messages.error(request, 'Bus Number not matched with any detail entry')
                 return redirect("app:own_depot_bus_withdraw_list")
-            own_depo_withdraw_data =OwnDepotBusWithdraw.objects.filter(bus_number=bus_number)
+            own_depo_withdraw_data = OwnDepotBusWithdraw.objects.filter(bus_number=bus_number)
             if own_depo_withdraw_data.count() != 0:
                 messages.error(request, 'Already Bus Withdraw')
                 return redirect("app:own_depot_bus_withdraw_list")
@@ -1411,7 +1412,7 @@ def out_depot_vehicle_send_back_add(request):
     try:
         if request.session['user_type'] == 'BUS RECEIVING':
             depot_data = Depot.objects.filter(id=request.session['depot_id'])
-            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects\
+            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects \
                 .filter(Q(out_depot_bus_reporting_depot=depot_data[0]) & ~Q(status=2))
             already_send_back_bus_numbers = OutDepotVehicleSentBack.objects.values_list('unique_no', flat=True)
             out_depot_vehicle_receive_data = out_depot_vehicle_receive_data.exclude(unique_no__in=
@@ -2205,9 +2206,10 @@ def search_hour_wise_dispatched_buses_list(request):
                         'total_mhl_amount': total_earnings['mhl_adult_amount'] + total_earnings['mhl_child_amount'],
                         'total_passg': total_passengers_count,
                         'total_earnings': total_earnings_count,
-                        "start_time": str(start.time().hour) + ':' + str(start.time().minute) + ':' + str(
-                            start.time().second),
-                        "end_time": str(end.time().hour) + ':' + str(end.time().minute) + ':59'
+                        "start_time": '{:02d}'.format(start.time().hour) + ':' + '{:02d}'.format(
+                            start.time().minute) + ':' + '{:02d}'.format(start.time().second),
+                        "end_time": '{:02d}'.format(end.time().hour) + ':' + '{:02d}'.format(
+                            end.time().minute) + ':' + ':59'
                     })
             else:
                 trip_point_data = TripStatistics.objects.filter(entry_type=entry_type).filter(
@@ -2251,9 +2253,13 @@ def search_hour_wise_dispatched_buses_list(request):
                         'total_mhl_amount': total_earnings['mhl_adult_amount'] + total_earnings['mhl_child_amount'],
                         'total_passg': total_passengers_count,
                         'total_earnings': total_earnings_count,
-                        "start_time": str(start.time().hour) + ':' + str(start.time().minute) + ':' + str(
+                        "start_time": '{:02d}'.format(
+                            start.time().hour) + ':' + '{:02d}'.format(start.time().minute) + ':' + '{:02d}'.format(
                             start.time().second),
-                        "end_time": str(end.time().hour) + ':' + str(end.time().minute) + ':59'
+
+                        "end_time": '{:02d}'.format(end.time().hour) + ':' + '{:02d}'.format(
+                            end.time().minute) + ':' + ':59'
+
                     })
 
         return render(request, 'reports/hour_wise_dispatched_buses_list.html',
@@ -2614,7 +2620,8 @@ def dashboard_details_list(request):
                 mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
             )
 
-            total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date).filter(
+            total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
+                trip_start__date=date).filter(
                 start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point_name).aggregate(
                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                 total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
@@ -2804,7 +2811,6 @@ def create_user(request):
         context = {'code': "Fail", 'message': "User create unsuccessfully",
                    'response_code': status.HTTP_400_BAD_REQUEST, "result": {}}
         return Response(context, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 # REST API STARTS FROM HERE
