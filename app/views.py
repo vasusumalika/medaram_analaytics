@@ -84,7 +84,12 @@ def do_login(request):
                 else:
                     request.session['point_name'] = ''
                 request.session['depot_id'] = user_login_data.depot.id
-                return redirect("app:dashboard")
+                if user_login_data.user_type.name == 'HSD DC OIL':
+                    return redirect("app:hsd_oil_submission_add")
+                elif user_login_data.user_type.name == 'PARKING':
+                    return redirect("app:buses_on_hand_add")
+                else:
+                    return redirect("app:dashboard")
             else:
                 messages.error(request, 'Invalid Login Credentials!!')
                 return redirect("app:index")
