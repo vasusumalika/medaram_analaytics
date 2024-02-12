@@ -189,4 +189,5 @@ EMPLOYEE_DESIGNATION = {
     8: 'ALL EMPLOYEES',
     9: 'Super Admin',
     10: 'Admin',
+
 }
