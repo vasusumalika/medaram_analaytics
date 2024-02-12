@@ -263,7 +263,8 @@ class OutDepotVehicleSentBack(models.Model):
 
 
 class OwnDepotBusDetailsEntry(models.Model):
-    bus_number = models.CharField(max_length=256, null=True, blank=True)
+    bus_number = models.ForeignKey(VehicleDetails, on_delete=models.CASCADE, related_name="own_depot_bus_detail_vehicle_details",
+                                   null=True, blank=True)
     unique_no = models.CharField(max_length=256, null=True, blank=True)
     bus_type = models.CharField(max_length=256, null=True, blank=True)
     log_sheet_no = models.CharField(max_length=256, null=True, blank=True)

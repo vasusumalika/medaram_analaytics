@@ -49,6 +49,10 @@
 											<h3 class="card-title">Add Buses On Hand Form</h3>
 										</div>
 										<div class="card-body">
+										    <a  href="{% url 'app:buses_on_hand_list' %}"><input type="button" value="Buses On Hand List" class="btn btn-primary float-right" style="float:right;margin: 0 20px 20px 0;"></a>
+
+										    <br><br>
+
 											<form class="form-horizontal row" action="{% url 'app:buses_on_hand_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
 												<div class="form-group col-md-6">

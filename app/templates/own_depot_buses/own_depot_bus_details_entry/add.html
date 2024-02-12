@@ -51,9 +51,17 @@
 										<div class="card-body">
 											<form class="form-horizontal row" action="{% url 'app:own_depot_bus_details_entry_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
+
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="bus_number">Bus Number</label>
-                                                    <input type="text" id="bus_number" name="bus_number" class="form-control" required>
+                                                    <select class="form-control custom-select" name="bus_number" id="bus_number" required>
+                                                     	<option value="">Select Option</option>
+                                                        	{% for vehicle in vehicle_details %}
+                                                            	<option value="{{ vehicle.bus_number }}">
+                                                                	{{ vehicle.bus_number }}
+                                                                </option>
+                                                            {% endfor %}
+                                                    </select>
 												</div>
 
 												<div class="form-group col-md-6">
