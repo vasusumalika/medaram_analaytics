@@ -147,6 +147,8 @@ urlpatterns = [
     path('reports/dashboard/details/entry/type/list', views.dashboard_details_entry_type,
          name='dashboard_details_entry_type'),
 
+    path('api/create/user/', views.create_user, name='create_user'),
+
     # Medaram REST API STARTS FROM HERE
     path("api/login/", views.LoginAPIView.as_view()),
     path("api/get-all-depot/", views.DepotAPIView.as_view()),

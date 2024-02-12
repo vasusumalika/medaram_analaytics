@@ -40,6 +40,7 @@ indian_timezone = pytz.timezone(settings.TIME_ZONE)
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from dateutil.rrule import rrule, DAILY
+from rest_framework.decorators import api_view
 
 
 def custom_login_required(view_func):
@@ -650,6 +651,11 @@ def operation_type_import(request):
 
 @custom_login_required
 def spl_bus_data_entry_list(request):
+    # if request.session['user_type'] == 'PARENT DEPOT':
+    #     spl_bus_data_entry_data = SpecialBusDataEntry.objects.filter(~Q(status=2) &
+    #                                                                  Q(special_bus_sending_depot=
+    #                                                                    request.session['depot_id']))
+    #     return render(request, 'spl_bus_data_entry/list.html', {"spl_bus_data_entry_data": spl_bus_data_entry_data})
     spl_bus_data_entry_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
     return render(request, 'spl_bus_data_entry/list.html', {"spl_bus_data_entry_data": spl_bus_data_entry_data})
 
@@ -704,10 +710,15 @@ def spl_bus_data_entry_add(request):
             messages.error(request, 'Special bus data entry details creation Failed!!')
         return redirect("app:spl_bus_data_entry_list")
     try:
+        if request.session['user_type'] == 'PARENT DEPOT':
+            sending_depot_data = Depot.objects.filter(id=request.session['depot_id'])
+        else:
+            sending_depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
         depot_data = Depot.objects.filter(Q(status=0) | Q(status=1))
         operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'spl_bus_data_entry/add.html', {'operation_type_data': operation_type_data,
-                                                               'depot_data': depot_data})
+                                                               'depot_data': depot_data,
+                                                               'sending_depot_data': sending_depot_data})
     except Exception as e:
         print(e)
         return render(request, 'spl_bus_data_entry/add.html', {})
@@ -2570,7 +2581,7 @@ def dashboard_details_entry_type(request):
     point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name='Thadvai'))
     result_data = []
     if request.method == "POST":
-        point_name = request.POST.get('point_name_id')
+        point_name = request.POST.get('point_name')
         entry_type = request.POST.get('entry_type')
         start_date_str = '2024-02-01'
         end_date_str = '2024-03-16'
@@ -2590,22 +2601,22 @@ def dashboard_details_entry_type(request):
                 if any(total_passengers.values()):
                     total_adult_passengers = total_passengers['total_adult_passengers']
                     total_child_passengers = total_passengers['total_child_passengers']
-                    total_fare_passenger_amount = \
-                    TripStatistics.objects.filter(entry_type='entry_type', trip_start__date=date,
-                                                  start_to_location__point_name='Thadvai',
-                                                  start_from_location__point_name=point_name).aggregate(
-                        total_ticket_amount=Sum('total_ticket_amount'))['total_ticket_amount'] or 0
                     mhl_adult_passengers = total_passengers['mhl_adult_passengers']
                     mhl_child_passengers = total_passengers['mhl_child_passengers']
-                    total_mhl_amount = TripStatistics.objects.filter(entry_type='down', trip_start__date=date,
-                                                                     start_to_location__point_name='Thadvai',
-                                                                     start_from_location__point_name=point_name). \
-                        aggregate(total_mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
-                                  total_mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0))
-                    total_passengers = total_adult_passengers + total_child_passengers + mhl_adult_passengers + mhl_child_passengers
-                    total_earnings = (total_fare_passenger_amount or 0) + (
-                            total_mhl_amount.get('total_mhl_adult_amount') or 0) + \
-                                     (total_mhl_amount.get('total_mhl_child_amount') or 0)
+
+                    total_amounts = TripStatistics.objects.filter(entry_type=entry_type).filter(
+                        start_to_location__point_name='Thadvai'). \
+                        filter(start_from_location__point_name=point_name).filter(
+                        trip_start__date=date).aggregate(
+                        total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
+                        mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
+                        mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0)
+                    )
+
+                    total_fare_passenger_amount = total_amounts['total_ticket_amount']
+                    total_mhl_amount = total_amounts['mhl_adult_amount'] + total_amounts['mhl_child_amount']
+                    total_earnings = total_fare_passenger_amount + total_mhl_amount
+
                     result_data.append({
                         'date': date.strftime('%Y-%m-%d'),
                         'total_passengers': total_passengers,
@@ -2629,22 +2640,21 @@ def dashboard_details_entry_type(request):
                 if any(total_passengers.values()):
                     total_adult_passengers = total_passengers['total_adult_passengers']
                     total_child_passengers = total_passengers['total_child_passengers']
-                    total_fare_passenger_amount = \
-                    TripStatistics.objects.filter(entry_type='entry_type', trip_start__date=date,
-                                                  start_from_location__point_name='Thadvai',
-                                                  start_to_location__point_name=point_name).aggregate(
-                        total_ticket_amount=Sum('total_ticket_amount'))['total_ticket_amount'] or 0
                     mhl_adult_passengers = total_passengers['mhl_adult_passengers']
                     mhl_child_passengers = total_passengers['mhl_child_passengers']
-                    total_mhl_amount = TripStatistics.objects.filter(entry_type='down', trip_start__date=date,
-                                                                     start_from_location__point_name='Thadvai',
-                                                                     start_to_location__point_name=point_name). \
-                        aggregate(total_mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
-                                  total_mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0))
-                    total_passengers = total_adult_passengers + total_child_passengers + mhl_adult_passengers + mhl_child_passengers
-                    total_earnings = (total_fare_passenger_amount or 0) + (
-                            total_mhl_amount.get('total_mhl_adult_amount') or 0) + \
-                                     (total_mhl_amount.get('total_mhl_child_amount') or 0)
+
+                    total_amounts = TripStatistics.objects.filter(entry_type=entry_type).filter(
+                        start_from_location__point_name='Thadvai'). \
+                        filter(start_to_location__point_name=point_name).filter(
+                        trip_start__date=date).aggregate(
+                        total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
+                        mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
+                        mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0)
+                    )
+
+                    total_fare_passenger_amount = total_amounts['total_ticket_amount']
+                    total_mhl_amount = total_amounts['mhl_adult_amount'] + total_amounts['mhl_child_amount']
+                    total_earnings = total_fare_passenger_amount + total_mhl_amount
                     result_data.append({
                         'date': date.strftime('%Y-%m-%d'),
                         'total_passengers': total_passengers,
@@ -2660,6 +2670,48 @@ def dashboard_details_entry_type(request):
                                                                              'dashboard_data': result_data})
     else:
         return render(request, 'reports/dashboard_details_entry_type.html', {'point_names': point_names})
+
+
+@api_view(['POST'])
+def create_user(request):
+    if request.method == "POST":
+        name = 'admin_user'
+        phone = '9876543210'
+        email = 'admin@email.com'
+        password = 'medaram'
+        point_name = 'Thadvai'
+        user_status = 0
+        user_type = 'Super_admin'
+        depot = 'KUKATPALLI'
+        depot_code = 'KPL'
+        try:
+            user_exist = User.objects.filter(user_type__name=user_type)
+            if user_exist:
+                context = {'code': "Fail", 'message': "Creation Failed, Super admin user already existed",
+                           'response_code': status.HTTP_400_BAD_REQUEST, "result": {}}
+                return Response(context, status=status.HTTP_400_BAD_REQUEST)
+            user_type_data = UserType.objects.create(name=user_type, status=user_status)
+            user_type_data.save()
+            depot_data = Depot.objects.create(name=depot, depot_code=depot_code, status=user_status)
+            depot_data.save()
+            point_name_data = PointData.objects.create(point_name=point_name, depot_name=depot_data, status=user_status)
+            point_name_data.save()
+
+            encrypted_password = cipher_suite.encrypt(password.encode())
+            user = User.objects.create(name=name, email=email, password=encrypted_password, phone_number=phone,
+                                       status=user_status, user_type=user_type_data, depot=depot_data,
+                                       point_name=point_name_data)
+            user.save()
+            context = {'code': "Success", 'message': "User created successfully", 'response_code': status.HTTP_200_OK,
+                       "result": {}}
+            return Response(context, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+    else:
+        context = {'code': "Fail", 'message': "User create unsuccessfully",
+                   'response_code': status.HTTP_400_BAD_REQUEST, "result": {}}
+        return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 # REST API STARTS FROM HERE
