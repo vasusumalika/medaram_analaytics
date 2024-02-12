@@ -50,7 +50,7 @@
 											{% endfor %}
 										{% endif %}
 										<div class="card-body">
-											<a  href="{% url 'app:hsd_oil_submission_list' %}"><input type="button" value="HSD Oil Submission List" class="btn btn-primary float-right" style="float:right;margin: 0 20px 20px 0;"></a>
+											<a  href="{% url 'app:hsd_oil_submission_list' %}"><input type="button" value="HSD Oil Submission List" class="btn btn-primary float-right" style="margin: 0 20px 20px 0;"></a>
 
 											<form class="form-horizontal row" action="{% url 'app:search_unique_no_bus_no_special_bus_data' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 												<div class="card mb-3">
