@@ -1077,6 +1077,11 @@ def trip_end_add(request):
 
 @custom_login_required
 def out_depot_buses_receive_list(request):
+    if request.session['user_type'] == 'BUS RECEIVING':
+        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(~Q(status=2) &
+                                                                               Q(out_depot_bus_reporting_depot=
+                                                                                 request.session['depot_id']))
+        return render(request, 'out_depot_buses/out_depot_vehicle_receive/list.html', {"out_depot_vehicle_receive_data": out_depot_vehicle_receive_data})
     out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(~Q(status=2))
     return render(request, 'out_depot_buses/out_depot_vehicle_receive/list.html',
                   {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
@@ -1167,6 +1172,11 @@ def out_depot_buses_receive_add(request):
 
 
 def own_depot_bus_details_entry_list(request):
+    if request.session['user_type'] == 'BUS RECEIVING':
+        own_depot_bus_detail_entry_data = OwnDepotBusDetailsEntry.objects.filter(~Q(status=2)
+                                                                                 & Q(depot=request.session['depot_id']))
+        return render(request, 'own_depot_buses/own_depot_bus_details_entry/list.html',
+                      {"own_depot_bus_detail_entry_data": own_depot_bus_detail_entry_data})
     own_depot_bus_detail_entry_data = OwnDepotBusDetailsEntry.objects.filter(~Q(status=2))
     return render(request, 'own_depot_buses/own_depot_bus_details_entry/list.html',
                   {'own_depot_bus_detail_entry_data': own_depot_bus_detail_entry_data})
@@ -1378,6 +1388,9 @@ def out_depot_vehicle_send_back_add(request):
         return redirect("app:out_depot_vehicle_send_back_list")
     try:
         out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
+        already_send_back_bus_numbers = OutDepotVehicleSentBack.objects.values_list('unique_no', flat=True)
+        out_depot_vehicle_receive_data = out_depot_vehicle_receive_data.exclude(unique_no__in=
+                                                                                already_send_back_bus_numbers)
         return render(request, 'out_depot_buses/out_depot_vehicle_send_back/add.html',
                       {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
     except Exception as e:
@@ -2743,8 +2756,15 @@ def create_user(request):
                                        status=user_status, user_type=user_type_data, depot=depot_data,
                                        point_name=point_name_data)
             user.save()
+            encrypted_password = ast.literal_eval(user.password)
+            decrypted_password = cipher_suite.decrypt(encrypted_password).decode()
+            user_data = {
+                'email': user.email,
+                'password': decrypted_password,
+                'phone': user.phone_number
+            }
             context = {'code': "Success", 'message': "User created successfully", 'response_code': status.HTTP_200_OK,
-                       "result": {}}
+                       "result": user_data}
             return Response(context, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)

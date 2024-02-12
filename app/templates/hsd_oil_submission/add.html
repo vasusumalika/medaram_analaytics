@@ -53,6 +53,9 @@
 											<a  href="{% url 'app:hsd_oil_submission_list' %}"><input type="button" value="HSD Oil Submission List" class="btn btn-primary float-right" style="float:right;margin: 0 20px 20px 0;"></a>
 
 											<form class="form-horizontal row" action="{% url 'app:search_unique_no_bus_no_special_bus_data' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+												<div class="card mb-3">
+            										<div class="card-body">
+														<div class="row">
 												<div class="form-group col-md-6">
 													<label class="form-label" for="unique_no_bus_no">Unique No/Bus Number</label>
 													<input type="text" id="unique_no_bus_no" name="unique_no_bus_no" class="form-control" required>
@@ -60,6 +63,9 @@
 												<div class="form-group mt-3">
 													<div>
 														<button type="submit" class="btn btn-primary">Search</button>
+													</div>
+												</div>
+														</div>
 													</div>
 												</div>
 											</form>

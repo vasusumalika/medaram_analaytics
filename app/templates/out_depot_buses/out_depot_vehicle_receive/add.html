@@ -55,6 +55,9 @@
 											<a  href="{% url 'app:out_depot_buses_receive_list' %}" target="_blank"><input type="button" value="Out Depot Vehicle Receive List" class="btn btn-primary float-right" style="float:right;margin: 0 20px 20px 0;"></a>
 
 											<form class="form-horizontal row" action="{% url 'app:search_special_bus_data' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+												<div class="card mb-3">
+            										<div class="card-body">
+														<div class="row">
 												<div class="form-group col-md-6">
 													<label class="form-label" for="bus_number">Bus Number</label>
 													<select class="form-control custom-select" name="bus_number" id="bus_number" required>
@@ -69,6 +72,9 @@
 												<div class="form-group mt-3">
 													<div>
 														<button type="submit" class="btn btn-primary">Search</button>
+													</div>
+												</div>
+														</div>
 													</div>
 												</div>
 											</form>
