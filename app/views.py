@@ -84,9 +84,9 @@ def do_login(request):
                 else:
                     request.session['point_name'] = ''
                 request.session['depot_id'] = user_login_data.depot.id
-                if user_login_data.user_type.name == 'HSD DC OIL':
+                if user_login_data.user_type.employee_designation == 4:
                     return redirect("app:hsd_oil_submission_add")
-                elif user_login_data.user_type.name == 'PARKING':
+                elif user_login_data.user_type.employee_designation == 5:
                     return redirect("app:buses_on_hand_add")
                 else:
                     return redirect("app:dashboard")
