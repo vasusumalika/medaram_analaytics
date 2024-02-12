@@ -40,7 +40,8 @@ class User(models.Model):
             "name": self.name,
             "email": self.email,
             "phone": self.phone_number,
-            # "user_type": self.user_type
+            "point_name": self.point_name.point_name,
+            "depot_id": self.depot.id
         }
 
     def display_password(self, requesting_user_type):
@@ -357,7 +358,9 @@ class TripStatistics(models.Model):
     def get_complete_details(self):
         return {
             "id": self.id,
-            "bus_unique_code": self.bus_unique_code,
+            "unique_no": self.unique_code,
+            "bus_number": self.bus_number,
+            "point_name": self.start_from_location.point_name,
             "total_ticket_amount": self.total_ticket_amount,
             "total_adult_passengers": self.total_adult_passengers,
             "total_child_passengers": self.total_child_passengers,
@@ -365,6 +368,10 @@ class TripStatistics(models.Model):
             "mhl_child_passengers": self.mhl_child_passengers,
             "mhl_adult_amount": self.mhl_adult_amount,
             "mhl_child_amount": self.mhl_child_amount,
+            "entry_type": self.entry_type,
+            "start_from_location": self.start_from_location.point_name,
+            "start_to_location": self.start_to_location.point_name,
+            "service_operated_date": self.service_operated_date.strftime('%Y-%m-%d')
         }
 
 

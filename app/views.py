@@ -3012,7 +3012,8 @@ class HSDOilSubmissionAPIView(APIView):
                 point_name=serialized_data.get("point_name"),
                 created_by=user_data,
                 unique_no_bus_no=serialized_data.get("unique_no_bus_no"),
-                status=0
+                status=0,
+                shift=serialized_data.get("shift") 
             )
             return Response(status=status.HTTP_200_OK, data={
                 "code": "Success",
@@ -3111,3 +3112,151 @@ class PointNameAPIView(APIView):
             "message": "All Point Data Fetched Successfully.",
             "result": point_name_details
         })
+    
+class TripUniqueAPIView(APIView):
+    def get(self, request):
+        depot_id = request.GET.get("depot_id")
+        serializer_instance = app_serializers.TripUniqueSerializer(
+            data={"depot_id": depot_id}
+        )
+        if not serializer_instance.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
+
+        serialized_data = serializer_instance.validated_data
+
+        try:
+            depot_data = Depot.objects.get(id=serialized_data.get("depot_id"))
+            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=depot_data)
+            own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(depot=depot_data)
+            combined_data = chain(out_depot_vehicle_receive_data, own_depot_vehicle_receive_data)
+            data_details = [instance.get_complete_details() for instance in combined_data]
+            return Response(status=status.HTTP_200_OK, data={
+                "code": "Success",
+                "message": "All Unique No. Fetched Successfully.",
+                "result": data_details
+            })
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
+            })
+        
+class GetAllTripStatisticsAPIView(APIView):
+    def get(self, request):
+        trip_instances = TripStatistics.objects.filter(status=0)
+        buses_on_details = [instance.get_complete_details() for instance in trip_instances]
+        return Response(status=status.HTTP_200_OK, data={
+            "code": "Success",
+            "message": "All Trip Statistics Data Fetched Successfully.",
+            "result": buses_on_details
+        })
+
+
+class TripStartAPIView(APIView):
+    def get(self, request):
+        trip_statistics_id = request.GET.get("trip_statistics_id")
+        serializer_instance = app_serializers.GetTripStatisticsSerializer(
+            data={"trip_statistics_id": trip_statistics_id}
+        )
+        if not serializer_instance.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
+
+        serialized_data = serializer_instance.validated_data
+
+        try:
+            trip_instance = TripStatistics.objects.get(
+                unique_code=serialized_data.get("trip_statistics_id")
+            )
+            return Response(status=status.HTTP_200_OK, data={
+                "code": "Success",
+                "message": "Trip Statistics Data Fetched Successfully.",
+                "result": trip_instance.get_complete_details()
+            })
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
+            })
+
+    def post(self, request):
+        serializer_instance = app_serializers.TripStatisticsSerializer(data=request.data)
+
+        if not serializer_instance.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
+
+        serialized_data = serializer_instance.validated_data
+
+        try:
+            user_data = User.objects.get(id=serialized_data.get("user_id"))
+            start_from_point_data = PointData.objects.get(point_name=serialized_data.get("start_from_location"))
+            start_to_pont_data = PointData.objects.get(point_name=serialized_data.get("start_to_location"))
+
+            statistics_data_entry = TripStatistics.objects.create(
+                unique_code=serialized_data.get("unique_no"), 
+                bus_number=serialized_data.get("bus_number"),
+                total_ticket_amount=serialized_data.get("total_ticket_amount"),
+                total_adult_passengers=serialized_data.get("total_adult_passengers"),
+                total_child_passengers=serialized_data.get("total_child_passengers"),
+                mhl_adult_passengers=serialized_data.get("mhl_adult_passengers"),
+                mhl_child_passengers=serialized_data.get("mhl_child_passengers"),
+                mhl_adult_amount=serialized_data.get("mhl_adult_amount"),
+                mhl_child_amount=serialized_data.get("mhl_child_amount"),
+                entry_type=serialized_data.get("entry_type"),
+                status=0, 
+                created_by=user_data,
+                start_from_location=start_from_point_data,
+                start_to_location=start_to_pont_data,
+                data_enter_by=user_data,
+                service_operated_date=serialized_data.get("service_operated_date")
+            )
+            return Response(status=status.HTTP_200_OK, data={
+                "code": "Success",
+                "message": "Trip Statistics Data Added Successfully.",
+                "result": []
+            })
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
+            })
+        
+class TripEndAPIView(APIView):
+    def post(self, request):
+        serializer_instance = app_serializers.TripEndStatisticsSerializer(data=request.data)
+
+        if not serializer_instance.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer_instance.errors)
+
+        serialized_data = serializer_instance.validated_data
+
+        try:
+            user_data = User.objects.get(id=serialized_data.get("user_id"))
+            trip_verified_time = timezone.now()
+            trip_end = timezone.now()
+
+            trip_check_data = TripStatistics.objects.get(id=serialized_data.get("trip_statistics_id"))
+            trip_check_data.trip_verified = serialized_data.get("is_trip_verified")
+            trip_check_data.trip_verified_time = trip_verified_time
+            trip_check_data.trip_verify_by = user_data
+            trip_check_data.service_operated_date = serialized_data.get("service_operated_date")
+            trip_check_data.updated_by = user_data
+            trip_check_data.trip_end = trip_end
+            trip_check_data.save()
+            return Response(status=status.HTTP_200_OK, data={
+                "code": "Success",
+                "message": "Trip Statistics Data Added Successfully.",
+                "result": []
+            })
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+                "code": "Fail",
+                "message": "Something Went Wrong.",
+                "result": []
+            })

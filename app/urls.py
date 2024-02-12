@@ -178,4 +178,11 @@ urlpatterns = [
 
     path("api/get-all-point-names/", views.PointNameAPIView.as_view()),
 
+    path("api/trip-unique-number/", views.TripUniqueAPIView.as_view()),
+
+    path("api/get-all-trip-statistics/", views.GetAllTripStatisticsAPIView.as_view()),
+    path("api/trip-start/", views.TripStartAPIView.as_view()),
+
+    path("api/trip-end/", views.TripEndAPIView.as_view()),
+
 ]

@@ -98,6 +98,7 @@ class HSDOilSubmissionSerializer(serializers.Serializer):
     point_name = serializers.CharField(required=True)
     hsd_liters = serializers.CharField(required=True)
     mts_no = serializers.CharField(required=True)
+    shift = serializers.CharField(required=True)
 
 class GetBusesOnHandSerializer(serializers.Serializer):
    buses_on_hand_id = serializers.IntegerField(required=True)
@@ -107,3 +108,31 @@ class BusesOnHandSerializer(serializers.Serializer):
    point_name = serializers.CharField(required=True)
    unique_code = serializers.CharField(required=True)
    bus_in_out = serializers.CharField(required=True)
+
+class TripUniqueSerializer(serializers.Serializer):
+   depot_id = serializers.IntegerField(required=True)
+
+class TripStatisticsSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField(required=True)
+    unique_no = serializers.CharField(required=True)
+    bus_number = serializers.CharField(required=True)
+    total_ticket_amount = serializers.IntegerField(required=True)
+    total_adult_passengers = serializers.IntegerField(required=True)
+    total_child_passengers = serializers.IntegerField(required=True)
+    mhl_adult_passengers = serializers.IntegerField(required=True)
+    mhl_child_passengers = serializers.IntegerField(required=True)
+    mhl_adult_amount = serializers.IntegerField(required=True)
+    mhl_child_amount = serializers.IntegerField(required=True)
+    start_from_location = serializers.CharField(required=True)
+    start_to_location = serializers.CharField(required=True)
+    entry_type = serializers.CharField(required=True)
+    service_operated_date = serializers.CharField(required=True)
+
+class GetTripStatisticsSerializer(serializers.Serializer):
+   trip_statistics_id = serializers.IntegerField(required=True)
+
+class TripEndStatisticsSerializer(serializers.Serializer):
+   user_id = serializers.IntegerField(required=True)
+   trip_statistics_id = serializers.IntegerField(required=True)
+   is_trip_verified = serializers.BooleanField(required=True)
+   service_operated_date = serializers.CharField(required=True)
