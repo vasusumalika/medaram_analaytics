@@ -671,11 +671,11 @@ def operation_type_import(request):
 
 @custom_login_required
 def spl_bus_data_entry_list(request):
-    # if request.session['user_type'] == 'PARENT DEPOT':
-    #     spl_bus_data_entry_data = SpecialBusDataEntry.objects.filter(~Q(status=2) &
-    #                                                                  Q(special_bus_sending_depot=
-    #                                                                    request.session['depot_id']))
-    #     return render(request, 'spl_bus_data_entry/list.html', {"spl_bus_data_entry_data": spl_bus_data_entry_data})
+    if request.session['user_type'] == 'PARENT DEPOT':
+        spl_bus_data_entry_data = SpecialBusDataEntry.objects.filter(~Q(status=2) &
+                                                                     Q(special_bus_sending_depot=
+                                                                       request.session['depot_id']))
+        return render(request, 'spl_bus_data_entry/list.html', {"spl_bus_data_entry_data": spl_bus_data_entry_data})
     spl_bus_data_entry_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
     return render(request, 'spl_bus_data_entry/list.html', {"spl_bus_data_entry_data": spl_bus_data_entry_data})
 
@@ -1101,9 +1101,15 @@ def search_special_bus_data(request):
 
 @custom_login_required
 def out_depot_buses_receive_add(request):
-    special_bus_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
-    already_received_bus_numbers = OutDepotVehicleReceive.objects.values_list('bus_number__bus_number', flat=True)
-    special_bus_data = special_bus_data.exclude(bus_number__bus_number__in=already_received_bus_numbers)
+    if request.session['user_type'] == 'BUS RECEIVING':
+        depot_data = Depot.objects.filter(id=request.session['depot_id'])
+        special_bus_data = SpecialBusDataEntry.objects.filter(Q(special_bus_reporting_depot=depot_data[0]) & ~Q(status=2))
+        already_received_bus_numbers = OutDepotVehicleReceive.objects.values_list('bus_number__bus_number', flat=True)
+        special_bus_data = special_bus_data.exclude(bus_number__bus_number__in=already_received_bus_numbers)
+    else:
+        special_bus_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
+        already_received_bus_numbers = OutDepotVehicleReceive.objects.values_list('bus_number__bus_number', flat=True)
+        special_bus_data = special_bus_data.exclude(bus_number__bus_number__in=already_received_bus_numbers)
     if request.method == "POST":
         bus_number = request.POST.get('out_depot_vehicle_receive_bus_number')
         unique_no = request.POST.get('unique_no')
@@ -2413,7 +2419,7 @@ def point_data_import(request):
             df = pd.read_excel(file)
             row_iter = df.iterrows()
             for i, row in row_iter:
-                print(row)
+                # print(row)
                 try:
                     name = row[1]
                     point_name_exist = PointData.objects.filter(point_name=name).count()
@@ -2540,6 +2546,7 @@ def dashboard_details_list(request):
         end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
         dates_list = list(rrule(DAILY, dtstart=start_date, until=end_date))
         total_passengers = 0
+        total_buses = 0
         for date in dates_list:
             total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
                 start_to_location__point_name='Thadvai').filter(
@@ -2578,7 +2585,8 @@ def dashboard_details_list(request):
 
                 available_buses = no_of_buses_left - no_of_buses_dispatched
 
-                total_passengers = total_passengers+total_passengers_left_over
+                total_passengers = total_passengers + total_passengers_left_over
+                total_buses = total_buses + available_buses
 
                 result_data.append({
                     'date': date.strftime('%Y-%m-%d'),
@@ -2592,7 +2600,8 @@ def dashboard_details_list(request):
 
         return render(request, 'reports/dashboard_details_list.html', {'point_names': point_names,
                                                                        'dashboard_data': result_data,
-                                                                       'total_passengers': total_passengers})
+                                                                       'total_passengers': total_passengers,
+                                                                       'total_buses': total_buses})
     else:
         return render(request, 'reports/dashboard_details_list.html', {'point_names': point_names})
 
