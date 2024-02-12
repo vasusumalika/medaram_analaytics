@@ -63,6 +63,7 @@
 															<th class="border-bottom-0">MTS No</th>
 															<th class="border-bottom-0">Bus Reported Date</th>
 															<th class="border-bottom-0">Bus Reported Time</th>
+															<th class="border-bottom-0">Reported Depot</th>
 															<th class="border-bottom-0">Actions</th>
 														</tr>
 													</thead>
@@ -76,6 +77,7 @@
 															  <td>{{ out_depot_vehicle_receive.mts_no }}</td>
 															  <td>{{ out_depot_vehicle_receive.bus_reported_date }}</td>
 															  <td>{{ out_depot_vehicle_receive.bus_reported_time }}</td>
+															  <td>{{ out_depot_vehicle_receive.out_depot_bus_reporting_depot.name }}</td>
 															  <td>
 																  <a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:out_depot_vehicle_receive_edit' %}?id={{ out_depot_vehicle_receive.id }}">
 																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
