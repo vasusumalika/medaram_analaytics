@@ -1167,6 +1167,7 @@ def own_depot_bus_details_entry_list(request):
 
 
 def own_depot_bus_details_entry_add(request):
+    vehicle_details = VehicleDetails.objects.filter(depot=request.session['depot_id']).values('id', 'bus_number')
     if request.method == "POST":
         bus_number = request.POST.get('bus_number')
         unique_no = request.POST.get('unique_no')
@@ -1182,11 +1183,11 @@ def own_depot_bus_details_entry_add(request):
             if own_depot_buses_entry_unique_count.exists():
                 messages.error(request, 'Unique number already exists!!')
                 return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', )
-            vehicle_details = VehicleDetails.objects.filter(bus_number=bus_number)
+            vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
             if vehicle_details:
                 depot_data = Depot.objects.get(id=vehicle_details.depot.id)
                 user_data = User.objects.get(id=request.session['user_id'])
-                own_depot_bus_detail_entry = OwnDepotBusDetailsEntry.objects.create(bus_number=bus_number,
+                own_depot_bus_detail_entry = OwnDepotBusDetailsEntry.objects.create(bus_number=vehicle_details,
                                                                                     bus_type=bus_type,
                                                                                     unique_no=unique_no,
                                                                                     log_sheet_no=log_sheet_no,
@@ -1207,7 +1208,7 @@ def own_depot_bus_details_entry_add(request):
             messages.error(request, 'Own Depot Bus Detail Entry Creation Failed!!')
         return redirect("app:own_depot_bus_details_entry_list")
 
-    return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', {})
+    return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', {'vehicle_details': vehicle_details})
 
 
 @custom_login_required
@@ -1215,8 +1216,13 @@ def own_depot_bus_details_entry_edit(request):
     own_depot_bus_details_entry_id = request.GET.get('id')
     if own_depot_bus_details_entry_id:
         own_depot_bus_details_entry_data = OwnDepotBusDetailsEntry.objects.get(id=own_depot_bus_details_entry_id)
+        bus_number_list = []
+        if own_depot_bus_details_entry_data.bus_number:
+            bus_number_list.append(own_depot_bus_details_entry_data.bus_number.bus_number)
+        vehicle_details = VehicleDetails.objects.filter(depot=request.session['depot_id']).values('id', 'bus_number')
         return render(request, 'own_depot_buses/own_depot_bus_details_entry/edit.html',
-                      {"own_depot_bus_details_entry_data": own_depot_bus_details_entry_data})
+                      {"own_depot_bus_details_entry_data": own_depot_bus_details_entry_data,
+                       'bus_number_list': bus_number_list, 'vehicle_details': vehicle_details})
     else:
         return render(request, 'own_depot_buses/own_depot_bus_details_entry/edit.html', {})
 
@@ -1240,7 +1246,8 @@ def own_depot_bus_details_entry_update(request):
                 messages.error(request, 'Unique number already exists!update failed!')
                 redirect("app:own_depot_bus_details_entry_list")
             own_depot_bus_details_entry_data = OwnDepotBusDetailsEntry.objects.get(id=own_depot_bus_details_entry_id)
-            own_depot_bus_details_entry_data.bus_number = bus_number
+            vehicle_details_id = VehicleDetails.objects.get(bus_number=bus_number)
+            own_depot_bus_details_entry_data.bus_number = vehicle_details_id
             own_depot_bus_details_entry_data.unique_no = unique_no
             own_depot_bus_details_entry_data.bus_type = bus_type
             own_depot_bus_details_entry_data.log_sheet_no = log_sheet_no
