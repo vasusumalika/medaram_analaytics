@@ -42,9 +42,9 @@
 													<br>
 													<select class="form-control custom-select" name="unique_no" id="unique_no" required>
                                                      	<option value="">Select Option</option>
-                                                        	{% for out_depot_vehicle_receive in out_depot_vehicle_receive_data %}
-                                                            	<option value="{{ out_depot_vehicle_receive.unique_no }}">
-                                                                	{{ out_depot_vehicle_receive.unique_no }}
+                                                        	{% for trip_unqiue in trip_unqiue_no %}
+                                                            	<option value="{{ trip_unqiue }}">
+                                                                	{{ trip_unqiue }}
                                                                 </option>
                                                             {% endfor %}
                                                     </select>
