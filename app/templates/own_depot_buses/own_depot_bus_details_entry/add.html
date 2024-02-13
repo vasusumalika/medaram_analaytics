@@ -66,7 +66,8 @@
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="unique_no">Unique Number</label>
-                                                    <input type="text" id="unique_no" name="unique_no" class="form-control" required>
+                                                    <input type="text" id="unique_no" name="unique_no" class="form-control" required pattern="^\d{4}$" title="Please enter exactly four digits" oninput="validateInput()">
+													<span id="validationMessage" style="color: red;"></span>
 												</div>
 
 

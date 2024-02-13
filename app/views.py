@@ -1025,7 +1025,7 @@ def get_out_and_own_depot_bus_number(request):
         special_bus_data = out_depot_vehicle_receive_data[0].special_bus_data_entry
         return JsonResponse({'bus_number': special_bus_data.bus_number.bus_number})
     if own_depot_bus_entry_data.exists():
-        return JsonResponse({'bus_number': own_depot_bus_entry_data[0].bus_number})
+        return JsonResponse({'bus_number': own_depot_bus_entry_data[0].bus_number.bus_number})
     return JsonResponse({}, status=400)
 
 
@@ -1218,7 +1218,15 @@ def own_depot_bus_details_entry_list(request):
 
 
 def own_depot_bus_details_entry_add(request):
-    vehicle_details = VehicleDetails.objects.filter(depot=request.session['depot_id']).values('id', 'bus_number')
+    # vehicle_details = VehicleDetails.objects.filter(depot=request.session['depot_id']).values('id', 'bus_number')
+    if request.session['user_type'] == 'BUS RECEIVING':
+        vehicle_details = VehicleDetails.objects.filter(depot=request.session['depot_id'])
+        already_entered_bus_numbers = OwnDepotBusDetailsEntry.objects.values_list('bus_number__bus_number', flat=True)
+        vehicle_details = vehicle_details.exclude(bus_number__in=already_entered_bus_numbers)
+    else:
+        vehicle_details = VehicleDetails.objects.filter(~Q(status=2))
+        already_entered_bus_numbers = OwnDepotBusDetailsEntry.objects.values_list('bus_number__bus_number', flat=True)
+        vehicle_details = vehicle_details.exclude(bus_number__in=already_entered_bus_numbers)
     if request.method == "POST":
         bus_number = request.POST.get('bus_number')
         unique_no = request.POST.get('unique_no')
@@ -1259,7 +1267,15 @@ def own_depot_bus_details_entry_add(request):
             messages.error(request, 'Own Depot Bus Detail Entry Creation Failed!!')
         return redirect("app:own_depot_bus_details_entry_list")
 
-    return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', {'vehicle_details': vehicle_details})
+    if not vehicle_details.exists():
+        messages.error(request, "No bus numbers left to entry and withdraw.")
+        return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', {})
+    try:
+        return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html',
+                      {'vehicle_details': vehicle_details})
+    except Exception as e:
+        print(e)
+
 
 
 @custom_login_required
@@ -1423,7 +1439,10 @@ def out_depot_vehicle_send_back_add(request):
         log_sheet_no = request.POST.get('out_depot_send_back_log_sheet_no')
         out_depot_buses_send_back_status = 0
         try:
-            special_bus_data = SpecialBusDataEntry.objects.filter(log_sheet_no=log_sheet_no)
+            special_bus_data = SpecialBusDataEntry.objects.filter(Q(log_sheet_no=log_sheet_no) &
+                                                                  Q(bus_number__bus_number=bus_number) &
+                                                                  Q(special_bus_reporting_depot_id=
+                                                                    request.session['depot_id']))
             if special_bus_data.count() == 0:
                 messages.error(request, 'Parent Log Sheet number not matched!!')
                 return redirect("app:out_depot_vehicle_send_back_add")
