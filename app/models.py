@@ -349,11 +349,9 @@ class TripStatistics(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_created_user',
-                                   default="",
-                                   null=True, blank=True)
+                                   default="", null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_updated_user',
-                                   null=True,
-                                   blank=True, default="")
+                                   null=True, blank=True, default="")
 
     def get_complete_details(self):
         return {

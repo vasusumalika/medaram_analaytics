@@ -998,10 +998,15 @@ def trip_start_add(request):
             messages.error(request, 'Statistics Trip Data Creation Failed!!')
             return redirect("app:trip_start_add")
     else:
-        depot_data = Depot.objects.get(id=request.session['depot_id'])
-        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=depot_data)
-        own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(depot=depot_data)
-        combined_data = list(chain(out_depot_vehicle_receive_data, own_depot_vehicle_receive_data))
+        if request.session['user_type'] == 'PSG ENTRY DOWN':
+            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.all()
+            own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.all()
+            combined_data = list(chain(out_depot_vehicle_receive_data, own_depot_vehicle_receive_data))
+        else:
+            depot_data = Depot.objects.get(id=request.session['depot_id'])
+            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(out_depot_bus_reporting_depot=depot_data)
+            own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(depot=depot_data)
+            combined_data = list(chain(out_depot_vehicle_receive_data, own_depot_vehicle_receive_data))
         point_data = PointData.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'trip_statistics/trip_start/add.html',
                       {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data, 'point_data': point_data,
@@ -1026,21 +1031,22 @@ def get_out_and_own_depot_bus_number(request):
 
 @custom_login_required
 def search_trip_end_form(request):
-    out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
+    if request.session['user_type'] == 'PSG UP THADVAI':
+        trip_unqiue_no = TripStatistics.objects.filter(Q(status=0) | Q(status=1)).filter(~Q(trip_verified=True)).filter(entry_type='up').values_list('unique_code', flat=True).distinct()
     if request.method == "POST":
         unique_no = request.POST.get('unique_no')
         last_trip_details = TripStatistics.objects.filter(unique_code=unique_no).order_by('-created_at').first()
         if last_trip_details:
             return render(request, 'trip_statistics/trip_end/add.html',
                           {'last_trip_details': last_trip_details,
-                           'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+                           'trip_unqiue_no': trip_unqiue_no})
         else:
             messages.error(request, 'Selected Unique No has no TripStatistic details!!')
             return render(request, 'trip_statistics/trip_end/add.html',
-                          {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+                          {'trip_unqiue_no': trip_unqiue_no})
     try:
         return render(request, 'trip_statistics/trip_end/add.html',
-                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+                      {'trip_unqiue_no': trip_unqiue_no})
     except Exception as e:
         print(e)
 
@@ -1084,9 +1090,10 @@ def trip_end_add(request):
             messages.error(request, 'Trip check updated failed!!')
             return redirect("app:trip_end_add")
     else:
-        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(status=0) | Q(status=1))
+        if request.session['user_type'] == 'PSG UP THADVAI':
+            trip_unqiue_no = TripStatistics.objects.filter(Q(status=0) | Q(status=1)).filter(~Q(trip_verified=True)).filter(entry_type='up').values_list('unique_code', flat=True).distinct()
         return render(request, 'trip_statistics/trip_end/add.html',
-                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
+                      {'trip_unqiue_no': trip_unqiue_no})
 
 
 @custom_login_required
