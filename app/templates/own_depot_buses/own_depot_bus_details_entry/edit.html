@@ -48,7 +48,7 @@
 										<div class="card-header border-bottom">
 											<h3 class="card-title">Update Own Depot Bus Detail Entry Form</h3>
 										</div>
-										<div class="card-body">
+										<div class="card-body bg-light">
 											<form class="form-horizontal row" action="{% url 'app:own_depot_bus_details_entry_update' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
 												<input type="hidden" name="id" value="{{own_depot_bus_details_entry_data.id}}">
@@ -63,7 +63,9 @@
 <!--                                                    </select>-->
 <!--												</div>-->
 
-
+                                                <div class="card mb-3">
+            								    <div class="card-body">
+											    <div class="row">
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="bus_number">Bus Number</label>
                                                     <input type="text" id="bus_number"  value="{{own_depot_bus_details_entry_data.bus_number.bus_number}}" name="bus_number" class="form-control" readonly>
@@ -86,6 +88,13 @@
                                                     <input type="text" id="log_sheet_no" value="{{own_depot_bus_details_entry_data.log_sheet_no}}"  name="log_sheet_no" class="form-control" required>
 												</div>
 
+												</div>
+												</div>
+												</div>
+
+												<div class="card mb-3">
+            								    <div class="card-body">
+											    <div class="row">
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver1_name">Driver1 Name</label>
                                                     <input type="text" id="driver1_name"  value="{{own_depot_bus_details_entry_data.driver1_name}}" name="driver1_name" class="form-control" required>
@@ -96,14 +105,59 @@
                                                     <input type="text" id="driver1_phone_number" value="{{own_depot_bus_details_entry_data.driver1_phone_number}}"  name="driver1_phone_number" class="form-control" required>
 												</div>
 
+
+											    <div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver1_staff_no">Driver1 Staff Number</label>
+                                                    <input type="text" id="driver1_staff_no" value="{{own_depot_bus_details_entry_data.driver1_staff_no}}"  name="driver1_staff_no" class="form-control" required>
+												</div>
+
+
+												</div>
+												</div>
+												</div>
+
+												<div class="card mb-3">
+            								    <div class="card-body">
+											    <div class="row">
+
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver2_name">Driver2 Name</label>
-                                                    <input type="text" id="driver2_name"  value="{{own_depot_bus_details_entry_data.driver2_name}}" name="driver2_name" class="form-control" required>
+                                                    <input type="text" id="driver2_name"  value="{{own_depot_bus_details_entry_data.driver2_name}}" name="driver2_name" class="form-control" >
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver2_phone_number">Driver2 Phone Number</label>
-                                                    <input type="text" id="driver2_phone_number" value="{{own_depot_bus_details_entry_data.driver2_phone_number}}"  name="driver2_phone_number" class="form-control" required>
+                                                    <input type="text" id="driver2_phone_number" value="{{own_depot_bus_details_entry_data.driver2_phone_number}}"  name="driver2_phone_number" class="form-control" >
+												</div>
+
+												  <div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver2_staff_no">Driver2 Staff Number</label>
+                                                    <input type="text" id="driver2_staff_no" value="{{own_depot_bus_details_entry_data.driver2_staff_no}}"  name="driver2_staff_no" class="form-control" >
+												</div>
+
+												</div>
+												</div>
+												</div>
+
+
+												<div class="card mb-4">
+            									<div class="card-body">
+												<div class="row">
+
+												<h3 class="card-title">Incharge Info</h3>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="incharge_name">Incharge Name</label>
+                                                    <input type="text" id="incharge_name" value="{{own_depot_bus_details_entry_data.incharge_name}}" name="incharge_name" class="form-control" required>
+												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="incharge_phone_number">Incharge Phone Number</label>
+                                                    <input type="text" id="incharge_phone_number" value="{{own_depot_bus_details_entry_data.incharge_phone_number}}" name="incharge_phone_number" class="form-control" required>
+												</div>
+
+												</div>
+												</div>
 												</div>
 
 

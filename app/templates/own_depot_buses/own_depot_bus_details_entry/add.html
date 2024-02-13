@@ -48,38 +48,51 @@
 										<div class="card-header border-bottom">
 											<h3 class="card-title">Add Own Depot Bus Detail Entry Form</h3>
 										</div>
-										<div class="card-body">
+										<div class="card-body bg-light">
 											<form class="form-horizontal row" action="{% url 'app:own_depot_bus_details_entry_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+                                               <div class="card mb-3">
+            								   <div class="card-body">
+											   <div class="row">
+
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" for="bus_number">Bus Number</label>
+                                                        <select class="form-control custom-select" name="bus_number" id="bus_number" required>
+                                                            <option value="">Select Option</option>
+                                                                {% for vehicle in vehicle_details %}
+                                                                    <option value="{{ vehicle.bus_number }}">
+                                                                        {{ vehicle.bus_number }}
+                                                                    </option>
+                                                                {% endfor %}
+                                                        </select>
+                                                    </div>
+
+													<div class="form-group col-md-6">
+                                                    	<label class="form-label" for="unique_no">Unique Number</label>
+                                                    	<input type="text" id="unique_no" name="unique_no" class="form-control" required pattern="^\d{4}$" title="Please enter exactly four digits" oninput="validateInput()">
+														<span id="validationMessage" style="color: red;"></span>
+													</div>
 
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="bus_number">Bus Number</label>
-                                                    <select class="form-control custom-select" name="bus_number" id="bus_number" required>
-                                                     	<option value="">Select Option</option>
-                                                        	{% for vehicle in vehicle_details %}
-                                                            	<option value="{{ vehicle.bus_number }}">
-                                                                	{{ vehicle.bus_number }}
-                                                                </option>
-                                                            {% endfor %}
-                                                    </select>
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" for="bus_type">Bus Type</label>
+                                                        <input type="text" id="bus_type" name="bus_type" class="form-control" required>
+                                                    </div>
+
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" for="log_sheet_no">Log Sheet No</label>
+                                                        <input type="text" id="log_sheet_no" name="log_sheet_no" class="form-control" required>
+                                                    </div>
+
+
+												</div>
+												</div>
 												</div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="unique_no">Unique Number</label>
-                                                    <input type="text" id="unique_no" name="unique_no" class="form-control" required pattern="^\d{4}$" title="Please enter exactly four digits" oninput="validateInput()">
-													<span id="validationMessage" style="color: red;"></span>
-												</div>
+												<div class="card mb-4">
+            									<div class="card-body">
+												<div class="row">
 
-
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="bus_type">Bus Type</label>
-                                                    <input type="text" id="bus_type" name="bus_type" class="form-control" required>
-												</div>
-
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="log_sheet_no">Log Sheet No</label>
-                                                    <input type="text" id="log_sheet_no" name="log_sheet_no" class="form-control" required>
-												</div>
+												<h3 class="card-title">Driver1 Info</h3>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver1_name">Driver1 Name</label>
@@ -91,14 +104,62 @@
                                                     <input type="text" id="driver1_phone_number" name="driver1_phone_number" class="form-control" required>
 												</div>
 
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver1_staff_no">Driver1 Staff Number</label>
+                                                    <input type="text" id="driver1_staff_no" name="driver1_staff_no" class="form-control" required>
+												</div>
+
+												</div>
+												</div>
+												</div>
+
+
+
+												<div class="card mb-4">
+            									<div class="card-body">
+												<div class="row">
+												<h3 class="card-title">Driver2 Info</h3>
+
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver2_name">Driver2 Name</label>
-                                                    <input type="text" id="driver2_name" name="driver2_name" class="form-control" required>
+                                                    <input type="text" id="driver2_name" name="driver2_name" class="form-control">
 												</div>
+
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver2_staff_no">Driver2 Staff Number</label>
+                                                    <input type="text" id="driver2_staff_no" name="driver2_staff_no" class="form-control">
+												</div>
+
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver2_phone_number">Driver2 Phone Number</label>
-                                                    <input type="text" id="driver2_phone_number" name="driver2_phone_number" class="form-control" required>
+                                                    <input type="text" id="driver2_phone_number" name="driver2_phone_number" class="form-control">
+												</div>
+												</div>
+												</div>
+												</div>
+
+
+												<div class="card mb-4">
+            									<div class="card-body">
+												<div class="row">
+
+												<h3 class="card-title">Incharge Info</h3>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="incharge_name">Incharge Name</label>
+                                                    <input type="text" id="incharge_name" name="incharge_name" class="form-control" required>
+												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="incharge_phone_number">Incharge Phone Number</label>
+                                                    <input type="text" id="incharge_phone_number" name="incharge_phone_number" class="form-control" required>
+												</div>
+
+												</div>
+												</div>
 												</div>
 
 

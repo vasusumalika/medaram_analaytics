@@ -1234,8 +1234,12 @@ def own_depot_bus_details_entry_add(request):
         log_sheet_no = request.POST.get('log_sheet_no')
         driver1_name = request.POST.get('driver1_name')
         driver1_phone_number = request.POST.get('driver1_phone_number')
+        driver1_staff_no = request.POST.get('driver1_staff_no')
         driver2_name = request.POST.get('driver2_name')
         driver2_phone_number = request.POST.get('driver2_phone_number')
+        driver2_staff_no = request.POST.get('driver2_staff_no')
+        incharge_name = request.POST.get('incharge_name')
+        incharge_phone_number = request.POST.get('incharge_phone_number')
         status = 0
         try:
             own_depot_buses_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
@@ -1256,7 +1260,12 @@ def own_depot_bus_details_entry_add(request):
                                                                                     driver2_phone_number=driver2_phone_number,
                                                                                     status=status,
                                                                                     created_by=user_data,
-                                                                                    depot=depot_data)
+                                                                                    depot=depot_data,
+                                                                                    driver1_staff_no=driver1_staff_no,
+                                                                                    driver2_staff_no=driver2_staff_no,
+                                                                                    incharge_name=incharge_name,
+                                                                                    incharge_phone_number=incharge_phone_number
+                                                                                    )
                 own_depot_bus_detail_entry.save()
                 messages.success(request, 'Own Depot Bus Detail Entry Saved Successfully')
             else:
@@ -1303,8 +1312,12 @@ def own_depot_bus_details_entry_update(request):
     log_sheet_no = request.POST.get('log_sheet_no')
     driver1_name = request.POST.get('driver1_name')
     driver1_phone_number = request.POST.get('driver1_phone_number')
+    driver1_staff_no = request.POST.get('driver1_staff_no')
     driver2_name = request.POST.get('driver2_name')
     driver2_phone_number = request.POST.get('driver2_phone_number')
+    driver2_staff_no = request.POST.get('driver2_staff_no')
+    incharge_name = request.POST.get('incharge_name')
+    incharge_phone_number = request.POST.get('incharge_phone_number')
     status = 0
     if own_depot_bus_details_entry_id:
         try:
@@ -1320,8 +1333,12 @@ def own_depot_bus_details_entry_update(request):
             own_depot_bus_details_entry_data.log_sheet_no = log_sheet_no
             own_depot_bus_details_entry_data.driver1_name = driver1_name
             own_depot_bus_details_entry_data.driver1_phone_number = driver1_phone_number
+            own_depot_bus_details_entry_data.driver1_staff_no = driver1_staff_no
             own_depot_bus_details_entry_data.driver2_name = driver2_name
             own_depot_bus_details_entry_data.driver2_phone_number = driver2_phone_number
+            own_depot_bus_details_entry_data.driver2_staff_no = driver2_staff_no
+            own_depot_bus_details_entry_data.incharge_name = incharge_name
+            own_depot_bus_details_entry_data.incharge_phone_number = incharge_phone_number
             own_depot_bus_details_entry_data.status = status
             vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
             depot_data = Depot.objects.get(id=vehicle_details.depot.id)

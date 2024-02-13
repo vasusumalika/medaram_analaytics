@@ -64,8 +64,12 @@
 															<th class="border-bottom-0">Log Sheet No</th>
 															<th class="border-bottom-0">Driver1 Name</th>
 															<th class="border-bottom-0">Driver1 Phone Number</th>
+															<th class="border-bottom-0">Driver1 Staff Number</th>
 															<th class="border-bottom-0">Driver2 Name</th>
 															<th class="border-bottom-0">Driver2 Phone Number</th>
+															<th class="border-bottom-0">Driver2 Staff Number</th>
+															<th class="border-bottom-0">Incharge Name</th>
+															<th class="border-bottom-0">Incharge Phone Number</th>
                                                             <th class="border-bottom-0">Created At</th>
 															<th class="border-bottom-0">Actions</th>
 
@@ -80,8 +84,12 @@
 															  <td>{{ own_depot_bus_detail_entry.log_sheet_no }}</td>
 															  <td>{{ own_depot_bus_detail_entry.driver1_name }}</td>
 															  <td>{{ own_depot_bus_detail_entry.driver1_phone_number }}</td>
+															  <td>{{ own_depot_bus_detail_entry.driver1_staff_no }}</td>
 															  <td>{{ own_depot_bus_detail_entry.driver2_name }}</td>
 															  <td>{{ own_depot_bus_detail_entry.driver2_phone_number }}</td>
+															  <td>{{ own_depot_bus_detail_entry.driver2_staff_no }}</td>
+															  <td>{{ own_depot_bus_detail_entry.incharge_name }}</td>
+															  <td>{{ own_depot_bus_detail_entry.incharge_phone_number }}</td>
                                                               <td>{{ own_depot_bus_detail_entry.created_at }}</td>
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:own_depot_bus_details_entry_edit' %}?id={{ own_depot_bus_detail_entry.id }}">
 																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
