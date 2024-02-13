@@ -1055,6 +1055,13 @@ def search_trip_end_form(request):
 @custom_login_required
 def trip_end_add(request):
     trip_check_id = request.POST.get('id')
+    total_ticket_amount = request.POST.get('total_ticket_amount')
+    total_adult_passengers = request.POST.get('total_adult_passengers')
+    total_child_passengers = request.POST.get('total_child_passengers')
+    mhl_adult_passengers = request.POST.get('mhl_adult_passengers')
+    mhl_child_passengers = request.POST.get('mhl_child_passengers')
+    mhl_adult_amount = request.POST.get('mhl_adult_amount')
+    mhl_child_amount = request.POST.get('mhl_child_amount')
     trip_verified = request.POST.get('trip_verified')
     trip_verified_time = timezone.now()
     trip_end = timezone.now()
@@ -1062,6 +1069,13 @@ def trip_end_add(request):
     if trip_check_id:
         try:
             trip_check_data = TripStatistics.objects.get(id=trip_check_id)
+            trip_check_data.total_ticket_amount = total_ticket_amount
+            trip_check_data.total_adult_passengers = total_adult_passengers
+            trip_check_data.total_child_passengers = total_child_passengers
+            trip_check_data.mhl_adult_passengers = mhl_adult_passengers
+            trip_check_data.mhl_child_passengers = mhl_child_passengers
+            trip_check_data.mhl_adult_amount = mhl_adult_amount
+            trip_check_data.mhl_child_amount = mhl_child_amount
             trip_check_data.trip_verified = trip_verified
             trip_check_data.trip_verified_time = trip_verified_time
             user_data = User.objects.get(id=request.session['user_id'])
@@ -1113,10 +1127,20 @@ def search_special_bus_data(request):
         bus_number = request.POST.get('bus_number')
         if bus_number:
             vehicle_detail = VehicleDetails.objects.get(bus_number=bus_number)
-            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail)
-    special_bus_numbers_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
+            bus_number_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail)
+    if request.session['user_type'] == 'BUS RECEIVING':
+        depot_data = Depot.objects.filter(id=request.session['depot_id'])
+        special_bus_data = SpecialBusDataEntry.objects.filter(
+            Q(special_bus_reporting_depot=depot_data[0]) & ~Q(status=2))
+        already_received_bus_numbers = OutDepotVehicleReceive.objects.values_list('bus_number__bus_number', flat=True)
+        special_bus_data = special_bus_data.exclude(bus_number__bus_number__in=already_received_bus_numbers)
+    else:
+        special_bus_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
+        already_received_bus_numbers = OutDepotVehicleReceive.objects.values_list('bus_number__bus_number', flat=True)
+        special_bus_data = special_bus_data.exclude(bus_number__bus_number__in=already_received_bus_numbers)
+    # special_bus_numbers_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
     return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html',
-                  {'special_bus_data': special_bus_data, 'special_bus_numbers_data': special_bus_numbers_data})
+                  {'special_bus_data': bus_number_data, 'special_bus_numbers_data': special_bus_data})
 
 
 @custom_login_required
@@ -2491,7 +2515,7 @@ def point_data_import(request):
             df = pd.read_excel(file)
             row_iter = df.iterrows()
             for i, row in row_iter:
-                # print(row)
+                print(row)
                 try:
                     name = row[1]
                     point_name_exist = PointData.objects.filter(point_name=name).count()
@@ -2705,6 +2729,7 @@ def dashboard_details_entry_type(request):
                     total_child_passengers = total_passengers['total_child_passengers']
                     mhl_adult_passengers = total_passengers['mhl_adult_passengers']
                     mhl_child_passengers = total_passengers['mhl_child_passengers']
+                    total_passengers_count = total_adult_passengers+total_child_passengers+mhl_adult_passengers+mhl_child_passengers
 
                     total_amounts = TripStatistics.objects.filter(entry_type=entry_type).filter(
                         start_to_location__point_name='Thadvai'). \
@@ -2721,7 +2746,7 @@ def dashboard_details_entry_type(request):
 
                     result_data.append({
                         'date': date.strftime('%Y-%m-%d'),
-                        'total_passengers': total_passengers,
+                        'total_passengers': total_passengers_count,
                         'total_earnings': total_earnings,
                         'total_adult_passengers': total_adult_passengers,
                         'total_child_passengers': total_child_passengers,
@@ -2804,8 +2829,8 @@ def create_user(request):
                                        status=user_status, user_type=user_type_data, depot=depot_data,
                                        point_name=point_name_data)
             user.save()
-            encrypted_password = ast.literal_eval(user.password)
-            decrypted_password = cipher_suite.decrypt(encrypted_password).decode()
+            # encrypted_password = ast.literal_eval(user.password)
+            decrypted_password = cipher_suite.decrypt(user.password).decode()
             user_data = {
                 'email': user.email,
                 'password': decrypted_password,
@@ -2820,6 +2845,20 @@ def create_user(request):
         context = {'code': "Fail", 'message': "User create unsuccessfully",
                    'response_code': status.HTTP_400_BAD_REQUEST, "result": {}}
         return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+
+def show_profile(request):
+    user_data = User.objects.filter(Q(id=request.session['user_id']))
+    if user_data:
+        profile_data = {
+            'name': user_data[0].name,
+            'email': user_data[0].email,
+            'role': user_data[0].user_type.name,
+            'depot': user_data[0].depot.name,
+        }
+        return render(request, 'profile.html', {'profile_data': profile_data})
+    else:
+        return render(request, 'profile.html')
 
 
 # REST API STARTS FROM HERE
