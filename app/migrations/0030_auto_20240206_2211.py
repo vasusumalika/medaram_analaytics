@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ('service_operated_date', models.DateField(blank=True, null=True)),
                 ('trip_start', models.DateTimeField(auto_now_add=True)),
                 ('trip_verified', models.BooleanField(default=False)),
-                ('trip_verified_time', models.TimeField(blank=True, null=True)),
+                ('trip_verified_time', models.DateTimeField(blank=True, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('status', models.IntegerField(help_text='0=active;1=inactive;2=delete')),

@@ -344,16 +344,14 @@ class TripStatistics(models.Model):
     trip_start = models.DateTimeField(auto_now_add=True)
     trip_end = models.DateTimeField(null=True, blank=True)
     trip_verified = models.BooleanField(default=False)
-    trip_verified_time = models.DateTimeField(null=True, blank=True)
+    trip_verified_time = models.DateTimeField(null=True, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_created_user',
-                                   default="",
-                                   null=True, blank=True)
+                                   default="", null=True, blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='statistics_data_entry_updated_user',
-                                   null=True,
-                                   blank=True, default="")
+                                   null=True, blank=True, default="")
 
     def get_complete_details(self):
         return {
