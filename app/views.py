@@ -1091,6 +1091,7 @@ def trip_end_add(request):
             messages.error(request, 'Trip check updated failed!!')
             return redirect("app:trip_end_add")
     else:
+        trip_unqiue_no = ''
         if request.session['user_type'] == 'PSG UP THADVAI':
             trip_unqiue_no = TripStatistics.objects.filter(Q(status=0) | Q(status=1)).filter(~Q(trip_verified=True)).filter(entry_type='up').values_list('unique_code', flat=True).distinct()
         return render(request, 'trip_statistics/trip_end/add.html',
