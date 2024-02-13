@@ -138,6 +138,10 @@ urlpatterns = [
     path('reports/search/hour/wise/dispatched/buses/list', views.search_hour_wise_dispatched_buses_list,
          name='search_hour_wise_dispatched_buses_list'),
 
+
+    path('reports/en/route/wise/buses/list', views.en_route_wise_list, name='en_route_wise_list'),
+    path('reports/en/route/wise/bus/details', views.en_route_bus_details, name='en_route_bus_details'),
+
     path('point_data/list', views.point_data_list, name='point_data_list'),
     path('point_data/import', views.point_data_import, name='point_data_import'),
     path('point_data/add', views.point_name_add, name='point_name_add'),

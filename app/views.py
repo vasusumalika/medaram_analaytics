@@ -30,7 +30,7 @@ from rest_framework import status
 from app import serializers as app_serializers
 import datetime
 from django.db.models.functions import TruncHour
-
+from django.db.models import Max, Subquery, OuterRef
 ENCRYPTION_KEY = getattr(settings, 'ENCRYPTION_KEY', None)
 if ENCRYPTION_KEY is None:
     raise ImproperlyConfigured("ENCRYPTION_KEY setting is missing")
@@ -2318,6 +2318,47 @@ def search_hour_wise_dispatched_buses_list(request):
     else:
         return render(request, 'reports/hour_wise_dispatched_buses_list.html',
                       {'point_names': point_names})
+
+
+@custom_login_required
+def en_route_wise_list(request):
+    if request.method == "POST":
+        unique_bus_no = request.POST.get('unique_bus_no')
+    else:
+        # trip_data = TripStatistics.objects.filter(Q(status=0) | Q(status=1)).filter(~Q(trip_verified=True)).\
+        #     filter(entry_type='up').latest('created_at').distinct()
+        # trip_data = TripStatistics.objects.values('bus_number', 'start_from_location__point_name', 'start_to_location__point_name',
+        #                                           'unique_code', 'trip_start').filter(Q(status=0) | Q(status=1)).\
+        #     filter(entry_type='up').annotate(latest_date=Max('trip_start')).order_by()
+
+        # Get the latest record for each unique name
+        latest_records = TripStatistics.objects.filter(
+            bus_number=OuterRef('bus_number')
+        ).order_by('-trip_start')
+
+        # Query to fetch the latest record for each unique name
+        queryset = TripStatistics.objects.filter(
+            id=Subquery(latest_records.values('id')[:1])
+        ).values('bus_number', 'start_from_location__point_name', 'start_to_location__point_name',
+                                                  'unique_code', 'trip_start')
+
+        return render(request, 'reports/en_route_wise_list.html', {'trip_data': queryset})
+
+
+
+@custom_login_required
+def en_route_bus_details(request):
+    bus_number = request.GET.get('id')
+    if bus_number:
+        en_route_bus_details = SpecialBusDataEntry.objects.get(bus_number__bus_number=bus_number)
+        date_part = en_route_bus_details.created_at.date()
+        time_part = en_route_bus_details.created_at.time()
+    try:
+        return render(request, 'reports/en_route_bus_details.html',
+                      {"en_route_bus_details": en_route_bus_details, "date_part": date_part, "time_part": time_part})
+    except Exception as e:
+        print(e)
+        return render(request, 'reports/en_route_bus_details.html', {})
 
 
 @custom_login_required
