@@ -1031,6 +1031,7 @@ def get_out_and_own_depot_bus_number(request):
 
 @custom_login_required
 def search_trip_end_form(request):
+    trip_unqiue_no = ''
     if request.session['user_type'] == 'PSG UP THADVAI':
         trip_unqiue_no = TripStatistics.objects.filter(Q(status=0) | Q(status=1)).filter(~Q(trip_verified=True)).filter(entry_type='up').values_list('unique_code', flat=True).distinct()
     if request.method == "POST":
