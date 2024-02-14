@@ -57,14 +57,20 @@
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="depot_name">Search Depot Name</label>
 													<br>
-													<select class="form-control custom-select" name="depot_name" id="depot_name" required>
+													<select class="form-control custom-select" name="depot_name" id="depot_name">
                                                      	<option value="">Select Option</option>
-                                                        	{% for special_bus_sending in special_bus_sending_depot %}
-                                                            	<option value="{{ special_bus_sending.special_bus_sending_depot__id }}">
-                                                                	{{ special_bus_sending.special_bus_sending_depot__name }}
+                                                        	{% for depot in depot_data %}
+                                                            	<option value="{{ depot.id }}">
+                                                                	{{ depot.name }}
                                                                 </option>
                                                             {% endfor %}
                                                     </select>
+												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" >Select Date</label>
+													<br>
+                                                    <input type="date" class="form-control" id="date" name="date" >
 												</div>
 
 												<div class="form-group mt-3">
@@ -84,9 +90,12 @@
 												<table id="listing-table" class="table table-bordered text-nowrap key-buttons border-bottom  w-100">
 													<thead>
 														<tr>
-															<th class="border-bottom-0">Operating Depot Name</th>
-															<th class="border-bottom-0">Allotted Buses Number</th>
-                                                            <th class="border-bottom-0">No of Trips</th>
+<!--															<th class="border-bottom-0">Operating Depot Name</th>-->
+<!--															<th class="border-bottom-0">Allotted Buses Number</th>-->
+
+<!--                                                            <th class="border-bottom-0">No of Trips</th>-->
+															<th class="border-bottom-0">From Point</th>
+<!--															<th class="border-bottom-0">To Point</th>-->
 															<th class="border-bottom-0">No of Trips Up</th>
 															<th class="border-bottom-0">No of Trips Down</th>
                                                             <th class="border-bottom-0">Total Passenger Transported</th>
@@ -97,9 +106,11 @@
 													<tbody>
 														{% for performance_depot in performance_depot_result %}
                                                           <tr>
-															  <td><b><a style="text-decoration:underline" href="{% url 'app:display_operating_depot_list' %}?id={{ performance_depot.depot_id }}">{{ performance_depot.depot_name }}</a></b></td>
-															  <td>{{ performance_depot.buses_allotted }}</td>
-                                                              <td>{{ performance_depot.no_of_trips_count }}</td>
+<!--															  <td><b><a style="text-decoration:underline" href="{% url 'app:display_operating_depot_list' %}?id={{ performance_depot.depot_id }}">{{ performance_depot.depot_name }}</a></b></td>-->
+<!--															  <td>{{ performance_depot.buses_allotted }}</td>-->
+<!--                                                              <td>{{ performance_depot.no_of_trips_count }}</td>-->
+															  <td>{{ performance_depot.point_name }}</td>
+<!--															  <td>Thadvai</td>-->
 															  <td>{{ performance_depot.no_of_trips_up_count }}</td>
 															  <td>{{ performance_depot.no_of_trips_down_count }}</td>
 															  <td>{{ performance_depot.total_passenger_count }}</td>
