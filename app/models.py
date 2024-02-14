@@ -30,6 +30,7 @@ class User(models.Model):
     depot = models.ForeignKey("Depot", on_delete=models.CASCADE, null=True)
     point_name = models.ForeignKey(PointData, on_delete=models.CASCADE, related_name="user_point_data",
                                    null=True, blank=True)
+    is_first_login = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete")

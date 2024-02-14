@@ -66,15 +66,23 @@ def index(request):
 
 
 def do_login(request):
-    user_email_phone = request.POST.get('user_email_phone')
+    # user_email_phone = request.POST.get('user_email_phone')
+    user_name = request.POST.get('name')
     user_password = request.POST.get('password')
     if request.method == "POST":
-        if not (user_email_phone and user_password):
+        if not (user_name and user_password):
             messages.error(request, "Please provide all the details!!")
             return redirect("app:index")
-        user_login_data = User.objects.filter(Q(email=user_email_phone) | Q(phone_number=user_email_phone)).first()
+        # encrypted_password = cipher_suite.encrypt(user_password.encode())
+        user_first_login_data = User.objects.filter(Q(name=user_name) & Q(is_first_login=True)).first()
+        # user_login_data = User.objects.filter(Q(email=user_email_phone) | Q(phone_number=user_email_phone)).first()
+        if user_first_login_data:
+            messages.error(request, "Please reset the password!!")
+            return render(request, 'reset_password.html', {'user_id': user_first_login_data.id})
+
+        user_login_data = User.objects.filter(Q(name=user_name) & Q(is_first_login=False)).first()
         if user_login_data:
-            encrypted_password = ast.literal_eval(user_login_data.password)
+            encrypted_password = cipher_suite.encrypt(user_password.encode())
             decrypted_password = cipher_suite.decrypt(encrypted_password).decode()
             if decrypted_password == user_password:
                 request.session['user_id'] = user_login_data.id
@@ -93,19 +101,67 @@ def do_login(request):
             else:
                 messages.error(request, 'Invalid Login Credentials!!')
                 return redirect("app:index")
-        # if user_login_data and check_password(user_password, user_login_data.password):
-        #     print(request.user.id)
-        #     request.session['user_id'] = user_login_data.id
-        #     request.session['user_type'] = user_login_data.user_type.name
-        #     request.session['point_name'] = user_login_data.point_name.point_name
-        #     return redirect("app:dashboard")
-        # else:
-        #     messages.error(request, 'Invalid Login Credentials!!')
-        #     return redirect("app:index")
     else:
         messages.error(request, 'Login failed. Try again!!')
         return redirect("app:index")
 
+# def do_login(request):
+#     user_email_phone = request.POST.get('user_email_phone')
+#     user_password = request.POST.get('password')
+#     if request.method == "POST":
+#         if not (user_email_phone and user_password):
+#             messages.error(request, "Please provide all the details!!")
+#             return redirect("app:index")
+#         user_login_data = User.objects.filter(Q(email=user_email_phone) | Q(phone_number=user_email_phone)).first()
+#         if user_login_data:
+#             encrypted_password = ast.literal_eval(user_login_data.password)
+#             decrypted_password = cipher_suite.decrypt(encrypted_password).decode()
+#             if decrypted_password == user_password:
+#                 request.session['user_id'] = user_login_data.id
+#                 request.session['user_type'] = user_login_data.user_type.name
+#                 if user_login_data.point_name:
+#                     request.session['point_name'] = user_login_data.point_name.point_name
+#                 else:
+#                     request.session['point_name'] = ''
+#                 request.session['depot_id'] = user_login_data.depot.id
+#                 if user_login_data.user_type.employee_designation == 4:
+#                     return redirect("app:hsd_oil_submission_add")
+#                 elif user_login_data.user_type.employee_designation == 5:
+#                     return redirect("app:buses_on_hand_add")
+#                 else:
+#                     return redirect("app:dashboard")
+#             else:
+#                 messages.error(request, 'Invalid Login Credentials!!')
+#                 return redirect("app:index")
+#     else:
+#         messages.error(request, 'Login failed. Try again!!')
+#         return redirect("app:index")
+
+
+def reset_password(request):
+    if request.method == "POST":
+        user_id = request.POST.get('id')
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        user_data = User.objects.filter(Q(id=user_id)).first()
+        encrypted_password = ast.literal_eval(user_data.password)
+        decrypted_password = cipher_suite.decrypt(encrypted_password).decode()
+        if decrypted_password == old_password:
+            if new_password == confirm_password:
+                encrypted_password = cipher_suite.encrypt(new_password.encode())
+                user_data.password = encrypted_password
+                user_data.is_first_login = False
+                user_data.save()
+                messages.success(request, "Password Updated!!")
+                return render(request, 'login.html')
+            else:
+                messages.error(request, "Password not updated!!")
+                return render(request, 'reset_password.html', {'user_id': user_data.id})
+        else:
+            messages.error(request, "Invalid Old Password, Password not updated!!")
+            return render(request, 'reset_password.html', {'user_id': user_data.id})
+    # return redirect(request, 'reset_password.html')
 
 @custom_login_required
 def dashboard(request):
@@ -3012,7 +3068,7 @@ def create_user(request):
             encrypted_password = cipher_suite.encrypt(password.encode())
             user = User.objects.create(name=name, email=email, password=encrypted_password, phone_number=phone,
                                        status=user_status, user_type=user_type_data, depot=depot_data,
-                                       point_name=point_name_data)
+                                       point_name=point_name_data, is_first_login=False)
             user.save()
             # encrypted_password = ast.literal_eval(user.password)
             decrypted_password = cipher_suite.decrypt(user.password).decode()
@@ -3044,6 +3100,46 @@ def show_profile(request):
         return render(request, 'profile.html', {'profile_data': profile_data})
     else:
         return render(request, 'profile.html')
+
+
+@transaction.atomic
+@custom_login_required
+def user_import(request):
+    print("Called")
+    if request.method == "POST":
+        file = request.FILES.get('user_list')
+        try:
+            df = pd.read_excel(file)
+            row_iter = df.iterrows()
+            for i, row in row_iter:
+                print(row)
+                try:
+                    user_name = row[0]
+                    user_exist = User.objects.filter(name=user_name).count()
+                    if user_exist == 0:
+                        user_type_data = UserType.objects.get(name=row[2])
+                        depot_data = Depot.objects.get(name=row[3])
+                        point_name_data = row[4] if not pd.isna(row[4]) else None
+                        if point_name_data:
+                            point_data = PointData.objects.get(point_name=point_name_data)
+                        else:
+                            point_data = None
+                        # point_data = PointData.objects.get(point_name=row[4])
+                        password = row[1]
+                        encrypted_password = cipher_suite.encrypt(password.encode())
+                        user = User.objects.create(name=user_name, user_type=user_type_data, depot=depot_data, status=0,
+                                                   point_name=point_data, is_first_login=True, password=encrypted_password)
+                        user.save()
+                    else:
+                        pass
+                except Exception as e:
+                    print(e)
+            return redirect("app:users_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'User Data import failed!!')
+        return redirect("app:users_list")
+    return render(request, 'users/import.html', {})
 
 
 # REST API STARTS FROM HERE

@@ -11,11 +11,13 @@ urlpatterns = [
     path('dashboard', dashboard, name='dashboard'),
     path('logout_user', views.logout_user, name="logout_user"),
     path('show/profile', views.show_profile, name="show_profile"),
+    path('reset/password', views.reset_password, name="reset_password"),
 
     path('users/list', views.users_list, name='users_list'),
     path('users/add', views.user_add, name='user_add'),
     path('users/edit', views.user_edit, name='user_edit'),
     path('users/update', views.user_update, name='user_update'),
+    path('users/import', views.user_import, name='user_import'),
     path('get/depot/point/name', views.get_depot_point_names, name='get_depot_point_names'),
 
     path('user/type/list', views.user_type_list, name='user_type_list'),
