@@ -111,45 +111,47 @@
 												</div>
 
 												<div class="form-group col-md-6">
+                                                    <label class="form-label">Entry Type:</label>
+                                                    <input type="text"  class="form-control" value="{{last_trip_details.entry_type}}" readonly>
+												</div>
+
+												<div class="form-group col-md-6">
                                                     <label class="form-label" >Total Ticket Amount:</label>
-                                                    <input type="text" class="form-control" value="{{last_trip_details.total_ticket_amount}}" required>
+                                                    <input type="number" class="form-control" min="0" name="total_ticket_amount" value="{{last_trip_details.total_ticket_amount}}" required>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label">Total Adult Passengers:</label>
-                                                    <input type="text"  class="form-control" value="{{last_trip_details.total_adult_passengers}}" required>
+                                                    <input type="number"  class="form-control" min='0' name="total_adult_passengers"  value="{{last_trip_details.total_adult_passengers}}" required>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" >Total Child Passengers:</label>
-                                                    <input type="text" class="form-control" value="{{last_trip_details.total_child_passengers}}" required>
+                                                    <input type="number" class="form-control" min='0' name="total_child_passengers" value="{{last_trip_details.total_child_passengers}}" required>
 												</div>
 
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" >MHL Adult Passengers:</label>
-                                                    <input type="text" class="form-control" value="{{last_trip_details.mhl_adult_passengers}}" required>
+                                                    <input type="number" class="form-control" min='0' name="mhl_adult_passengers" value="{{last_trip_details.mhl_adult_passengers}}" required>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label">MHL Child Passengers:</label>
-                                                    <input type="text"  class="form-control" value="{{last_trip_details.mhl_child_passengers}}" required>
+                                                    <input type="number"  class="form-control" min='0' name="mhl_child_passengers" value="{{last_trip_details.mhl_child_passengers}}" required>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" >MHL Adult Amount:</label>
-                                                    <input type="text" class="form-control" value="{{last_trip_details.mhl_adult_amount}}" required>
+                                                    <input type="number" class="form-control"  min='0' name="mhl_adult_amount" value="{{last_trip_details.mhl_adult_amount}}" required>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label">MHL Child Amount:</label>
-                                                    <input type="text"  class="form-control" value="{{last_trip_details.mhl_child_amount}}" required>
+                                                    <input type="number"  class="form-control"  min='0' name="mhl_child_amount"  value="{{last_trip_details.mhl_child_amount}}" required>
 												</div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label">Entry Type:</label>
-                                                    <input type="text"  class="form-control" value="{{last_trip_details.entry_type}}" readonly>
-												</div>
+
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="trip_verified">Trip Verified</label>

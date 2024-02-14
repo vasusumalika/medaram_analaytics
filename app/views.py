@@ -1018,9 +1018,13 @@ def trip_start_add(request):
 def get_out_and_own_depot_bus_number(request):
     unique_no = request.GET.get('unique_no')
     depot_id = request.session['depot_id']
-    out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(unique_no=unique_no) &
-                                                                           Q(out_depot_bus_reporting_depot_id=depot_id))
-    own_depot_bus_entry_data = OwnDepotBusDetailsEntry.objects.filter(Q(unique_no=unique_no) & Q(depot_id=depot_id))
+    if request.session['user_type'] == 'PSG ENTRY DOWN':
+        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
+        own_depot_bus_entry_data = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
+    else:
+        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(unique_no=unique_no) &
+                                                                               Q(out_depot_bus_reporting_depot_id=depot_id))
+        own_depot_bus_entry_data = OwnDepotBusDetailsEntry.objects.filter(Q(unique_no=unique_no) & Q(depot_id=depot_id))
     if out_depot_vehicle_receive_data.exists():
         special_bus_data = out_depot_vehicle_receive_data[0].special_bus_data_entry
         return JsonResponse({'bus_number': special_bus_data.bus_number.bus_number})
