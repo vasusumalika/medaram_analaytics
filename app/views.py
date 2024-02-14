@@ -2360,10 +2360,10 @@ def en_route_wise_list(request):
         ).order_by('-trip_start')
 
         # Query to fetch the latest record for each unique name
-        queryset = TripStatistics.objects.filter(
+        queryset = TripStatistics.objects.filter(trip_verified=False).filter(
             id=Subquery(latest_records.values('id')[:1])
         ).values('bus_number', 'start_from_location__point_name', 'start_to_location__point_name',
-                                                  'unique_code', 'trip_start')
+                                                  'unique_code', 'trip_start', 'trip_verify_by')
 
         return render(request, 'reports/en_route_wise_list.html', {'trip_data': queryset})
 
