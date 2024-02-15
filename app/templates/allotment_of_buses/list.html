@@ -1,0 +1,89 @@
+{% extends 'side_bar.html' %}
+
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block htmlbody %}
+
+<!--app-content open-->
+				<div class="app-content main-content mt-0">
+					<div class="side-app">
+						<!-- CONTAINER -->
+						<div class="main-container container-fluid">
+
+							<!-- PAGE-HEADER -->
+							<div class="page-header">
+								<div>
+									<h1 class="page-title">Manage Allotment of Buses</h1>
+								</div>
+								<div class="ms-auto pageheader-btn">
+									<ol class="breadcrumb">
+										<li class="breadcrumb-item"><a href="javascript:void(0);">Manage Allotment of Buses</a></li>
+										<li class="breadcrumb-item active" aria-current="page">Allotment of Buses List</li>
+									</ol>
+								</div>
+							</div>
+							<!-- PAGE-HEADER END -->
+
+
+
+							<!-- Row -->
+							<div class="row row-sm">
+								<div class="col-lg-12">
+									<div class="row">
+                                        <div class="col-md-12">
+											<a  href="{% url 'app:allotment_of_buses_import' %}">
+                                            <input type="button" value="Import Allotment of Buses" class="btn btn-primary" style="width: 20%;margin: 0 20px 20px 0;"></a>
+										</div>
+                                      </div>
+									<div class="card">
+										{% if messages %}
+											{% for message in messages %}
+											<div class="container-fluid p-0">
+											  <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+												<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+												  <span aria-hidden="True">&times;</span>
+												</button>
+												{{ message }}
+											  </div>
+											</div>
+											{% endfor %}
+										{% endif %}
+
+										<div class="card-header border-bottom">
+											<h3 class="card-title">Allotment of Buses List</h3>
+										</div>
+										<div class="card-body">
+											<div class="table-responsive export-table">
+												<table id="listing-table" class="table table-bordered text-nowrap key-buttons border-bottom  w-100">
+													<thead>
+														<tr>
+															<th class="border-bottom-0">Parent Depot</th>
+															<th class="border-bottom-0">Operating Depot</th>
+															<th class="border-bottom-0">Buses Allotted</th>
+
+														</tr>
+													</thead>
+													<tbody>
+														{% for allotment in allotment_of_buses_data %}
+                                                          <tr>
+															  <td>{{ allotment.parent_depot.name }}</td>
+															  <td>{{ allotment.operating_depot.name }}</td>
+															  <td>{{ allotment.no_of_buses }}</td>
+														  </tr>
+                                                        {% endfor %}
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- End Row -->
+                      </div>
+					</div>
+				</div>
+				<!-- CONTAINER CLOSED -->
+
+{% endblock %}

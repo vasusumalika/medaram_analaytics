@@ -9,7 +9,7 @@ from django.contrib import messages
 
 from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, \
     TripStatistics, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw, OutDepotVehicleSentBack, \
-    HsdOilSubmission, BusesOnHand, PointData
+    HsdOilSubmission, BusesOnHand, PointData, AllotmentOfBuses
 from django.db.models import Q, Count
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -955,10 +955,11 @@ def depot_import(request):
             for i, row in row_iter:
                 print(row)
                 try:
-                    name = row[1]
+                    name = row[2]
                     depot_exist = Depot.objects.filter(name=name).count()
                     if depot_exist == 0:
-                        depot = Depot.objects.create(name=name, depot_code=row[0], status=0, created_by=user_data)
+                        depot = Depot.objects.create(name=name, depot_code=row[1], status=0, created_by=user_data,
+                                                     depot_sno=row[0], region=row[3], zone=row[4])
                         depot.save()
                     else:
                         pass
@@ -2762,8 +2763,9 @@ def point_data_import(request):
                     point_name_exist = PointData.objects.filter(point_name=name).count()
                     if point_name_exist == 0:
                         depot_data = Depot.objects.get(name=row[2])
-                        point_name = PointData.objects.create(point_name=name, depot_name=depot_data, region=row[3],
-                                                              zone=row[4], status=0)
+                        point_name = PointData.objects.create(point_name=name, depot_name=depot_data,
+                                                              # region=row[3], zone=row[4],
+                                                              status=0)
                         point_name.save()
                     else:
                         pass
@@ -3050,17 +3052,22 @@ def create_user(request):
         point_name = 'Thadvai'
         user_status = 0
         user_type = 'Super_admin'
+        employee_designation = 9
         depot = 'KUKATPALLI'
         depot_code = 'KPL'
+        region = 'SECUNDRABAD'
+        zone = 'GR HYD ZONE'
         try:
             user_exist = User.objects.filter(user_type__name=user_type)
             if user_exist:
                 context = {'code': "Fail", 'message': "Creation Failed, Super admin user already existed",
                            'response_code': status.HTTP_400_BAD_REQUEST, "result": {}}
                 return Response(context, status=status.HTTP_400_BAD_REQUEST)
-            user_type_data = UserType.objects.create(name=user_type, status=user_status)
+            user_type_data = UserType.objects.create(name=user_type, status=user_status,
+                                                     employee_designation=employee_designation)
             user_type_data.save()
-            depot_data = Depot.objects.create(name=depot, depot_code=depot_code, status=user_status)
+            depot_data = Depot.objects.create(name=depot, depot_code=depot_code, status=user_status, region=region,
+                                              zone=zone)
             depot_data.save()
             point_name_data = PointData.objects.create(point_name=point_name, depot_name=depot_data, status=user_status)
             point_name_data.save()
@@ -3126,6 +3133,8 @@ def user_import(request):
                             point_data = None
                         # point_data = PointData.objects.get(point_name=row[4])
                         password = row[1]
+                        if isinstance(password, int):
+                            password = str(password)
                         encrypted_password = cipher_suite.encrypt(password.encode())
                         user = User.objects.create(name=user_name, user_type=user_type_data, depot=depot_data, status=0,
                                                    point_name=point_data, is_first_login=True, password=encrypted_password)
@@ -3140,6 +3149,50 @@ def user_import(request):
             messages.error(request, 'User Data import failed!!')
         return redirect("app:users_list")
     return render(request, 'users/import.html', {})
+
+
+@transaction.atomic
+@custom_login_required
+def allotment_of_buses_import(request):
+    print("Called")
+    if request.method == "POST":
+        file = request.FILES.get('allotment_of_buses_list')
+        try:
+            user_data = User.objects.get(id=request.session['user_id'])
+            df = pd.read_excel(file)
+            row_iter = df.iterrows()
+            for i, row in row_iter:
+                # print(row)
+                try:
+                    parent_depot = row[0]
+                    parent_depot_data = Depot.objects.filter(name=parent_depot).first()
+                    operating_depot = row[1]
+                    operating_depot_data = Depot.objects.filter(name=operating_depot).first()
+                    allotment_exist = AllotmentOfBuses.objects.filter(Q(parent_depot=parent_depot_data) &
+                                                                      Q(operating_depot=operating_depot_data)).count()
+                    if allotment_exist == 0:
+                        allotment = AllotmentOfBuses.objects.create(parent_depot=parent_depot_data,
+                                                                    operating_depot=operating_depot_data,
+                                                                    no_of_buses=row[2], status=0, created_by=user_data)
+                        allotment.save()
+                    else:
+                        print(i)
+                        pass
+                except Exception as e:
+                    print(e)
+                    print(row)
+            return redirect("app:allotment_of_buses_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Allotment of Buses Data import failed!!')
+        return redirect("app:allotment_of_buses_list")
+    return render(request, 'allotment_of_buses/import.html', {})
+
+
+@custom_login_required
+def allotment_of_buses_list(request):
+    allotment_of_buses_data = AllotmentOfBuses.objects.filter(~Q(status=2))
+    return render(request, 'allotment_of_buses/list.html', {"allotment_of_buses_data": allotment_of_buses_data})
 
 
 # REST API STARTS FROM HERE

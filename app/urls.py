@@ -156,6 +156,9 @@ urlpatterns = [
 
     path('api/create/user/', views.create_user, name='create_user'),
 
+    path('allotment/of/buses/list', views.allotment_of_buses_list, name='allotment_of_buses_list'),
+    path('allotment/of/buses/import', views.allotment_of_buses_import, name='allotment_of_buses_import'),
+
     # Medaram REST API STARTS FROM HERE
     path("api/login/", views.LoginAPIView.as_view()),
     path("api/get-all-depot/", views.DepotAPIView.as_view()),
