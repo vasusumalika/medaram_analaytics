@@ -62,11 +62,15 @@ $(function (e) {
 
 	/*---- jQuery UI Pickers ----*/
 	// Datepicker
+	var date = new Date();
+    var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 	$('.fc-datepicker').datepicker({
-		showOtherMonths: true,
-		selectOtherMonths: true,
 		format: 'yyyy-mm-dd',
+		startDate: today,
+		todayHighlight: true,
+		autoclose: true,
 	});
+
 	//Multiple Months Date Picker
 	$('#datepickerNoOfMonths').datepicker({
 		showOtherMonths: true,

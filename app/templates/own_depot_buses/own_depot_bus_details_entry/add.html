@@ -78,10 +78,12 @@
                                                         <input type="text" id="bus_type" name="bus_type" class="form-control" required>
                                                     </div>
 
+
                                                     <div class="form-group col-md-6">
-                                                        <label class="form-label" for="log_sheet_no">Log Sheet No</label>
-                                                        <input type="text" id="log_sheet_no" name="log_sheet_no" class="form-control" required>
-                                                    </div>
+                                                    <label class="form-label" for="log_sheet_no">New Log Sheet Number:</label>
+                                                    <input type="text" id="log_sheet_no" name="log_sheet_no" class="form-control" required pattern="^\d{1,4}$" title="Please enter up to 4 digits only" oninput="validate_log_sheet()">
+													<span id="validationMessage_logsheet" style="color: red;"></span>
+												    </div>
 
 
 												</div>
@@ -150,12 +152,12 @@
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="incharge_name">Incharge Name</label>
-                                                    <input type="text" id="incharge_name" name="incharge_name" class="form-control" required>
+                                                    <input type="text" id="incharge_name" name="incharge_name" class="form-control" >
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="incharge_phone_number">Incharge Phone Number</label>
-                                                    <input type="text" id="incharge_phone_number" name="incharge_phone_number" class="form-control" required>
+                                                    <input type="text" id="incharge_phone_number" name="incharge_phone_number" class="form-control" >
 												</div>
 
 												</div>

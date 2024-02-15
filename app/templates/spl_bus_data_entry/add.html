@@ -103,9 +103,14 @@
 
 
 												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="log_sheet_no">Log Sheet No</label>
-                                                    <input type="text" id="log_sheet_no" name="log_sheet_no" class="form-control" required>
+    												<label class="form-label" for="log_sheet_no">Log Sheet No:</label>
+    												<input type="text" id="log_sheet_no" name="log_sheet_no" class="form-control" required pattern="^\d{4}$" title="Please enter exactly four digits" oninput="validate_log_sheet()">
+    												<span id="validationMessage_logsheet" style="color: red;"></span>
 												</div>
+
+
+
+
 												</div>
 												</div>
 												</div>

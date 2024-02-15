@@ -1055,34 +1055,31 @@ def trip_start_add(request):
             messages.error(request, 'Statistics Trip Data Creation Failed!!')
             return redirect("app:trip_start_add")
     else:
-        if request.session['user_type'] == 'PSG ENTRY DOWN':
-            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.all()
-            own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.all()
-            combined_data = list(chain(out_depot_vehicle_receive_data, own_depot_vehicle_receive_data))
-        else:
-            depot_data = Depot.objects.get(id=request.session['depot_id'])
-            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(
-                out_depot_bus_reporting_depot=depot_data)
-            own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(depot=depot_data)
-            combined_data = list(chain(out_depot_vehicle_receive_data, own_depot_vehicle_receive_data))
+        # if request.session['user_type'] == 'PSG ENTRY DOWN':
+        #     out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.all()
+        #     own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.all()
+        #     combined_data = list(chain(out_depot_vehicle_receive_data, own_depot_vehicle_receive_data))
+        # else:
+        #     depot_data = Depot.objects.get(id=request.session['depot_id'])
+        #     out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(
+        #         out_depot_bus_reporting_depot=depot_data)
+        #     own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(depot=depot_data)
+        #     combined_data = list(chain(out_depot_vehicle_receive_data, own_depot_vehicle_receive_data))
         point_data = PointData.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'trip_statistics/trip_start/add.html',
-                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data, 'point_data': point_data,
-                       'own_depot_vehicle_receive_data': own_depot_vehicle_receive_data,
-                       'combined_data': combined_data})
+                      {'point_data': point_data})
 
 
 @custom_login_required
 def get_out_and_own_depot_bus_number(request):
     unique_no = request.GET.get('unique_no')
-    depot_id = request.session['depot_id']
-    if request.session['user_type'] == 'PSG ENTRY DOWN':
-        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
-        own_depot_bus_entry_data = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
-    else:
-        out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(Q(unique_no=unique_no) &
-                                                                               Q(out_depot_bus_reporting_depot_id=depot_id))
-        own_depot_bus_entry_data = OwnDepotBusDetailsEntry.objects.filter(Q(unique_no=unique_no) & Q(depot_id=depot_id))
+    # depot_id = request.session['depot_id']
+    # if request.session['user_type'] == 'PSG ENTRY DOWN':
+    #     out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
+    #     own_depot_bus_entry_data = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
+    # else:
+    out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
+    own_depot_bus_entry_data = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
     if out_depot_vehicle_receive_data.exists():
         special_bus_data = out_depot_vehicle_receive_data[0].special_bus_data_entry
         return JsonResponse({'bus_number': special_bus_data.bus_number.bus_number})

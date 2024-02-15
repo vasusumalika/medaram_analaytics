@@ -285,7 +285,7 @@
 									<li class="slide">
 										<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
 											<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
-											<span class="side-menu__label">Trip Statistics</span>
+											<span class="side-menu__label">Trip Entry</span>
 											<i class="angle fa fa-angle-right"></i>
 										</a>
 										<ul class="slide-menu">
@@ -440,9 +440,15 @@
 
 	<script src="{% static 'plugins/summernote-editor/summernote1.js' %}"></script>
 	<script src="{% static 'js/summernote.js' %}"></script>
+	<script src="{% static 'plugins/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
+	<script src="{% static 'plugins/bootstrap-datepicker/js/datepicker.js' %}"></script>
+
+
 
 	<!-- SELECT2 JS -->
 	<script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
+
+	<script src="{% static 'js/formelementadvnced.js' %}"></script>
 
 
 	<script>
@@ -568,8 +574,9 @@
 				});
 			});
 
-			$("#trip_start_unique_no").change(function() {
+			$('.trip_start_unique_no').on('input', function() {
             	var selectedUniqueNo = $(this).val();
+            	$('#trip_start_bus_number').val('');
             	console.log(selectedUniqueNo);
 				$.ajax({
 					url: '{% url "app:get_out_and_own_depot_bus_number" %}',
@@ -581,28 +588,28 @@
 				});
 			});
 
-			$('#type').change(function () {
-            	var selectedType = $(this).val();
-            	if (selectedType == 'conductor') {
-                	$('#total_ticket_amount').val('0');
-                	$('#total_adult_passengers').val('0');
-                	$('#total_child_passengers').val('0');
-                	$('#mhl_adult_passengers').val('0');
-                	$('#mhl_child_passengers').val('0');
-                	$('#mhl_adult_amount').val('0');
-                	$('#mhl_child_amount').val('0');
-            	}
-            	else {
-            		console.log('else block');
-            		$('#total_ticket_amount').val('');
-                	$('#total_adult_passengers').val('');
-                	$('#total_child_passengers').val('');
-                	$('#mhl_adult_passengers').val('');
-                	$('#mhl_child_passengers').val('');
-                	$('#mhl_adult_amount').val('');
-                	$('#mhl_child_amount').val('');
-            	}
-        	});
+<!--			$('#type').change(function () {-->
+<!--            	var selectedType = $(this).val();-->
+<!--            	if (selectedType == 'conductor') {-->
+<!--                	$('#total_ticket_amount').val('0');-->
+<!--                	$('#total_adult_passengers').val('0');-->
+<!--                	$('#total_child_passengers').val('0');-->
+<!--                	$('#mhl_adult_passengers').val('0');-->
+<!--                	$('#mhl_child_passengers').val('0');-->
+<!--                	$('#mhl_adult_amount').val('0');-->
+<!--                	$('#mhl_child_amount').val('0');-->
+<!--            	}-->
+<!--            	else {-->
+<!--            		console.log('else block');-->
+<!--            		$('#total_ticket_amount').val('');-->
+<!--                	$('#total_adult_passengers').val('');-->
+<!--                	$('#total_child_passengers').val('');-->
+<!--                	$('#mhl_adult_passengers').val('');-->
+<!--                	$('#mhl_child_passengers').val('');-->
+<!--                	$('#mhl_adult_amount').val('');-->
+<!--                	$('#mhl_child_amount').val('');-->
+<!--            	}-->
+<!--        	});-->
 
         	var dataTable = $('#out_depot_vehicle_receive-table').DataTable({
             language: {
@@ -628,6 +635,17 @@
         	}
     	}
 
+    	 function validate_log_sheet() {
+        	var inputField = document.getElementById('log_sheet_no');
+        	var validationMessage = document.getElementById('validationMessage_logsheet');
+
+        	if (inputField.checkValidity()) {
+            	validationMessage.innerHTML = '';
+        	} else {
+            	validationMessage.innerHTML = 'Please enter exactly four digits.';
+        	}
+    	}
+
     	function validate_hsd_top_oilInput() {
         	var inputField = document.getElementById('hsd_top_oil_liters');
         	var validation_message = document.getElementById('validation_message');
@@ -638,6 +656,12 @@
             	validation_message.innerHTML = 'Please enter upto 3 digits only.';
         	}
     	}
+
+      $(document).ready(function() {
+			var currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+			$("#fc-datepicker").val(currentDate); // Assuming your text field's id is "datePicker"
+	  });
+
 
 	</script>
 

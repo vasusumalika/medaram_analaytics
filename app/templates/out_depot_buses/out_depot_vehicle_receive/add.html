@@ -167,10 +167,14 @@
     												<span id="validationMessage" style="color: red;"></span>
 												</div>
 
-                                                <div class="form-group col-md-6">
-                                                    <label class="form-label" for="new_log_sheet_no">Received Log Sheet Number:</label>
-                                                    <input type="number" id="new_log_sheet_no" name="new_log_sheet_no" class="form-control" required>
+
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="new_log_sheet_no">New Log Sheet Number:</label>
+                                                    <input type="text" id="log_sheet_no" name="new_log_sheet_no" class="form-control" required pattern="^\d{1,4}$" title="Please enter up to 4 digits only" oninput="validate_log_sheet()">
+													<span id="validationMessage_logsheet" style="color: red;"></span>
 												</div>
+
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="hsd_top_oil_liters">Hsd top_oil liters</label>
@@ -183,9 +187,16 @@
                                                     <input type="number" id="mts_no" name="mts_no" class="form-control" required>
 												</div>
 
+
+
 												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="bus_reported_date"> Bus Reported Date</label>
-                                                    <input type="date" id="bus_reported_date" name="bus_reported_date" class="form-control" required>
+                                                    <label class="form-label" for="fc-datepicker">Bus Reported Date:</label>
+                                                    <div class="input-group">
+														<div class="input-group-text bg-primary-transparent text-primary">
+															<i class="fe fe-calendar text-20"></i>
+														</div>
+														<input name="bus_reported_date" class="form-control fc-datepicker" id="fc-datepicker" placeholder="YYYY-MM-DD" type="text" autocomplete="off">
+													</div>
 												</div>
 
 												<div class="form-group col-md-6">
@@ -212,3 +223,4 @@
 				</div>
 
 {% endblock %}
+
