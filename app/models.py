@@ -7,8 +7,8 @@ from django.db import models
 class PointData(models.Model):
     point_name = models.CharField(max_length=256, null=True, blank=True)
     depot_name = models.ForeignKey("Depot", on_delete=models.CASCADE, null=True, blank=True)
-    region = models.CharField(max_length=256, null=True, blank=True)
-    zone = models.CharField(max_length=256, null=True, blank=True)
+    # region = models.CharField(max_length=256, null=True, blank=True)
+    # zone = models.CharField(max_length=256, null=True, blank=True)
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -71,6 +71,9 @@ class Depot(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256, null=True, blank=True)
     depot_code = models.CharField(max_length=256, null=True, blank=True)
+    depot_sno = models.CharField(max_length=256, null=True, blank=True)
+    region = models.CharField(max_length=256, null=True, blank=True)
+    zone = models.CharField(max_length=256, null=True, blank=True)
     buses_allotted = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -426,3 +429,20 @@ class BusesOnHand(models.Model):
            "bus_in_out":self.bus_in_out,
            "spl_bus_entry_id":self.special_bus_data_entry.id
        }
+
+
+class AllotmentOfBuses(models.Model):
+    parent_depot = models.ForeignKey(Depot, on_delete=models.CASCADE, null=True, blank=True,
+                                     related_name="allotment_buses_parent_depot")
+    operating_depot = models.ForeignKey(Depot, on_delete=models.CASCADE, null=True, blank=True,
+                                        related_name="allotment_buses_operating_depot")
+    no_of_buses = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='allotment_buses_created_user',
+                                   null=True, blank=True, default="")
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='allotment_buses_updated_user',
+                                   null=True, blank=True, default="")
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
