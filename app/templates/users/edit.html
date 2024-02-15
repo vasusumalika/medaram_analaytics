@@ -44,8 +44,8 @@
 
 
                                                 <div class="form-group col-md-6">
-                                                    <label class="form-label" for="name">Name</label>
-                                                    <input type="text" id="name" name="name" class="form-control" value="{{user.name}}" required>
+                                                    <label class="form-label" for="user_name">Name</label>
+                                                    <input type="text" id="user_name" name="user_name" class="form-control" value="{{user.name}}" required pattern="[a-zA-Z0-9]{1,6}" title="Alphanumeric Length Limit: 1 to 6 Characters.">
 												</div>
 
 												<input type="hidden" name="id" value="{{user.id}}">
@@ -62,7 +62,7 @@
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="phone">Phone</label>
-                                                    <input type="text" id="phone" name="phone" class="form-control" value="{{user.phone_number}}">
+                                                    <input type="text" id="phone" name="phone" class="form-control" value="{{user.phone_number}}" pattern="[0-9]{10}" title="Phone number must be 10 digits">
 												</div>
 
 												<div class="col-sm-12 col-md-12 col-xl-6">

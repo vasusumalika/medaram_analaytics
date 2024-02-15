@@ -129,13 +129,14 @@
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver1_staff_no">Driver1 Staff Number</label>
-                                                    <input type="text" id="driver1_staff_no" name="driver1_staff_no" class="form-control" required>
+                                                    <input type="text" id="driver1_staff_no" name="driver1_staff_no" class="form-control" required pattern="^\d{1,6}$" title="Accepting Length Limit: upto 6." oninput="validateDriverStaffNumberInput('driver1_staff_no', 'validate_info_1')">
+													<span id="validate_info_1" style="color: red;"></span>
 												</div>
 
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver1_phone_number">Driver1 Phone Number</label>
-                                                    <input type="text" id="driver1_phone_number" name="driver1_phone_number" class="form-control" required>
+                                                    <input type="text" id="driver1_phone_number" name="driver1_phone_number" class="form-control" pattern="[0-9]{10}" title="Phone number must be 10 digits">
 												</div>
 
 												</div>
@@ -155,13 +156,14 @@
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver2_staff_no">Driver2 Staff Number</label>
-                                                    <input type="text" id="driver2_staff_no" name="driver2_staff_no" class="form-control">
+                                                    <input type="text" id="driver2_staff_no" name="driver2_staff_no" class="form-control" pattern="^\d{1,6}$" title="Accepting Length Limit: Upto 6." oninput="validateDriverStaffNumberInput('driver2_staff_no', 'validate_info_2')">
+													<span id="validate_info_2" style="color: red;"></span>
 												</div>
 
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver2_phone_number">Driver2 Phone Number</label>
-                                                    <input type="text" id="driver2_phone_number" name="driver2_phone_number" class="form-control">
+                                                    <input type="text" id="driver2_phone_number" name="driver2_phone_number" class="form-control" pattern="[0-9]{10}" title="Phone number must be 10 digits">
 												</div>
 												</div>
 												</div>
@@ -180,7 +182,7 @@
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="incharge_phone_number">Incharge Phone Number</label>
-                                                    <input type="text" id="incharge_phone_number" name="incharge_phone_number" class="form-control" required>
+                                                    <input type="text" id="incharge_phone_number" name="incharge_phone_number" class="form-control" required pattern="[0-9]{10}" title="Phone number must be 10 digits">
 												</div>
 
 												</div>

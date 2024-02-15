@@ -233,6 +233,7 @@
 										<ul class="slide-menu">
 											<li><a class="slide-item" href="{% url 'app:users_list'%}">Users</a></li>
 											<li><a class="slide-item" href="{% url 'app:user_type_list'%}">User Type</a></li>
+											<li><a class="slide-item" href="{% url 'app:driver_list'%}">Driver</a></li>
 											<li><a class="slide-item" href="{% url 'app:point_data_list'%}">Point Data</a></li>
 											<li><a class="slide-item" href="{% url 'app:depots_list'%}">Depots</a></li>
 											<li><a class="slide-item" href="{% url 'app:operation_type_list'%}">Operation Type</a></li>
@@ -612,16 +613,68 @@
 <!--        	});-->
 
         	var dataTable = $('#out_depot_vehicle_receive-table').DataTable({
-            language: {
-                searchPlaceholder: 'Search...',
-                sSearch: '',
-            },
-            pageLength: 10,
-            dom: 'Bfrtip', // Add the 'B' button for export
-            buttons: [
-                'pdf'
-            ],
-        });
+            	language: {
+                	searchPlaceholder: 'Search...',
+                	sSearch: '',
+            	},
+            	pageLength: 10,
+            	dom: 'Bfrtip', // Add the 'B' button for export
+            	buttons: [
+                	'pdf'
+            	],
+        	});
+
+        	$("#driver1_staff_no").change(function() {
+            	var selectedStaffNo = $(this).val();
+            	console.log(selectedStaffNo);
+            	$('#error-container').empty();
+				$.ajax({
+					url: '{% url "app:get_driver_details" %}',
+					data: { staff_number: selectedStaffNo },
+					dataType: 'json',
+					success: function(data) {
+						$('#driver1_name').val(data.driver_data.name);
+            			$('#driver1_phone_number').val(data.driver_data.phone_number);
+					},
+					error: function(xhr, status, error) {
+            			var responseJSON = JSON.parse(xhr.responseText);
+            			var errorMessage = responseJSON.error;
+            			console.log("Error message:", errorMessage)
+            			$('.alert-danger').remove();
+            			$('#driver1_name').val('');
+            			$('#driver1_phone_number').val('');
+            			$('#error-container').html('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                        '<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">' +
+                        '<span aria-hidden="True">&times;</span></button>' + errorMessage + '</div>');
+        			}
+				});
+			});
+
+			$("#driver2_staff_no").change(function() {
+            	var selectedStaffNo = $(this).val();
+            	console.log(selectedStaffNo);
+            	$('#error-container').empty();
+				$.ajax({
+					url: '{% url "app:get_driver_details" %}',
+					data: { staff_number: selectedStaffNo },
+					dataType: 'json',
+					success: function(data) {
+						$('#driver2_name').val(data.driver_data.name);
+            			$('#driver2_phone_number').val(data.driver_data.phone_number);
+					},
+					error: function(xhr, status, error) {
+            			var responseJSON = JSON.parse(xhr.responseText);
+            			var errorMessage = responseJSON.error;
+            			console.log("Error message:", errorMessage)
+            			$('.alert-danger').remove();
+            			$('#driver2_name').val('');
+            			$('#driver2_phone_number').val('');
+            			$('#error-container').html('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                        '<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">' +
+                        '<span aria-hidden="True">&times;</span></button>' + errorMessage + '</div>');
+        			}
+				});
+			});
         });
 
         function validateInput() {
@@ -656,6 +709,17 @@
             	validation_message.innerHTML = 'Please enter upto 3 digits only.';
         	}
     	}
+
+    	function validateDriverStaffNumberInput(inputId, validateInfoId) {
+    		var inputField = document.getElementById(inputId);
+    		var validateInfo = document.getElementById(validateInfoId);
+
+    		if (inputField.checkValidity()) {
+        		validateInfo.innerHTML = '';
+    		} else {
+        		validateInfo.innerHTML = 'Accepting length limit up to 6 digits.';
+    		}
+		}
 
       $(document).ready(function() {
 			var currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
