@@ -37,17 +37,13 @@
 										</div>
 										<div class="card-body">
 											<form class="form-horizontal row" action="{% url 'app:search_trip_end_form' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+
+
+
 												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="unique_no">Unique No</label>
-													<br>
-													<select class="form-control custom-select" name="unique_no" id="unique_no" required>
-                                                     	<option value="">Select Option</option>
-                                                        	{% for trip_unqiue in trip_unqiue_no %}
-                                                            	<option value="{{ trip_unqiue }}">
-                                                                	{{ trip_unqiue }}
-                                                                </option>
-                                                            {% endfor %}
-                                                    </select>
+    												<label class="form-label" for="unique_no">Unique No:</label>
+    												<input type="text" id="unique_no" name="unique_no" class="form-control" required pattern="^\d{4}$" title="Please enter exactly four digits" oninput="validateInput()">
+    												<span id="validationMessage" style="color: red;"></span>
 												</div>
 
 												<div class="form-group mt-3">
@@ -162,9 +158,16 @@
 													</select>
 												</div>
 
+
+
 												<div class="form-group col-md-6">
-													<label class="form-label">Service Operated Date:</label>
-                                                    <input type="date"  class="form-control" name="service_operated_date" value="{{last_trip_details.service_operated_date|date:'Y-m-d'}}" required>
+                                                    <label class="form-label" for="fc-datepicker">Service Operated Date:</label>
+                                                    <div class="input-group">
+														<div class="input-group-text bg-primary-transparent text-primary">
+															<i class="fe fe-calendar text-20"></i>
+														</div>
+														<input name="service_operated_date" class="form-control fc-datepicker" value="{{last_trip_details.service_operated_date|date:'Y-m-d'}}" id="fc-datepicker" placeholder="YYYY-MM-DD" type="text" autocomplete="off">
+													</div>
 												</div>
 
 
