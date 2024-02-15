@@ -446,3 +446,16 @@ class AllotmentOfBuses(models.Model):
                                    related_name='allotment_buses_updated_user',
                                    null=True, blank=True, default="")
     status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)
+
+
+class Driver(models.Model):
+    staff_number = models.CharField(max_length=256, null=True, blank=True)
+    name = models.CharField(max_length=256, null=True, blank=True)
+    phone_number = models.CharField(max_length=256, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='driver_created_user', null=True,
+                                   blank=True, default="")
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='driver_updated_user', null=True,
+                                   blank=True, default="")
+    status = models.IntegerField(help_text="0=active;1=inactive;2=delete", null=True, blank=True)

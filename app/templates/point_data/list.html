@@ -64,8 +64,6 @@
 														<tr>
 															<th class="border-bottom-0">Point Name</th>
                                                             <th class="border-bottom-0">Depot Name</th>
-															<th class="border-bottom-0">Region</th>
-															<th class="border-bottom-0">Zone</th>
 															<th class="border-bottom-0">Actions</th>
 														</tr>
 													</thead>
@@ -74,8 +72,6 @@
                                                           <tr>
 															  <td>{{ point_name.point_name }}</td>
 															  <td>{{ point_name.depot_name.name }}</td>
-															  <td>{{ point_name.region }}</td>
-															  <td>{{ point_name.zone }}</td>
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:point_name_edit' %}?id={{ point_name.id }}">
 																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
 															   		</a>

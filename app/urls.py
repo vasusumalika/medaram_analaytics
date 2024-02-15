@@ -54,6 +54,7 @@ urlpatterns = [
     path('spl/bus/data/entry/edit', views.spl_bus_data_entry_edit, name='spl_bus_data_entry_edit'),
     path('spl/bus/data/entry/update', views.spl_bus_data_entry_update, name='spl_bus_data_entry_update'),
     path('get/depot/vehicle/number', views.get_depot_vehicle_number, name='get_depot_vehicle_number'),
+    path('get/driver/details', views.get_driver_details, name='get_driver_details'),
 
     # path('out/depot/buses/receive/form', views.out_depot_buses_receive_form, name='out_depot_buses_receive_form'),
     path('out/depot/buses/receive/list', views.out_depot_buses_receive_list, name='out_depot_buses_receive_list'),
@@ -158,6 +159,9 @@ urlpatterns = [
 
     path('allotment/of/buses/list', views.allotment_of_buses_list, name='allotment_of_buses_list'),
     path('allotment/of/buses/import', views.allotment_of_buses_import, name='allotment_of_buses_import'),
+
+    path('driver/list', views.driver_list, name='driver_list'),
+    path('driver/import', views.driver_import, name='driver_import'),
 
     # Medaram REST API STARTS FROM HERE
     path("api/login/", views.LoginAPIView.as_view()),

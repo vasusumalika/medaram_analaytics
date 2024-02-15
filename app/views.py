@@ -9,7 +9,7 @@ from django.contrib import messages
 
 from .models import User, UserType, Depot, OperationType, Vehicle, VehicleDetails, SpecialBusDataEntry, \
     TripStatistics, OutDepotVehicleReceive, OwnDepotBusDetailsEntry, OwnDepotBusWithdraw, OutDepotVehicleSentBack, \
-    HsdOilSubmission, BusesOnHand, PointData, AllotmentOfBuses
+    HsdOilSubmission, BusesOnHand, PointData, AllotmentOfBuses, Driver
 from django.db.models import Q, Count
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -215,7 +215,7 @@ def users_list(request):
 @custom_login_required
 def user_add(request):
     if request.method == "POST":
-        name = request.POST.get('name')
+        name = request.POST.get('user_name')
         phone = request.POST.get('phone')
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -309,7 +309,7 @@ def user_edit(request):
 @custom_login_required
 def user_update(request):
     user_id = request.POST.get('id')
-    name = request.POST.get('name')
+    name = request.POST.get('user_name')
     phone = request.POST.get('phone')
     email = request.POST.get('email')
     password = request.POST.get('password')
@@ -423,12 +423,14 @@ def depot_add(request):
     if request.method == "POST":
         name = request.POST.get('name')
         depot_code = request.POST.get('depot_code')
-        buses_allotted = request.POST.get('buses_allotted')
+        depot_sno = request.POST.get('s_no')
+        region = request.POST.get('region')
+        zone = request.POST.get('zone')
         depot_status = 0
         try:
             user_data = User.objects.get(id=request.session['user_id'])
             depot = Depot.objects.create(name=name, depot_code=depot_code, status=depot_status, created_by=user_data,
-                                         buses_allotted=buses_allotted)
+                                         depot_sno=depot_sno, region=region, zone=zone)
             depot.save()
             messages.success(request, 'Depot Created Successfully')
         except Exception as e:
@@ -452,7 +454,9 @@ def depot_update(request):
     depot_id = request.POST.get('id')
     name = request.POST.get('name')
     depot_code = request.POST.get('depot_code')
-    buses_allotted = request.POST.get('buses_allotted')
+    depot_sno = request.POST.get('s_no')
+    region = request.POST.get('region')
+    zone = request.POST.get('zone')
     depot_status = 0
     if depot_id:
         try:
@@ -460,7 +464,9 @@ def depot_update(request):
             depot_data.name = name
             depot_data.depot_code = depot_code
             depot_data.status = depot_status
-            depot_data.buses_allotted = buses_allotted
+            depot_data.depot_sno = depot_sno
+            depot_data.region = region
+            depot_data.zone = zone
             user_data = User.objects.get(id=request.session['user_id'])
             depot_data.updated_by = user_data
             depot_data.save()
@@ -803,6 +809,22 @@ def spl_bus_data_entry_add(request):
     except Exception as e:
         print(e)
         return render(request, 'spl_bus_data_entry/add.html', {})
+
+
+@custom_login_required
+def get_driver_details(request):
+    staff_number = request.GET.get('staff_number')
+    driver = Driver.objects.filter(staff_number=staff_number).first()
+    if driver:
+        driver_data = {
+            'name': driver.name,
+            'phone_number': driver.phone_number
+        }
+        return JsonResponse({'driver_data': driver_data})
+    else:
+        return JsonResponse({'error': "Staffnumber has no details"}, status=400)
+
+
 
 
 @custom_login_required
@@ -1230,7 +1252,8 @@ def out_depot_buses_receive_add(request):
         out_depot_buses_receive_status = 0
         try:
             out_depot_buses_receive_unique_count = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
-            if out_depot_buses_receive_unique_count.exists():
+            own_depot_bus_details_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
+            if out_depot_buses_receive_unique_count.exists() or own_depot_bus_details_entry_unique_count.exists():
                 messages.error(request, 'Unique number already exists!!')
                 return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html',
                               {'special_bus_numbers_data': special_bus_data})
@@ -1307,7 +1330,8 @@ def own_depot_bus_details_entry_add(request):
         status = 0
         try:
             own_depot_buses_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
-            if own_depot_buses_entry_unique_count.exists():
+            out_depot_buses_receive_unique_count = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
+            if own_depot_buses_entry_unique_count.exists() or out_depot_buses_receive_unique_count.exists():
                 messages.error(request, 'Unique number already exists!!')
                 return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', )
             vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
@@ -2808,13 +2832,10 @@ def point_name_add(request):
     if request.method == "POST":
         point_name = request.POST.get('point_name')
         depot_id = request.POST.get('depot_id')
-        region = request.POST.get('region')
-        zone = request.POST.get('zone')
         point_status = 0
         try:
             depot_data = Depot.objects.get(id=depot_id)
-            point_data = PointData.objects.create(point_name=point_name, status=point_status, region=region, zone=zone,
-                                                  depot_name=depot_data)
+            point_data = PointData.objects.create(point_name=point_name, status=point_status, depot_name=depot_data)
             point_data.save()
             messages.success(request, 'Point Created Successfully')
         except Exception as e:
@@ -2851,15 +2872,11 @@ def point_name_update(request):
     point_name_id = request.POST.get('id')
     point_name = request.POST.get('point_name')
     depot_id = request.POST.get('depot_id')
-    region = request.POST.get('region')
-    zone = request.POST.get('zone')
     point_status = 0
     if point_name_id:
         try:
             point_name_data = PointData.objects.get(id=point_name_id)
             point_name_data.point_name = point_name
-            point_name_data.region = region
-            point_name_data.zone = zone
             point_name_data.status = point_status
             depot_data = Depot.objects.get(id=depot_id)
             point_name_data.depot_name = depot_data
@@ -3162,7 +3179,7 @@ def allotment_of_buses_import(request):
             df = pd.read_excel(file)
             row_iter = df.iterrows()
             for i, row in row_iter:
-                # print(row)
+                print(row)
                 try:
                     parent_depot = row[0]
                     parent_depot_data = Depot.objects.filter(name=parent_depot).first()
@@ -3193,6 +3210,44 @@ def allotment_of_buses_import(request):
 def allotment_of_buses_list(request):
     allotment_of_buses_data = AllotmentOfBuses.objects.filter(~Q(status=2))
     return render(request, 'allotment_of_buses/list.html', {"allotment_of_buses_data": allotment_of_buses_data})
+
+
+@transaction.atomic
+@custom_login_required
+def driver_import(request):
+    print("Called")
+    if request.method == "POST":
+        file = request.FILES.get('driver_list')
+        try:
+            user_data = User.objects.get(id=request.session['user_id'])
+            df = pd.read_excel(file)
+            row_iter = df.iterrows()
+            for i, row in row_iter:
+                print(row)
+                try:
+                    staff_number = row[0]
+                    driver_exist = Driver.objects.filter(Q(staff_number=staff_number)).count()
+                    if driver_exist == 0:
+                        phone_number = row[2] if not pd.isna(row[2]) else None
+                        driver = Driver.objects.create(staff_number=staff_number, name=row[1], status=0,
+                                                       created_by=user_data, phone_number=phone_number)
+                        driver.save()
+                    else:
+                        pass
+                except Exception as e:
+                    print(e)
+            return redirect("app:driver_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Driver Data import failed!!')
+        return redirect("app:driver_list")
+    return render(request, 'driver/import.html', {})
+
+
+@custom_login_required
+def driver_list(request):
+    driver_data = Driver.objects.filter(~Q(status=2))
+    return render(request, 'driver/list.html', {"driver_data": driver_data})
 
 
 # REST API STARTS FROM HERE
