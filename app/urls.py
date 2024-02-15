@@ -103,7 +103,7 @@ urlpatterns = [
 
     path('buses/on/hand/list', views.buses_on_hand_list, name='buses_on_hand_list'),
     path('buses/on/hand/add', views.buses_on_hand_add, name='buses_on_hand_add'),
-    path('buses/on/hand/edit', views.buses_on_hand_edit, name='buses_on_hand_edit'),
+    # path('buses/on/hand/edit', views.buses_on_hand_edit, name='buses_on_hand_edit'),
     path('buses/on/hand/update', views.buses_on_hand_update, name='buses_on_hand_update'),
 
     path('reports/summary/sending/buses/list', views.summary_sending_buses_list, name='summary_sending_buses_list'),
