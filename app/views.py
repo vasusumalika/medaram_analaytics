@@ -3269,15 +3269,14 @@ def dashboard_details_entry_type(request):
 
                     total_fare_passenger_amount = total_amounts['total_ticket_amount']
                     total_mhl_amount = total_amounts['mhl_adult_amount'] + total_amounts['mhl_child_amount']
-                    total_earnings = total_fare_passenger_amount + total_mhl_amount
+                    # total_earnings = total_fare_passenger_amount + total_mhl_amount
 
                     result_data.append({
                         'date': date.strftime('%Y-%m-%d'),
                         'total_passengers': total_passengers_count,
-                        'total_earnings': total_earnings,
+                        'total_earnings': total_fare_passenger_amount,
                         'total_adult_passengers': total_adult_passengers,
                         'total_child_passengers': total_child_passengers,
-                        'total_fare_passenger_amount': total_fare_passenger_amount,
                         'mhl_adult_passengers': mhl_adult_passengers,
                         'mhl_child_passengers': mhl_child_passengers,
                         'total_mhl_amount': total_mhl_amount
@@ -3308,14 +3307,13 @@ def dashboard_details_entry_type(request):
 
                     total_fare_passenger_amount = total_amounts['total_ticket_amount']
                     total_mhl_amount = total_amounts['mhl_adult_amount'] + total_amounts['mhl_child_amount']
-                    total_earnings = total_fare_passenger_amount + total_mhl_amount
+                    # total_earnings = total_fare_passenger_amount + total_mhl_amount
                     result_data.append({
                         'date': date.strftime('%Y-%m-%d'),
                         'total_passengers': total_passengers,
-                        'total_earnings': total_earnings,
+                        'total_earnings': total_fare_passenger_amount,
                         'total_adult_passengers': total_adult_passengers,
                         'total_child_passengers': total_child_passengers,
-                        'total_fare_passenger_amount': total_fare_passenger_amount,
                         'mhl_adult_passengers': mhl_adult_passengers,
                         'mhl_child_passengers': mhl_child_passengers,
                         'total_mhl_amount': total_mhl_amount
