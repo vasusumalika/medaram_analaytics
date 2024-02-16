@@ -1661,13 +1661,22 @@ def buses_on_hand_list(request):
     if len(buses_on_hand_data) > 0:
         buses_on_hand_result = []
         for buses_on_hand in buses_on_hand_data:
-            buses_in_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='in').latest(
-                'created_at')
-            buses_created_in = buses_in_data.created_at
 
-            buses_out_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='out').latest(
-                'created_at')
-            buses_created_out = buses_out_data.created_at
+            buses_in_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='in')
+            bus_in_count = buses_in_data.count()
+
+            buses_out_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='out')
+            bus_our_count = buses_out_data.count()
+
+            if bus_in_count > 0:
+                buses_in_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='in').latest(
+                    'created_at')
+                buses_created_in = buses_in_data.created_at
+
+            if bus_our_count > 0:
+                buses_out_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='out').latest(
+                    'created_at')
+                buses_created_out = buses_out_data.created_at
 
             if buses_created_in > buses_created_out:
                 buses_on_hand_result.append({
