@@ -89,67 +89,69 @@ $(function (e) {
 
 
 	// Simple Date Time Picker
-	$('#datetimepicker1').appendDtpicker({
-		closeOnSelected: true,
-		onInit: function (handler) {
-			var picker = handler.getPicker();
-			$(picker).addClass('main-datetimepicker');
-		}
-	});
+//	$('#datetimepicker1').appendDtpicker({
+//		closeOnSelected: true,
+//		onInit: function (handler) {
+//			var picker = handler.getPicker();
+//			$(picker).addClass('main-datetimepicker');
+//		}
+//	});
 	// AmazeUI Date time picker
-	$('#datetimepicker2').datetimepicker({
-		format: 'yyyy-mm-dd hh:ii',
-		autoclose: true
-	});
+//	$('#datetimepicker2').datetimepicker({
+//		format: "HH:mm",
+//		autoclose: true
+//	});
+
+
 
 	//bootstrap maxlength
-	$('input#defaultconfig').maxlength({
-		alwaysShow: true,
-		warningClass: "badge badge-xs bg-warning",
-		limitReachedClass: "badge badge-xs bg-primary"
-	});
-	$('input#thresholdConfig').maxlength({
-		threshold: 20,
-		warningClass: "badge badge-xs bg-warning",
-		limitReachedClass: "badge badge-xs bg-primary"
-	});
-	$('input#alloptions').maxlength({
-		alwaysShow: true,
-		threshold: 10,
-		separator: ' of ',
-		preText: 'You have ',
-		postText: ' chars remaining.',
-		validate: true,
-		warningClass: "badge badge-xs bg-warning",
-		limitReachedClass: "badge badge-xs bg-primary"
-	});
-	$('textarea#textarea').maxlength({
-		alwaysShow: true,
-		warningClass: "badge badge-xs bg-warning",
-		limitReachedClass: "badge badge-xs bg-primary"
-	});
-	$('input#place-top-left').maxlength({
-		alwaysShow: true,
-		placement: 'top-left',
-		warningClass: "badge badge-xs bg-warning",
-		limitReachedClass: "badge badge-xs bg-primary"
-	});
-	$('input#place-top-right').maxlength({
-		alwaysShow: true,
-		placement: 'top-right',
-		warningClass: "badge badge-xs bg-warning",
-		limitReachedClass: "badge badge-xs bg-primary"
-	});
-	$('input#place-bottom-left').maxlength({
-		alwaysShow: true,
-		placement: 'bottom-left',
-		warningClass: "badge badge-xs bg-warning",
-		limitReachedClass: "badge badge-xs bg-primary"
-	});
-	$('input#place-bottom-right').maxlength({
-		alwaysShow: true,
-		placement: 'bottom-right',
-		warningClass: "badge badge-xs bg-warning",
-		limitReachedClass: "badge badge-xs bg-primary"
-	});
+//	$('input#defaultconfig').maxlength({
+//		alwaysShow: true,
+//		warningClass: "badge badge-xs bg-warning",
+//		limitReachedClass: "badge badge-xs bg-primary"
+//	});
+//	$('input#thresholdConfig').maxlength({
+//		threshold: 20,
+//		warningClass: "badge badge-xs bg-warning",
+//		limitReachedClass: "badge badge-xs bg-primary"
+//	});
+//	$('input#alloptions').maxlength({
+//		alwaysShow: true,
+//		threshold: 10,
+//		separator: ' of ',
+//		preText: 'You have ',
+//		postText: ' chars remaining.',
+//		validate: true,
+//		warningClass: "badge badge-xs bg-warning",
+//		limitReachedClass: "badge badge-xs bg-primary"
+//	});
+//	$('textarea#textarea').maxlength({
+//		alwaysShow: true,
+//		warningClass: "badge badge-xs bg-warning",
+//		limitReachedClass: "badge badge-xs bg-primary"
+//	});
+//	$('input#place-top-left').maxlength({
+//		alwaysShow: true,
+//		placement: 'top-left',
+//		warningClass: "badge badge-xs bg-warning",
+//		limitReachedClass: "badge badge-xs bg-primary"
+//	});
+//	$('input#place-top-right').maxlength({
+//		alwaysShow: true,
+//		placement: 'top-right',
+//		warningClass: "badge badge-xs bg-warning",
+//		limitReachedClass: "badge badge-xs bg-primary"
+//	});
+//	$('input#place-bottom-left').maxlength({
+//		alwaysShow: true,
+//		placement: 'bottom-left',
+//		warningClass: "badge badge-xs bg-warning",
+//		limitReachedClass: "badge badge-xs bg-primary"
+//	});
+//	$('input#place-bottom-right').maxlength({
+//		alwaysShow: true,
+//		placement: 'bottom-right',
+//		warningClass: "badge badge-xs bg-warning",
+//		limitReachedClass: "badge badge-xs bg-primary"
+//	});
 });

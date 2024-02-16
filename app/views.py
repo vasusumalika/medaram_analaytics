@@ -1659,9 +1659,26 @@ def hsd_oil_submission_add(request):
 
 @custom_login_required
 def buses_on_hand_list(request):
-    buses_on_hand_data = BusesOnHand.objects.filter(~Q(status=2))
+
+    buses_on_hand_data = BusesOnHand.objects.values_list('unique_code', flat=True).distinct()
+    if len(buses_on_hand_data) > 0:
+        buses_on_hand_result = []
+        for buses_on_hand in buses_on_hand_data:
+            buses_in_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='in').latest(
+                'created_at')
+            buses_created_in = buses_in_data.created_at
+
+            buses_out_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='out').latest(
+                'created_at')
+            buses_created_out = buses_out_data.created_at
+
+            if buses_created_in > buses_created_out:
+                buses_on_hand_result.append({
+                    'unique_code': buses_on_hand,
+                })
+
     return render(request, 'buses_on_hand/list.html',
-                  {'buses_on_hand_data': buses_on_hand_data})
+                  {'buses_on_hand_result': buses_on_hand_result})
 
 
 @custom_login_required
@@ -1669,7 +1686,7 @@ def buses_on_hand_add(request):
     if request.method == "POST":
         unique_code = request.POST.get('unique_code')
         point_name = request.POST.get('point_name')
-        bus_in_out = request.POST.get('bus_in_out')
+        bus_in_out = 'in'
         buses_on_hand_status = 0
         try:
             out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_code)
@@ -2675,42 +2692,35 @@ def out_depot_vehicle_send_back_update(request):
         return redirect("app:out_depot_vehicle_send_back_list")
 
 
-@custom_login_required
-def buses_on_hand_edit(request):
-    buses_on_hand_id = request.GET.get('id')
-    if buses_on_hand_id:
-        buses_on_hand_data = BusesOnHand.objects.get(id=buses_on_hand_id)
-        point_name_id_list = []
-        if buses_on_hand_data.point_name:
-            point_name_id_list.append(buses_on_hand_data.point_name.id)
-    try:
-        point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
-        return render(request, 'buses_on_hand/edit.html', {"buses_on_hand_data": buses_on_hand_data,
-                                                           'point_name_data': point_name_data,
-                                                           'point_name_id_list': point_name_id_list})
-    except Exception as e:
-        print(e)
-        return render(request, 'buses_on_hand/edit.html', {})
+# @custom_login_required
+# def buses_on_hand_edit(request):
+#     buses_on_hand_id = request.GET.get('id')
+#     if buses_on_hand_id:
+#         buses_on_hand_data = BusesOnHand.objects.get(id=buses_on_hand_id)
+#         point_name_id_list = []
+#         if buses_on_hand_data.point_name:
+#             point_name_id_list.append(buses_on_hand_data.point_name.id)
+#     try:
+#         point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
+#         return render(request, 'buses_on_hand/edit.html', {"buses_on_hand_data": buses_on_hand_data,
+#                                                            'point_name_data': point_name_data,
+#                                                            'point_name_id_list': point_name_id_list})
+#     except Exception as e:
+#         print(e)
+#         return render(request, 'buses_on_hand/edit.html', {})
 
 
 @custom_login_required
 def buses_on_hand_update(request):
-    buses_on_hand_id = request.POST.get('id')
-    unique_code = request.POST.get('unique_code')
-    bus_in_out = request.POST.get('bus_in_out')
-    point_name = request.POST.get('point_name_id')
-    buses_on_hand_status = 0
+    buses_on_hand_id = request.GET.get('id')
+    # unique_code = request.POST.get('unique_code')
+    bus_in_out = 'out'
+    # point_name = request.POST.get('point_name_id')
+    # buses_on_hand_status = 0
     if buses_on_hand_id:
         try:
             buses_on_hand_data = BusesOnHand.objects.get(id=buses_on_hand_id)
-            buses_on_hand_data.unique_code = unique_code
-            point_name_data = PointData.objects.get(id=point_name)
-            buses_on_hand_data.point_name = point_name_data
             buses_on_hand_data.bus_in_out = bus_in_out
-            buses_on_hand_data.status = buses_on_hand_status
-            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_code)
-            special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
-            buses_on_hand_data.special_bus_data_entry = special_bus_data
             user_data = User.objects.get(id=request.session['user_id'])
             buses_on_hand_data.updated_by = user_data
             buses_on_hand_data.save()
