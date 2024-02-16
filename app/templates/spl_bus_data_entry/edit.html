@@ -85,7 +85,7 @@
 														<label class="form-label text-muted">Operation Type: </label>
 														<select class="form-control custom-select" id="opt_type" name="opt_type" data-placeholder="Choose Operation Type..." tabindex="-1" aria-hidden="true">
 															{% for operation_type in operation_type_data %}
-																<option value="{{ operation_type.id }}"{% if operation_type.id in bus_type_id_list %} selected{% endif %}>{{ operation_type.name }}</option>
+																<option value="{{ operation_type.id }}"{% if operation_type.id in bus_type_id_list %} selected{% endif %}>{{ operation_type.description }}</option>
 															{% endfor %}
 														</select>
 													</div>
