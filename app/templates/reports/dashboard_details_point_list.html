@@ -61,7 +61,7 @@
 																		</tr>
 																		<tr>
 																			<th class="border-bottom-0">SI NO.</th>
-																			<th class="border-bottom-0">Date</th>
+																			<th class="border-bottom-0">Point</th>
 																			<th class="border-bottom-0">Passengers</th>
                                                             				<th class="border-bottom-0">Buses</th>
 																			<th class="border-bottom-0">Passengers</th>
@@ -74,7 +74,7 @@
 																		{% for trip in dashboard_data %}
                                                           					<tr>
 																				<td>{{ forloop.counter }}</td>
-															  					<td><b><a target="_blank" style="text-decoration:underline" href="{% url 'app:dashboard_data_of_selected_date' %}?date={{ trip.date }}">{{ trip.date }}</a></b></td>
+															  					<td><b><a target="_blank" style="text-decoration:underline" href="{% url 'app:dashboard_data_of_selected_point' %}?point={{ trip.point }}">{{ trip.point }}</a></b></td>
                                                               					<td>{{ trip.passengers_left }}</td>
 															  					<td>{{ trip.buses_left }}</td>
 															  					<td>{{ trip.passengers_dispatched }}</td>

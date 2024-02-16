@@ -74,7 +74,7 @@
 																		{% for trip in dashboard_data %}
                                                           					<tr>
 																				<td>{{ forloop.counter }}</td>
-															  					<td><b><a target="_blank" style="text-decoration:underline" href="{% url 'app:dashboard_data_of_selected_date' %}?date={{ trip.date }}">{{ trip.date }}</a></b></td>
+															  					<td>{{ trip.date }}</td>
                                                               					<td>{{ trip.passengers_left }}</td>
 															  					<td>{{ trip.buses_left }}</td>
 															  					<td>{{ trip.passengers_dispatched }}</td>
@@ -105,9 +105,6 @@
 								</div>
 							</div>
 							<!-- row -->
-
-
-
 						</div>
 					</div>
 				</div>
