@@ -62,12 +62,12 @@
 																		<tr>
 																			<th class="border-bottom-0">SI NO.</th>
 																			<th class="border-bottom-0">Date</th>
+																			<th class="border-bottom-0">Buses</th>
 																			<th class="border-bottom-0">Passengers</th>
                                                             				<th class="border-bottom-0">Buses</th>
 																			<th class="border-bottom-0">Passengers</th>
 																			<th class="border-bottom-0">Buses</th>
 																			<th class="border-bottom-0">Passengers</th>
-																			<th class="border-bottom-0">Buses</th>
 																		</tr>
 																	</thead>
 																	<tbody>
@@ -75,23 +75,23 @@
                                                           					<tr>
 																				<td>{{ forloop.counter }}</td>
 															  					<td><b><a target="_blank" style="text-decoration:underline" href="{% url 'app:dashboard_data_of_selected_date' %}?date={{ trip.date }}">{{ trip.date }}</a></b></td>
-                                                              					<td>{{ trip.passengers_left }}</td>
-															  					<td>{{ trip.buses_left }}</td>
-															  					<td>{{ trip.passengers_dispatched }}</td>
+                                                              					<td>{{ trip.buses_left }}</td>
+																				<td>{{ trip.passengers_left }}</td>
 															  					<td>{{ trip.buses_dispatched }}</td>
-															  					<td>{{ trip.total_passengers_left_over }}</td>
+															  					<td>{{ trip.passengers_dispatched }}</td>
 															  					<td>{{ trip.available_buses }}</td>
+															  					<td>{{ trip.total_passengers_left_over }}</td>
 														  					</tr>
                                                         				{% endfor %}
 																		<tr>
 																			<td>Total</td>
 																			<td> - </td>
-																			<td>{{ grand_total_passengers_left }}</td>
 																			<td>{{ total_buses_left }}</td>
-																			<td>{{ grand_total_passengers_dispatched }}</td>
+																			<td>{{ grand_total_passengers_left }}</td>
 																			<td>{{ total_buses_dispatched }}</td>
-																			<td>{{ grand_total_passengers_left_over }}</td>
+																			<td>{{ grand_total_passengers_dispatched }}</td>
 																			<td>{{ total_available_buses }}</td>
+																			<td>{{ grand_total_passengers_left_over }}</td>
 																		</tr>
 																	</tbody>
 																</table>
