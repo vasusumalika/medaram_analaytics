@@ -215,6 +215,7 @@ def users_list(request):
                                                'employee_designations': settings.EMPLOYEE_DESIGNATION})
 
 
+@transaction.atomic
 @custom_login_required
 def user_add(request):
     if request.method == "POST":
@@ -309,6 +310,7 @@ def user_edit(request):
         return render(request, 'users/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def user_update(request):
     user_id = request.POST.get('id')
@@ -351,13 +353,13 @@ def user_update(request):
         return redirect("app:users_list")
 
 
-@transaction.atomic
 @custom_login_required
 def user_type_list(request):
     user_type_data = UserType.objects.filter(~Q(status=2))
     return render(request, 'user_type/list.html', {"user_type_data": user_type_data})
 
 
+@transaction.atomic
 @custom_login_required
 def user_type_add(request):
     if request.method == "POST":
@@ -390,6 +392,7 @@ def user_type_edit(request):
         return render(request, 'user_type/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def user_type_update(request):
     user_type_id = request.POST.get('id')
@@ -421,6 +424,7 @@ def depots_list(request):
     return render(request, 'depot/list.html', {"depots": depot_data})
 
 
+@transaction.atomic
 @custom_login_required
 def depot_add(request):
     if request.method == "POST":
@@ -452,6 +456,7 @@ def depot_edit(request):
     return render(request, 'depot/edit.html', {"depot": depot_data})
 
 
+@transaction.atomic
 @custom_login_required
 def depot_update(request):
     depot_id = request.POST.get('id')
@@ -489,6 +494,7 @@ def operation_type_list(request):
     return render(request, 'operation_type/list.html', {"operation_type": operation_type_data})
 
 
+@transaction.atomic
 @custom_login_required
 def operation_type_add(request):
     if request.method == "POST":
@@ -519,6 +525,7 @@ def operation_type_edit(request):
         return render(request, 'operation_type/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def operation_type_update(request):
     operation_type_id = request.POST.get('id')
@@ -550,6 +557,7 @@ def vehicle_list(request):
     return render(request, 'vehicle/list.html', {"vehicle_data": vehicle_data})
 
 
+@transaction.atomic
 @custom_login_required
 def vehicle_add(request):
     if request.method == "POST":
@@ -579,6 +587,7 @@ def vehicle_edit(request):
         return render(request, 'vehicle/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def vehicle_update(request):
     vehicle_id = request.POST.get('id')
@@ -610,6 +619,7 @@ def vehicle_details_list(request):
     return render(request, 'vehicle_details/list.html', {"vehicle_details": vehicle_details_data})
 
 
+@transaction.atomic
 @custom_login_required
 def vehicle_detail_add(request):
     if request.method == "POST":
@@ -674,6 +684,7 @@ def vehicle_detail_edit(request):
         return render(request, 'vehicle_details/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def vehicle_detail_update(request):
     vehicle_detail_id = request.POST.get('id')
@@ -878,6 +889,7 @@ def spl_bus_data_entry_edit(request):
         return render(request, 'spl_bus_data_entry/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def spl_bus_data_entry_update(request):
     spl_bus_data_entry_id = request.POST.get('id')
@@ -1033,6 +1045,7 @@ def vehicle_details_import(request):
     return render(request, 'vehicle_details/import.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def trip_start_add(request):
     if request.method == "POST":
@@ -1135,6 +1148,7 @@ def search_trip_end_form(request):
         print(e)
 
 
+@transaction.atomic
 @custom_login_required
 def trip_end_add(request):
     trip_check_id = request.POST.get('id')
@@ -1195,16 +1209,6 @@ def out_depot_buses_receive_list(request):
                   {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data})
 
 
-# @custom_login_required
-# def out_depot_buses_receive_form(request):
-#     try:
-#         special_bus_data = SpecialBusDataEntry.objects.filter(~Q(status=2))
-#         return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html',
-#                       {'special_bus_numbers_data': special_bus_data})
-#     except Exception as e:
-#         print(e)
-
-
 @custom_login_required
 def search_special_bus_data(request):
     if request.method == "POST":
@@ -1227,6 +1231,7 @@ def search_special_bus_data(request):
                   {'special_bus_data': bus_number_data, 'special_bus_numbers_data': special_bus_data})
 
 
+@transaction.atomic
 @custom_login_required
 def out_depot_buses_receive_add(request):
     if request.session['user_type'] == 'BUS RECEIVING':
@@ -1291,6 +1296,7 @@ def out_depot_buses_receive_add(request):
     # return render(request, 'out_depot_buses/out_depot_vehicle_receive/add.html', {})
 
 
+@custom_login_required
 def own_depot_bus_details_entry_list(request):
     if request.session['user_type'] == 'BUS RECEIVING':
         own_depot_bus_detail_entry_data = OwnDepotBusDetailsEntry.objects.filter(~Q(status=2)
@@ -1302,6 +1308,8 @@ def own_depot_bus_details_entry_list(request):
                   {'own_depot_bus_detail_entry_data': own_depot_bus_detail_entry_data})
 
 
+@transaction.atomic
+@custom_login_required
 def own_depot_bus_details_entry_add(request):
     # vehicle_details = VehicleDetails.objects.filter(depot=request.session['depot_id']).values('id', 'bus_number')
     if request.session['user_type'] == 'BUS RECEIVING':
@@ -1391,6 +1399,7 @@ def own_depot_bus_details_entry_edit(request):
         return render(request, 'own_depot_buses/own_depot_bus_details_entry/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def own_depot_bus_details_entry_update(request):
     own_depot_bus_details_entry_id = request.POST.get('id')
@@ -1444,6 +1453,7 @@ def own_depot_bus_details_entry_update(request):
         return redirect("app:own_depot_bus_details_entry_list")
 
 
+@custom_login_required
 def own_depot_bus_withdraw_list(request):
     if request.session['user_type'] == 'BUS RECEIVING':
         own_depot_bus_withdraw_data = OwnDepotBusWithdraw.objects.filter(~Q(status=2) &
@@ -1455,6 +1465,8 @@ def own_depot_bus_withdraw_list(request):
                   {'own_depot_bus_withdraw_data': own_depot_bus_withdraw_data})
 
 
+@transaction.atomic
+@custom_login_required
 def own_depot_bus_withdraw_add(request):
     if request.method == "POST":
         bus_number = request.POST.get('bus_number')
@@ -1503,6 +1515,7 @@ def own_depot_bus_withdraw_edit(request):
         return render(request, 'own_depot_buses/own_depot_bus_withdraw/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def own_depot_bus_withdraw_update(request):
     own_depot_bus_withdraw_id = request.POST.get('id')
@@ -1536,6 +1549,7 @@ def out_depot_vehicle_send_back_list(request):
                   {'out_depot_vehicle_send_back_data': out_depot_vehicle_send_back_data})
 
 
+@transaction.atomic
 @custom_login_required
 def out_depot_vehicle_send_back_add(request):
     if request.method == "POST":
@@ -1588,6 +1602,7 @@ def out_depot_vehicle_send_back_add(request):
         return render(request, 'out_depot_buses/out_depot_vehicle_send_back/add.html', {})
 
 
+@custom_login_required
 def hsd_oil_submission_list(request):
     hsd_oil_submission_data = HsdOilSubmission.objects.filter(~Q(status=2))
     return render(request, 'hsd_oil_submission/list.html',
@@ -1627,6 +1642,7 @@ def search_unique_no_bus_no_special_bus_data(request):
         return redirect("app:hsd_oil_submission_add")
 
 
+@transaction.atomic
 @custom_login_required
 def hsd_oil_submission_add(request):
     if request.method == "POST":
@@ -1693,6 +1709,7 @@ def buses_on_hand_list(request):
                   {'buses_on_hand_result': buses_on_hand_result})
 
 
+@transaction.atomic
 @custom_login_required
 def buses_on_hand_add(request):
     if request.method == "POST":
@@ -2103,6 +2120,7 @@ def search_depot_list(request):
                                                                           "performance_depot_result": performance_depot_result})
 
 
+@custom_login_required
 def display_operating_depot_list(request):
     operating_depot_name = request.GET.get('id')
     depot = Depot.objects.get(id=operating_depot_name)
@@ -2155,6 +2173,7 @@ def display_operating_depot_list(request):
                   {'depot_name': depot_name, 'operating_details': operating_details})
 
 
+@custom_login_required
 def status_return_back_buses_list(request):
     status_return_back_buses = []
     status_return_back_buses_list = OutDepotVehicleReceive.objects.values_list('out_depot_bus_reporting_depot',
@@ -2646,6 +2665,7 @@ def out_depot_vehicle_receive_edit(request):
         return render(request, 'out_depot_buses/out_depot_vehicle_receive/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def out_depot_vehicle_receive_update(request):
     out_depot_vehicle_receive_id = request.POST.get('id')
@@ -2711,6 +2731,7 @@ def out_depot_vehicle_send_back_edit(request):
         return render(request, 'out_depot_buses/out_depot_vehicle_send_back/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def out_depot_vehicle_send_back_update(request):
     out_depot_vehicle_send_back_id = request.POST.get('id')
@@ -2757,6 +2778,7 @@ def out_depot_vehicle_send_back_update(request):
 #         return render(request, 'buses_on_hand/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def buses_on_hand_update(request):
     buses_on_hand_id = request.GET.get('id')
@@ -2795,6 +2817,7 @@ def hsd_oil_submission_edit(request):
         return render(request, 'hsd_oil_submission/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def hsd_oil_submission_update(request):
     hsd_oil_submission_id = request.POST.get('id')
@@ -2868,6 +2891,7 @@ def point_data_list(request):
     return render(request, 'point_data/list.html', {"point_name_data": point_data})
 
 
+@custom_login_required
 def validate_log_sheet(request):
     log_sheet_no = request.GET.get('log_sheet_no')
     try:
@@ -2886,6 +2910,7 @@ def get_out_depot_vehicle_receive_bus_number(request):
     return JsonResponse({'bus_number': special_bus_data.bus_number.bus_number})
 
 
+@transaction.atomic
 @custom_login_required
 def point_name_add(request):
     if request.method == "POST":
@@ -2926,6 +2951,7 @@ def point_name_edit(request):
         return render(request, 'point_data/edit.html', {})
 
 
+@transaction.atomic
 @custom_login_required
 def point_name_update(request):
     point_name_id = request.POST.get('id')
@@ -2950,6 +2976,7 @@ def point_name_update(request):
         return redirect("app:point_data_list")
 
 
+@custom_login_required
 def dashboard_overall_data_list(request):
     result_data = []
     start_date_str = '2024-02-01'
@@ -3029,6 +3056,7 @@ def dashboard_overall_data_list(request):
                                                                    'total_available_buses': total_available_buses})
 
 
+@custom_login_required
 def dashboard_data_of_selected_date(request):
     date = request.GET.get('date')
     trip_data = TripStatistics.objects.filter(trip_start__date=date)
@@ -3114,6 +3142,7 @@ def dashboard_data_of_selected_date(request):
                                                                              total_available_buses})
 
 
+@custom_login_required
 def dashboard_data_of_selected_point(request):
     point_name = request.GET.get('point')
     if point_name:
@@ -3200,6 +3229,7 @@ def dashboard_data_of_selected_point(request):
         return render(request, 'reports/dashboard_details_dates_list.html', {})
 
 
+@custom_login_required
 def dashboard_details_entry_type(request):
     point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name='Thadvai'))
     result_data = []
@@ -3349,6 +3379,7 @@ def create_user(request):
         return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
 
+@custom_login_required
 def show_profile(request):
     user_data = User.objects.filter(Q(id=request.session['user_id']))
     if user_data:
