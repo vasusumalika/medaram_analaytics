@@ -152,9 +152,10 @@ urlpatterns = [
     path('point_data/update', views.point_name_update, name='point_name_update'),
 
     path('reports/dashboard/details/overall/data', views.dashboard_overall_data_list, name='dashboard_overall_data_list'),
-    # path('reports/dashboard/data/selected/date', views.dashboard_data_of_selected_date,
-    #      name='dashboard_data_of_selected_date'),
-    # path('reports/dashboard/details/list', views.dashboard_details_list, name='dashboard_details_list'),
+    path('reports/dashboard/data/selected/date', views.dashboard_data_of_selected_date,
+         name='dashboard_data_of_selected_date'),
+    path('reports/dashboard/data/selected/point', views.dashboard_data_of_selected_point,
+         name='dashboard_data_of_selected_point'),
     path('reports/dashboard/details/entry/type/list', views.dashboard_details_entry_type,
          name='dashboard_details_entry_type'),
 

@@ -2908,6 +2908,12 @@ def dashboard_overall_data_list(request):
     start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
     end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
     dates_list = list(rrule(DAILY, dtstart=start_date, until=end_date))
+    grand_total_passengers_left = 0
+    total_buses_left = 0
+    grand_total_passengers_dispatched = 0
+    total_buses_dispatched = 0
+    grand_total_passengers_left_over = 0
+    total_available_buses = 0
     for date in dates_list:
         total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
             start_to_location__point_name='Thadvai').filter(trip_start__date=date).aggregate(
@@ -2945,6 +2951,13 @@ def dashboard_overall_data_list(request):
 
             available_buses = no_of_buses_left - no_of_buses_dispatched
 
+            grand_total_passengers_left = grand_total_passengers_left + total_passengers_left
+            total_buses_left = total_buses_left + no_of_buses_left
+            grand_total_passengers_dispatched = grand_total_passengers_dispatched + total_passengers_dispatched
+            total_buses_dispatched = total_buses_dispatched + no_of_buses_dispatched
+            grand_total_passengers_left_over = grand_total_passengers_left_over + total_passengers_left_over
+            total_available_buses = total_available_buses + available_buses
+
             result_data.append({
                 'date': date.strftime('%Y-%m-%d'),
                 'total_passengers_left_over': total_passengers_left_over,
@@ -2955,7 +2968,187 @@ def dashboard_overall_data_list(request):
                 'buses_dispatched': no_of_buses_dispatched,
             })
 
-    return render(request, 'reports/dashboard_details_list.html', {'dashboard_data': result_data})
+    return render(request, 'reports/dashboard_details_list.html', {'dashboard_data': result_data,
+                                                                   'grand_total_passengers_left':
+                                                                       grand_total_passengers_left,
+                                                                   'total_buses_left': total_buses_left,
+                                                                   'grand_total_passengers_dispatched':
+                                                                       grand_total_passengers_dispatched,
+                                                                   'total_buses_dispatched': total_buses_dispatched,
+                                                                   'grand_total_passengers_left_over':
+                                                                       grand_total_passengers_left_over,
+                                                                   'total_available_buses': total_available_buses})
+
+
+def dashboard_data_of_selected_date(request):
+    date = request.GET.get('date')
+    trip_data = TripStatistics.objects.filter(trip_start__date=date)
+    point_names = set()
+    for trip_statistic in trip_data:
+        if trip_statistic.start_to_location.point_name != 'Thadvai':
+            point_names.add(trip_statistic.start_to_location.point_name)
+        if trip_statistic.start_from_location.point_name != 'Thadvai':
+            point_names.add(trip_statistic.start_from_location.point_name)
+    point_names_list = list(point_names)
+    result_data = []
+    grand_total_passengers_left = 0
+    total_buses_left = 0
+    grand_total_passengers_dispatched = 0
+    total_buses_dispatched = 0
+    grand_total_passengers_left_over = 0
+    total_available_buses = 0
+    for point in point_names_list:
+        total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
+            start_to_location__point_name='Thadvai').filter(
+                start_from_location__point_name=point).filter(trip_start__date=date).aggregate(
+            total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+            mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+            mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+        )
+
+        total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
+            trip_start__date=date).filter(start_to_location__point_name=point).filter(
+            start_from_location__point_name='Thadvai').aggregate(
+            total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+            mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+            mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+        )
+
+        if any(total_passengers_up.values()) or any(total_passengers_down.values()):
+            total_passengers_left = total_passengers_up['total_adult_passengers'] + total_passengers_up[
+                'total_child_passengers'] + total_passengers_up['mhl_adult_passengers'] + \
+                                    total_passengers_up['mhl_child_passengers']
+
+            no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
+                start_to_location__point_name='Thadvai').filter(start_from_location__point_name=point).count()
+
+            total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
+                'total_child_passengers'] + total_passengers_down['mhl_adult_passengers'] + \
+                                        total_passengers_down['mhl_child_passengers']
+
+            no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
+                .filter(start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point).count()
+
+            total_passengers_left_over = total_passengers_left - total_passengers_dispatched
+
+            available_buses = no_of_buses_left - no_of_buses_dispatched
+
+            grand_total_passengers_left = grand_total_passengers_left + total_passengers_left
+            total_buses_left = total_buses_left + no_of_buses_left
+            grand_total_passengers_dispatched = grand_total_passengers_dispatched + total_passengers_dispatched
+            total_buses_dispatched = total_buses_dispatched + no_of_buses_dispatched
+            grand_total_passengers_left_over = grand_total_passengers_left_over + total_passengers_left_over
+            total_available_buses = total_available_buses + available_buses
+
+            result_data.append({
+                'point': point,
+                'total_passengers_left_over': total_passengers_left_over,
+                'available_buses': available_buses,
+                'passengers_left': total_passengers_left,
+                'buses_left': no_of_buses_left,
+                'passengers_dispatched': total_passengers_dispatched,
+                'buses_dispatched': no_of_buses_dispatched,
+            })
+    return render(request, 'reports/dashboard_details_point_list.html', {'dashboard_data': result_data,
+                                                                         'grand_total_passengers_left':
+                                                                             grand_total_passengers_left,
+                                                                         'total_buses_left': total_buses_left,
+                                                                         'grand_total_passengers_dispatched':
+                                                                             grand_total_passengers_dispatched,
+                                                                         'total_buses_dispatched':
+                                                                             total_buses_dispatched,
+                                                                         'grand_total_passengers_left_over':
+                                                                             grand_total_passengers_left_over,
+                                                                         'total_available_buses':
+                                                                             total_available_buses})
+
+
+def dashboard_data_of_selected_point(request):
+    point_name = request.GET.get('point')
+    if point_name:
+        result_data = []
+        start_date_str = '2024-02-01'
+        end_date_str = '2024-03-16'
+        start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        dates_list = list(rrule(DAILY, dtstart=start_date, until=end_date))
+        grand_total_passengers_left = 0
+        total_buses_left = 0
+        grand_total_passengers_dispatched = 0
+        total_buses_dispatched = 0
+        grand_total_passengers_left_over = 0
+        total_available_buses = 0
+        for date in dates_list:
+            total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
+                start_to_location__point_name='Thadvai').filter(
+                start_from_location__point_name=point_name).filter(trip_start__date=date).aggregate(
+                total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+                mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+                mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+            )
+
+            total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
+                trip_start__date=date).filter(
+                start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point_name).aggregate(
+                total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+                mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+                mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+            )
+
+            if any(total_passengers_up.values()) or any(total_passengers_down.values()):
+                total_passengers_left = total_passengers_up['total_adult_passengers'] + total_passengers_up[
+                    'total_child_passengers'] + total_passengers_up['mhl_adult_passengers'] + \
+                                        total_passengers_up['mhl_child_passengers']
+
+                no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
+                    start_to_location__point_name='Thadvai').filter(start_from_location__point_name=point_name).count()
+
+                total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
+                    'total_child_passengers'] + total_passengers_down['mhl_adult_passengers'] + \
+                                              total_passengers_down['mhl_child_passengers']
+
+                no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
+                    .filter(start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point_name). \
+                    count()
+
+                total_passengers_left_over = total_passengers_left - total_passengers_dispatched
+
+                available_buses = no_of_buses_left - no_of_buses_dispatched
+
+                grand_total_passengers_left = grand_total_passengers_left + total_passengers_left
+                total_buses_left = total_buses_left + no_of_buses_left
+                grand_total_passengers_dispatched = grand_total_passengers_dispatched + total_passengers_dispatched
+                total_buses_dispatched = total_buses_dispatched + no_of_buses_dispatched
+                grand_total_passengers_left_over = grand_total_passengers_left_over + total_passengers_left_over
+                total_available_buses = total_available_buses + available_buses
+
+                result_data.append({
+                    'date': date.strftime('%Y-%m-%d'),
+                    'total_passengers_left_over': total_passengers_left_over,
+                    'available_buses': available_buses,
+                    'passengers_left': total_passengers_left,
+                    'buses_left': no_of_buses_left,
+                    'passengers_dispatched': total_passengers_dispatched,
+                    'buses_dispatched': no_of_buses_dispatched,
+                })
+        return render(request, 'reports/dashboard_details_dates_list.html', {'dashboard_data': result_data,
+                                                                             'grand_total_passengers_left':
+                                                                                 grand_total_passengers_left,
+                                                                             'total_buses_left': total_buses_left,
+                                                                             'grand_total_passengers_dispatched':
+                                                                                 grand_total_passengers_dispatched,
+                                                                             'total_buses_dispatched':
+                                                                                 total_buses_dispatched,
+                                                                             'grand_total_passengers_left_over':
+                                                                                 grand_total_passengers_left_over,
+                                                                             'total_available_buses':
+                                                                                 total_available_buses})
+    else:
+        return render(request, 'reports/dashboard_details_dates_list.html', {})
 
 
 def dashboard_details_entry_type(request):
@@ -3092,7 +3285,7 @@ def create_user(request):
             # encrypted_password = ast.literal_eval(user.password)
             decrypted_password = cipher_suite.decrypt(user.password).decode()
             user_data = {
-                'email': user.email,
+                'name': user.name,
                 'password': decrypted_password,
                 'phone': user.phone_number
             }
@@ -3216,6 +3409,10 @@ def driver_import(request):
         try:
             user_data = User.objects.get(id=request.session['user_id'])
             df = pd.read_excel(file)
+
+            df['Phone Number'] = df['Phone Number'].apply(
+                lambda x: str(int(x)) if not pd.isna(x) and isinstance(x, float) else x)
+
             row_iter = df.iterrows()
             for i, row in row_iter:
                 print(row)
@@ -3223,7 +3420,7 @@ def driver_import(request):
                     staff_number = row[0]
                     driver_exist = Driver.objects.filter(Q(staff_number=staff_number)).count()
                     if driver_exist == 0:
-                        phone_number = row[2] if not pd.isna(row[2]) else None
+                        phone_number = str(row[2] if not pd.isna(row[2]) else None)
                         driver = Driver.objects.create(staff_number=staff_number, name=row[1], status=0,
                                                        created_by=user_data, phone_number=phone_number)
                         driver.save()
