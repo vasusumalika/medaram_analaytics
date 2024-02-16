@@ -106,13 +106,13 @@ DATABASES = {
 
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 
-        'NAME': 'medaram_analaytics_db',
+        'NAME': 'medaram_analytics',
 
-        'USER': 'medaram_analaytics_db',
+        'USER': 'postgres',
 
-        'PASSWORD': 'bvQrozq2X3AWIyNEPT7ENxG92BAOwiIr',
+        'PASSWORD': 'X52BRhUVgJxiWepS8amc',
 
-        'HOST': 'dpg-cmuesbug1b2c73ehm3fg-a.singapore-postgres.render.com',
+        'HOST': 'database-1.ctcyyu8okyxs.ap-south-1.rds.amazonaws.com',
 
         'PORT': '5432',
 
