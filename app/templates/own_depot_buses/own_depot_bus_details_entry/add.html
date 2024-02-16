@@ -73,12 +73,17 @@
 														<span id="validationMessage" style="color: red;"></span>
 													</div>
 
-
-                                                    <div class="form-group col-md-6">
-                                                        <label class="form-label" for="bus_type">Bus Type</label>
-                                                        <input type="text" id="bus_type" name="bus_type" class="form-control" required>
-                                                    </div>
-
+												   	<div class="form-group col-md-6">
+                                                    	<label class="form-label" for="opt_type">Operation Type</label>
+                                                    	<select class="form-control custom-select" name="opt_type" id="opt_type" required>
+                                                     		<option value="">Select Option</option>
+                                                        		{% for operation_type in operation_type_data %}
+                                                            		<option value="{{ operation_type.description }}">
+                                                                		{{ operation_type.description }}
+                                                                	</option>
+                                                            	{% endfor %}
+                                                    	</select>
+													</div>
 
                                                     <div class="form-group col-md-6">
                                                     <label class="form-label" for="log_sheet_no">New Log Sheet Number:</label>
@@ -103,15 +108,14 @@
 												</div>
 
 												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="driver1_phone_number">Driver1 Phone Number</label>
-                                                    <input type="text" id="driver1_phone_number" name="driver1_phone_number" class="form-control" required  pattern="[0-9]{10}" title="Phone number must be 10 digits">
-												</div>
-
-
-												<div class="form-group col-md-6">
                                                     <label class="form-label" for="driver1_staff_no">Driver1 Staff Number</label>
                                                     <input type="text" id="driver1_staff_no" name="driver1_staff_no" class="form-control" required pattern="^\d{1,6}$" title="Accepting Length Limit: upto 6." oninput="validateDriverStaffNumberInput('driver1_staff_no', 'validate_info_1')">
 													<span id="validate_info_1" style="color: red;"></span>
+												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver1_phone_number">Driver1 Phone Number</label>
+                                                    <input type="text" id="driver1_phone_number" name="driver1_phone_number" class="form-control" required  pattern="[0-9]{10}" title="Phone number must be 10 digits">
 												</div>
 
 												</div>

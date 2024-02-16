@@ -1314,7 +1314,7 @@ def own_depot_bus_details_entry_add(request):
     if request.method == "POST":
         bus_number = request.POST.get('bus_number')
         unique_no = request.POST.get('unique_no')
-        bus_type = request.POST.get('bus_type')
+        bus_type = request.POST.get('opt_type')
         log_sheet_no = request.POST.get('log_sheet_no')
         driver1_name = request.POST.get('driver1_name')
         driver1_phone_number = request.POST.get('driver1_phone_number')
@@ -1365,8 +1365,9 @@ def own_depot_bus_details_entry_add(request):
         messages.error(request, "No bus numbers left to entry and withdraw.")
         return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html', {})
     try:
+        operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'own_depot_buses/own_depot_bus_details_entry/add.html',
-                      {'vehicle_details': vehicle_details})
+                      {'vehicle_details': vehicle_details, 'operation_type_data': operation_type_data})
     except Exception as e:
         print(e)
 
@@ -1380,9 +1381,11 @@ def own_depot_bus_details_entry_edit(request):
         if own_depot_bus_details_entry_data.bus_number:
             bus_number_list.append(own_depot_bus_details_entry_data.bus_number.bus_number)
         vehicle_details = VehicleDetails.objects.filter(depot=request.session['depot_id']).values('id', 'bus_number')
+        operation_type_data = OperationType.objects.filter(Q(status=0) | Q(status=1))
         return render(request, 'own_depot_buses/own_depot_bus_details_entry/edit.html',
                       {"own_depot_bus_details_entry_data": own_depot_bus_details_entry_data,
-                       'bus_number_list': bus_number_list, 'vehicle_details': vehicle_details})
+                       'bus_number_list': bus_number_list, 'vehicle_details': vehicle_details,
+                       'operation_type_data': operation_type_data})
     else:
         return render(request, 'own_depot_buses/own_depot_bus_details_entry/edit.html', {})
 
@@ -2888,76 +2891,61 @@ def point_name_update(request):
         return redirect("app:point_data_list")
 
 
-def dashboard_details_list(request):
-    point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name='Thadvai'))
+def dashboard_overall_data_list(request):
     result_data = []
-    if request.method == "POST":
-        point_name = request.POST.get('point_name_id')
-        start_date_str = '2024-02-01'
-        end_date_str = '2024-03-16'
-        start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
-        end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
-        dates_list = list(rrule(DAILY, dtstart=start_date, until=end_date))
-        total_passengers = 0
-        total_buses = 0
-        for date in dates_list:
-            total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
-                start_to_location__point_name='Thadvai').filter(
-                start_from_location__point_name=point_name).filter(trip_start__date=date).aggregate(
-                total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-                mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-                mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
-            )
+    start_date_str = '2024-02-01'
+    end_date_str = '2024-03-16'
+    start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+    end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    dates_list = list(rrule(DAILY, dtstart=start_date, until=end_date))
+    for date in dates_list:
+        total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
+            start_to_location__point_name='Thadvai').filter(trip_start__date=date).aggregate(
+            total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+            mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+            mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+        )
 
-            total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
-                trip_start__date=date).filter(
-                start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point_name).aggregate(
-                total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-                mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-                mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
-            )
+        total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
+            trip_start__date=date).filter(
+            start_from_location__point_name='Thadvai').aggregate(
+            total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+            mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+            mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+        )
 
-            if any(total_passengers_up.values()) or any(total_passengers_down.values()):
-                total_passengers_left = total_passengers_up['total_adult_passengers'] + total_passengers_up[
-                    'total_child_passengers'] + total_passengers_up['mhl_adult_passengers'] + \
-                                        total_passengers_up['mhl_child_passengers']
+        if any(total_passengers_up.values()) or any(total_passengers_down.values()):
+            total_passengers_left = total_passengers_up['total_adult_passengers'] + total_passengers_up[
+                'total_child_passengers'] + total_passengers_up['mhl_adult_passengers'] + \
+                                    total_passengers_up['mhl_child_passengers']
 
-                no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
-                    start_to_location__point_name='Thadvai').filter(start_from_location__point_name=point_name).count()
+            no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
+                start_to_location__point_name='Thadvai').count()
 
-                total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
-                    'total_child_passengers'] + total_passengers_down['mhl_adult_passengers'] + \
-                                              total_passengers_down['mhl_child_passengers']
+            total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
+                'total_child_passengers'] + total_passengers_down['mhl_adult_passengers'] + \
+                                            total_passengers_down['mhl_child_passengers']
 
-                no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
-                    .filter(start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point_name). \
-                    count()
+            no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
+                .filter(start_from_location__point_name='Thadvai').count()
 
-                total_passengers_left_over = total_passengers_left - total_passengers_dispatched
+            total_passengers_left_over = total_passengers_left - total_passengers_dispatched
 
-                available_buses = no_of_buses_left - no_of_buses_dispatched
+            available_buses = no_of_buses_left - no_of_buses_dispatched
 
-                total_passengers = total_passengers + total_passengers_left_over
-                total_buses = total_buses + available_buses
+            result_data.append({
+                'date': date.strftime('%Y-%m-%d'),
+                'total_passengers_left_over': total_passengers_left_over,
+                'available_buses': available_buses,
+                'passengers_left': total_passengers_left,
+                'buses_left': no_of_buses_left,
+                'passengers_dispatched': total_passengers_dispatched,
+                'buses_dispatched': no_of_buses_dispatched,
+            })
 
-                result_data.append({
-                    'date': date.strftime('%Y-%m-%d'),
-                    'total_passengers_left_over': total_passengers_left_over,
-                    'available_buses': available_buses,
-                    'passengers_left': total_passengers_left,
-                    'buses_left': no_of_buses_left,
-                    'passengers_dispatched': total_passengers_dispatched,
-                    'buses_dispatched': no_of_buses_dispatched,
-                })
-
-        return render(request, 'reports/dashboard_details_list.html', {'point_names': point_names,
-                                                                       'dashboard_data': result_data,
-                                                                       'total_passengers': total_passengers,
-                                                                       'total_buses': total_buses})
-    else:
-        return render(request, 'reports/dashboard_details_list.html', {'point_names': point_names})
+    return render(request, 'reports/dashboard_details_list.html', {'dashboard_data': result_data})
 
 
 def dashboard_details_entry_type(request):
