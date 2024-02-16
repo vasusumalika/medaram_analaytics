@@ -325,7 +325,7 @@
 									</li>
 								{% endif %}
 
-								{% if request.session.user_type == 'OFFICERS' or request.session.user_type == 'Super_admin' %}
+								{% if request.session.user_type == 'OFFICERS' or request.session.user_type == 'Super_admin' or request.session.user_type == 'ALL STAFF' %}
 
 									<li class="slide">
 										<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
