@@ -71,9 +71,50 @@
                                                             </div>
 													{% endif %}
 
-												{% else %}
+												{% elif request.session.user_type == 'PSG UP THADVAI' %}
 
-                                                          <div class="row row-sm">
+                                                       <div class="row row-sm">
+                                                              <div class="col-md-4">
+                                                                  <label for="validationCustom04" class="form-label">From</label>
+                                                                  <select class="form-select custom-select" id="entry_type"  name="entry_type" required>
+                                                                        <option value="">Select Option</option>
+                                                                        <option value="up">Up</option>
+                                                                        <option value="down">Down</option>
+                                                                  </select>
+                                                               </div>
+
+
+                                                              <div class="col-md-4">
+                                                                  <label for="validationCustom04" class="form-label">From</label>
+                                                                  <select class="form-select custom-select" id="start_from_location"  name="start_from_location" required>
+                                                                        <option value="">Select Option</option>
+                                                                        {% for point in point_data %}
+                                                                            <option value="{{ point.point_name }}">
+                                                                                {{ point.point_name }}
+                                                                            </option>
+                                                                        {% endfor %}
+                                                                  </select>
+                                                               </div>
+
+                                                               <div class="col-md-4">
+                                                                  <label for="validationCustom04" class="form-label">To</label>
+                                                                  <select class="form-select custom-select" id="start_to_location"  name="start_to_location" required>
+                                                                        <option value="">Select Option</option>
+                                                                        {% for point in point_data %}
+                                                                            <option value="{{ point.point_name }}">
+                                                                                {{ point.point_name }}
+                                                                            </option>
+                                                                        {% endfor %}
+                                                                  </select>
+                                                               </div>
+
+
+                                                          </div>
+                                                         <br>
+
+											    {% else %}
+
+											         <div class="row row-sm">
                                                               <div class="col-md-4">
                                                                   <label class="form-label" >Journey:</label>
                                                                   <input class="form-control mb-4" name="entry_type" value="down" type="text" readonly>
@@ -96,9 +137,15 @@
                                                                   </select>
                                                                </div>
 
-                                                          </div>
+                                                      </div>
 
-                                               {% endif %}
+
+                                                {% endif %}
+
+
+
+
+
 
 
 												<div class="form-group col-md-6">

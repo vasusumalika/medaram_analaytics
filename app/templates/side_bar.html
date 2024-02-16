@@ -291,7 +291,7 @@
 										</a>
 										<ul class="slide-menu">
 
-											{% if request.session.user_type == 'PSG ENTRY UP' or request.session.user_type == 'PSG ENTRY DOWN' or request.session.user_type == 'Super_admin' %}
+											{% if request.session.user_type == 'PSG ENTRY UP' or request.session.user_type == 'PSG ENTRY DOWN' or request.session.user_type == 'Super_admin' or request.session.user_type == 'PSG UP THADVAI' %}
 
 												<li><a class="slide-item" href="{% url 'app:trip_start_add'%}">Trip Start</a></li>
 											{% endif %}
