@@ -156,6 +156,7 @@ urlpatterns = [
          name='dashboard_data_of_selected_date'),
     path('reports/dashboard/data/selected/point', views.dashboard_data_of_selected_point,
          name='dashboard_data_of_selected_point'),
+
     path('reports/dashboard/details/entry/type/list', views.dashboard_details_entry_type,
          name='dashboard_details_entry_type'),
 
