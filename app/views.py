@@ -1659,10 +1659,9 @@ def hsd_oil_submission_add(request):
 
 @custom_login_required
 def buses_on_hand_list(request):
-
+    buses_on_hand_result = []
     buses_on_hand_data = BusesOnHand.objects.values_list('unique_code', flat=True).distinct()
     if len(buses_on_hand_data) > 0:
-        buses_on_hand_result = []
         for buses_on_hand in buses_on_hand_data:
 
             buses_in_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='in')
