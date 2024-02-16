@@ -78,11 +78,17 @@
                                                     <input type="text" id="unique_no"  value="{{own_depot_bus_details_entry_data.unique_no}}" name="unique_no" class="form-control" readonly>
 												</div>
 
-
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="bus_type">Bus Type</label>
-                                                    <input type="text" id="bus_type"  value="{{own_depot_bus_details_entry_data.bus_type}}" name="bus_type" class="form-control" required>
+												<div class="col-sm-12 col-md-12 col-xl-6">
+													<div class="form-group">
+														<label class="form-label text-muted">Operation Type:</label>
+														<select class="form-control custom-select" id="opt_type" name="opt_type" data-placeholder="Choose Operation Type..." tabindex="-1" aria-hidden="true" required>
+															{% for operation_type in operation_type_data %}
+																<option value="{{ operation_type.description }}"{% if operation_type.description == own_depot_bus_details_entry_data.bus_type %} selected{% endif %}>{{ operation_type.description }}</option>
+															{% endfor %}
+														</select>
+													</div>
 												</div>
+
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="log_sheet_no">Log Sheet No</label>
