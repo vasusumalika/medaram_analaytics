@@ -2,7 +2,7 @@ name: CICD
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
 
 jobs:
   build-and-deploy:
@@ -11,20 +11,20 @@ jobs:
           id-token: write # This is required for requesting the JWT
           contents: read # This is required for actions/checkout
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-      - name: Configure AWS Credentials
+   #   - name: Checkout source
+   #     uses: actions/checkout@v3
+   #   - name: Configure AWS Credentials
+   #     uses: aws-actions/configure-aws-credentials@v3
+   #     with:
+   #        role-to-assume: arn:aws:iam::022608205880:role/github_actions_role_poc #change to reflect your IAM role’s ARN
+   #        role-session-name: github_actions_role_poc
+   #        aws-region: 'us-west-2'
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-           role-to-assume: arn:aws:iam::022608205880:role/github_actions_role_poc #change to reflect your IAM role’s ARN
-           role-session-name: github_actions_role_poc
-           aws-region: 'us-west-2'
-   #   - name: Configure AWS credentials
-   #    uses: aws-actions/configure-aws-credentials@v3
-   #     with:
-   #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-   #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-   #      aws-region: 'us-west-2'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'ap-south-1'
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -36,7 +36,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
-          REPOSITORY: reactapp-dev
+          REPOSITORY: medaram
         run: |
           # Build a docker container and
           # push it to ECR so that it can
@@ -55,13 +55,13 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: quizz
+          container-name: medaram
           image: ${{ steps.build-image.outputs.image }}    
      
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: quizzapp
-          cluster: Reactapp-Dev
+          service: updated
+          cluster: django
           wait-for-service-stability: true    
