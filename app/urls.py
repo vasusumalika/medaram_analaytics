@@ -128,6 +128,9 @@ urlpatterns = [
          name='buses_sending_back_list'),
 
     path('reports/search/handling/bus/details/list', views.search_handling_bus_details_list, name='search_handling_bus_details_list'),
+    path('reports/search/handling/bus/count/list', views.handling_bus_count,
+         name='handling_bus_count'),
+
     path('reports/display/unique/no/crew/details', views.display_unique_no_crew_details, name='display_unique_no_crew_details'),
     path('reports/display/bus/no/crew/details', views.display_bus_no_crew_details,
          name='display_bus_no_crew_details'),

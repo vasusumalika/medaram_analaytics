@@ -64,6 +64,7 @@
 													<div>
 														<button type="submit" class="btn btn-primary">Search</button>
 													</div>
+
 												</div>
 														</div>
 													</div>
@@ -76,46 +77,93 @@
 										<div class="card-body">
 											<form class="form-horizontal row" action="#" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
+                                               {% for out_depot_vehicle in out_depot_vehicle_receive_data %}
 
-                                                <div class="form-group col-md-6">
-                                                    <label class="form-label">Alloted Depot Name</label>
-                                                    <input type="text" class="form-control" value="{{special_bus_data.special_bus_reporting_depot.name}}" readonly>
-												</div>
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label">Alloted Depot Name</label>
+                                                        <input type="text" class="form-control" value="{{out_depot_vehicle.special_bus_data_entry.special_bus_reporting_depot.name}}" readonly>
+                                                    </div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label">Bus Type</label>
-                                                    <input type="text" class="form-control" value="{{special_bus_data.bus_type.name}}" readonly>
-												</div>
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label">Bus Type</label>
+                                                        <input type="text" class="form-control" value="{{out_depot_vehicle.special_bus_data_entry.bus_type.name}}" readonly>
+                                                    </div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label">Bus Number</label>
-                                                    <input type="text" id="out_depo_bus_number" class="form-control" value="{{special_bus_data.bus_number.bus_number}}" readonly>
-												</div>
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label">Bus Number</label>
+                                                        <input type="text" id="out_depo_bus_number" name = 'bus_numer' class="form-control" value="{{out_depot_vehicle.special_bus_data_entry.bus_number.bus_number}}" readonly>
+                                                    </div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" >New Log Sheet Number</label>
-                                                    <input type="text" class="form-control" value="{{special_bus_data.log_sheet_no}}" readonly>
-												</div>
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" >New Log Sheet Number</label>
+                                                        <input type="text" class="form-control" value="{{out_depot_vehicle.special_bus_data_entry.log_sheet_no}}" readonly>
+                                                    </div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" >Driver-1 Name</label>
-                                                    <input type="text" class="form-control" value="{{special_bus_data.driver1_name}}" readonly>
-												</div>
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" >Driver-1 Name</label>
+                                                        <input type="text" class="form-control" value="{{out_depot_vehicle.special_bus_data_entry.driver1_name}}" readonly>
+                                                    </div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" >Driver-1 Phone no</label>
-                                                    <input type="text" class="form-control" value="{{special_bus_data.driver1_phone_number}}" readonly>
-												</div>
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" >Driver-1 Phone no</label>
+                                                        <input type="text" class="form-control" value="{{out_depot_vehicle.special_bus_data_entry.driver1_phone_number}}" readonly>
+                                                    </div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" >Driver-2 Name</label>
-                                                    <input type="text" class="form-control" value="{{special_bus_data.driver2_name}}" readonly>
-												</div>
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" >Driver-2 Name</label>
+                                                        <input type="text" class="form-control" value="{{out_depot_vehicle.special_bus_data_entry.driver2_name}}" readonly>
+                                                    </div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" >Driver-2 Phone no</label>
-                                                    <input type="text" class="form-control" value="{{special_bus_data.driver2_phone_number}}" readonly>
-												</div>
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" >Driver-2 Phone no</label>
+                                                        <input type="text" class="form-control" value="{{out_depot_vehicle.special_bus_data_entry.driver2_phone_number}}" readonly>
+                                                    </div>
+											 {% endfor %}
+
+
+											 {% for own_depot_vehicle in own_depot_vehicle_receive_data %}
+
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label">Alloted Depot Name</label>
+                                                        <input type="text" class="form-control" value="{{own_depot_vehicle.bus_number.depot.name}}" readonly>
+                                                    </div>
+
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label">Bus Type</label>
+                                                        <input type="text" class="form-control" value="{{own_depot_vehicle.bus_type}}" readonly>
+                                                    </div>
+
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label">Bus Number</label>
+                                                        <input type="text" id="out_depo_bus_number" class="form-control" name = 'bus_numer' value="{{own_depot_vehicle.bus_number.bus_number}}" readonly>
+                                                    </div>
+
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" >New Log Sheet Number</label>
+                                                        <input type="text" class="form-control" value="{{own_depot_vehicle.log_sheet_no}}" readonly>
+                                                    </div>
+
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" >Driver-1 Name</label>
+                                                        <input type="text" class="form-control" value="{{own_depot_vehicle.driver1_name}}" readonly>
+                                                    </div>
+
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" >Driver-1 Phone no</label>
+                                                        <input type="text" class="form-control" value="{{own_depot_vehicle.driver1_phone_number}}" readonly>
+                                                    </div>
+
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" >Driver-2 Name</label>
+                                                        <input type="text" class="form-control" value="{{own_depot_vehicle.driver2_name}}" readonly>
+                                                    </div>
+
+                                                    <div class="form-group col-md-6">
+                                                        <label class="form-label" >Driver-2 Phone no</label>
+                                                        <input type="text" class="form-control" value="{{own_depot_vehicle.driver2_phone_number}}" readonly>
+                                                    </div>
+											 {% endfor %}
+
 
 											</form>
 										</div>
@@ -125,9 +173,7 @@
 										<div class="card-body">
 											<form class="form-horizontal row" action="{% url 'app:hsd_oil_submission_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
-												<input type="hidden" id="hsd_oil_bus_number" name="hsd_oil_bus_number" value="{{special_bus_data.bus_number.bus_number}}">
-
-												<input type="hidden" id="unique_bus_no" name="unique_bus_no" value="{{unique_bus_no}}">
+												<input type="text" id="unique_bus_no" name="unique_bus_no" value="{{unique_bus_no}}">
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="point_name">Point Name</label>

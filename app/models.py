@@ -215,7 +215,7 @@ class OutDepotVehicleReceive(models.Model):
                                                       related_name="out_depot_bus_reporting_depot", null=True,
                                                       blank=True)
     unique_no = models.CharField(max_length=256, null=True, blank=True)
-    new_log_sheet_no = models.IntegerField()
+    new_log_sheet_no = models.CharField(max_length=256, null=True, blank=True)
     hsd_top_oil_liters = models.IntegerField()
     mts_no = models.IntegerField()
     bus_reported_date = models.DateField(null=True, blank=True)
@@ -380,8 +380,7 @@ class HsdOilSubmission(models.Model):
     hsd_liters = models.IntegerField(null=True, blank=True)
     unique_no_bus_no = models.CharField(max_length=256, null=True, blank=True)
     point_name = models.CharField(max_length=256, null=True, blank=True)
-    special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,
-                                               related_name="hsd_oil_submission_special_bus")
+    is_bus_number = models.BooleanField(default=False, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE,
@@ -407,10 +406,11 @@ class HsdOilSubmission(models.Model):
 class BusesOnHand(models.Model):
     point_name = models.ForeignKey(PointData, on_delete=models.CASCADE, related_name="buses_on_hand_point_data",
                                    null=True, blank=True)
+    bus_number = models.ForeignKey(VehicleDetails, on_delete=models.CASCADE, related_name="buses_on_hand_vehicle",
+                                   null=True, blank=True)
+
     unique_code = models.CharField(max_length=256, null=True, blank=True)
     bus_in_out = models.CharField(max_length=256, null=True, blank=True)
-    special_bus_data_entry = models.ForeignKey(SpecialBusDataEntry, on_delete=models.CASCADE,
-                                               related_name="buses_on_hand_special_bus")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE,

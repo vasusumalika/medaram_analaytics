@@ -106,13 +106,13 @@ DATABASES = {
 
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 
-        'NAME': 'medaram_analytics',
+        'NAME': 'medaram_analaytics_db',
 
-        'USER': 'postgres',
+        'USER': 'medaram_analaytics_db',
 
-        'PASSWORD': 'X52BRhUVgJxiWepS8amc',
+        'PASSWORD': 'bvQrozq2X3AWIyNEPT7ENxG92BAOwiIr',
 
-        'HOST': 'database-1.ctcyyu8okyxs.ap-south-1.rds.amazonaws.com',
+        'HOST': 'dpg-cmuesbug1b2c73ehm3fg-a.singapore-postgres.render.com',
 
         'PORT': '5432',
 
@@ -173,9 +173,9 @@ STATICFILES_DIRS = [
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# STATIC_ROOT = os.path.join(BASE_DIR, "static")
+#
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

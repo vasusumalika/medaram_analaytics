@@ -351,6 +351,7 @@
 											<li><a class="slide-item" href="{% url 'app:dashboard_details_entry_type'%}">Dashboard with Entry Type</a></li>
 											<li><a class="slide-item" href="{% url 'app:search_hour_wise_dispatched_buses_list'%}">Hour Wise Dispatched Buses</a></li>
 											<li><a class="slide-item" href="{% url 'app:search_handling_bus_details_list'%}">Idling Bus Details</a></li>
+											<li><a class="slide-item" href="{% url 'app:handling_bus_count'%}">Buses on parking count</a></li>
 											<li><a class="slide-item" href="{% url 'app:search_bus_details'%}">Search Bus Details</a></li>
 											<li><a class="slide-item" href="{% url 'app:search_route_wise_buses_to_list'%}">Buses Towards Medaram</a></li>
 											<li><a class="slide-item" href="{% url 'app:search_route_wise_buses_from_list'%}">Buses From Medaram</a></li>
@@ -359,6 +360,56 @@
 										</ul>
 									</li>
 								{% endif %}
+
+
+
+								{% if request.session.user_type == 'BUS RECEIVING'%}
+
+									<li class="slide">
+										<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
+											<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+											<span class="side-menu__label">Reports</span>
+											<i class="angle fa fa-angle-right"></i>
+										</a>
+										<ul class="slide-menu">
+											<li><a class="slide-item" href="{% url 'app:summary_sending_buses_list'%}">Summary of Sending Buses</a></li>
+										</ul>
+									</li>
+								{% endif %}
+
+
+								{% if request.session.user_type == 'PARENT DEPOT'%}
+
+									<li class="slide">
+										<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
+											<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+											<span class="side-menu__label">Reports</span>
+											<i class="angle fa fa-angle-right"></i>
+										</a>
+										<ul class="slide-menu">
+											<li><a class="slide-item" href="{% url 'app:summary_sending_buses_list'%}">Summary of Sending Buses</a></li>
+											<li><a class="slide-item" href="{% url 'app:search_bus_details'%}">Search Bus Details</a></li>
+										</ul>
+									</li>
+								{% endif %}
+
+
+								{% if request.session.user_type == 'PARKING'%}
+									<li class="slide">
+										<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
+											<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+											<span class="side-menu__label">DMS Dash Board</span>
+											<i class="angle fa fa-angle-right"></i>
+										</a>
+										<ul class="slide-menu">
+											<li><a class="slide-item" href="{% url 'app:search_handling_bus_details_list'%}">Idling Bus Details</a></li>
+											<li><a class="slide-item" href="{% url 'app:handling_bus_count'%}">Buses on parking count</a></li>
+											<li><a class="slide-item" href="{% url 'app:search_bus_details'%}">Search Bus Details</a></li>
+
+										</ul>
+									</li>
+								{% endif %}
+
 
 
 
@@ -456,14 +507,21 @@
 	<script>
 		$(function(){
 			var current = location.pathname;
-
-			var currentPath = current.split('/').slice(0, -1).join('/');
-
+			console.log(current);
+			if(current.includes("dashboard")){
+				var currentPath = current;
+			}else{
+				var currentPath = current.split('/').slice(0, -1).join('/');
+			}
 			$('.main-sidemenu li a').each(function(){
 				var $this = $(this);
 				console.log(currentPath);
+				if($this.attr('href').includes("dashboard")){
+					var hrefPath = $this.attr('href');
+				}else{
+					var hrefPath = $this.attr('href').split('/').slice(0, -1).join('/');
+				}
 
-				var hrefPath = $this.attr('href').split('/').slice(0, -1).join('/');
 				console.log(hrefPath);
 				// if the current path is like this link, make it active
 				if(currentPath == hrefPath){

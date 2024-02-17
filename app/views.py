@@ -1617,27 +1617,32 @@ def hsd_oil_submission_form(request):
 @custom_login_required
 def search_unique_no_bus_no_special_bus_data(request):
     if request.method == "POST":
+        out_depot_vehicle_receive_data = []
+        own_depot_vehicle_receive_data = []
         unique_no_bus_no = request.POST.get('unique_no_bus_no')
         if unique_no_bus_no.isdigit():
             try:
-                out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_no_bus_no)
-                special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
-                return render(request, 'hsd_oil_submission/add.html', {'special_bus_data': special_bus_data,
-                                                                       'unique_bus_no': unique_no_bus_no})
+                out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(unique_no=unique_no_bus_no)
+                own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no_bus_no)
             except Exception as e:
                 print(e)
                 messages.error(request, 'Unique number not matching please try again')
                 return redirect("app:hsd_oil_submission_add")
         else:
+            out_depot_vehicle_receive_data = []
+            own_depot_vehicle_receive_data = []
             try:
-                vehicle_details = VehicleDetails.objects.get(bus_number=unique_no_bus_no)
-                special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_details)
-                return render(request, 'hsd_oil_submission/add.html', {'special_bus_data': special_bus_data,
-                                                                       'unique_bus_no': unique_no_bus_no})
+                bus_data = VehicleDetails.objects.get(bus_number=unique_no_bus_no)
+                out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(bus_number=bus_data)
+                own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(bus_number=bus_data)
             except Exception as e:
                 print(e)
                 messages.error(request, 'Bus number not matching please try again')
                 return redirect("app:hsd_oil_submission_add")
+        return render(request, 'hsd_oil_submission/add.html',
+                      {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data,
+                       'unique_bus_no': unique_no_bus_no,
+                       'own_depot_vehicle_receive_data': own_depot_vehicle_receive_data})
     else:
         return redirect("app:hsd_oil_submission_add")
 
@@ -1654,10 +1659,14 @@ def hsd_oil_submission_add(request):
         shift = request.POST.get('shift')
         hsd_oil_submission_status = 0
         try:
-            vehicle_detail_data = VehicleDetails.objects.get(bus_number=bus_number)
-            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail_data)
+            pattern = r'^[A-Z]{2}\d{2}[A-Z]\d{4}$'
+            if re.match(pattern, unique_no_bus_no):
+                is_bus_number = True
+            else:
+                is_bus_number = False
+
             user_data = User.objects.get(id=request.session['user_id'])
-            hsd_oil_submission_detail = HsdOilSubmission.objects.create(special_bus_data_entry=special_bus_data,
+            hsd_oil_submission_detail = HsdOilSubmission.objects.create(is_bus_number=is_bus_number,
                                                                         hsd_liters=hsd_liters,
                                                                         mts_no=mts_no, point_name=point_name,
                                                                         created_by=user_data,
@@ -1737,14 +1746,20 @@ def buses_on_hand_add(request):
             if buses_created_in is not None and (buses_created_out is None or buses_created_out <= buses_created_in):
                 messages.error(request, 'Already bus in parking please check')
                 return redirect("app:buses_on_hand_add")
-            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_code)
-            special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
+
+            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(unique_no=unique_code).first()
+            own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_code).first()
+
+            if out_depot_vehicle_receive_data:
+                bus_number = out_depot_vehicle_receive_data.bus_number
+            else:
+                bus_number = own_depot_vehicle_receive_data.bus_number
+
             point_name_data = PointData.objects.get(id=point_name)
             user_data = User.objects.get(id=request.session['user_id'])
             buses_on_hand_detail = BusesOnHand.objects.create(unique_code=unique_code, status=buses_on_hand_status,
-                                                              special_bus_data_entry=special_bus_data,
-                                                              created_by=user_data, bus_in_out=bus_in_out,
-                                                              point_name=point_name_data)
+                                                              created_by=user_data, bus_number=bus_number,
+                                                              bus_in_out=bus_in_out, point_name=point_name_data)
             buses_on_hand_detail.save()
             messages.success(request, 'Buses on hand Details saved Successfully')
         except Exception as e:
@@ -1762,30 +1777,42 @@ def buses_on_hand_add(request):
 @custom_login_required
 def summary_sending_buses_list(request):
     summary_depot_result = []
-    summary_depot_data = Depot.objects.filter(~Q(status=2))
-    for summary_depot in summary_depot_data:
-        no_of_buses_allotted = summary_depot.buses_allotted
-        no_of_buses_dispatched = SpecialBusDataEntry.objects.filter(special_bus_sending_depot=summary_depot).count()
-        if summary_depot.buses_allotted != 0:
-            no_of_buses_due = summary_depot.buses_allotted - no_of_buses_dispatched
+    allotment_buses_data = AllotmentOfBuses.objects.filter(~Q(status=2)).filter(parent_depot__isnull=False).filter(
+        operating_depot__isnull=False)
+    for allotment_buses in allotment_buses_data:
+
+        no_of_buses_allotted = allotment_buses.no_of_buses
+
+        no_of_buses_dispatched = SpecialBusDataEntry.objects.filter(
+            special_bus_sending_depot=allotment_buses.parent_depot) \
+            .filter(special_bus_reporting_depot=allotment_buses.operating_depot).count()
+        if no_of_buses_allotted != 0:
+            no_of_buses_due = no_of_buses_allotted - no_of_buses_dispatched
         else:
             no_of_buses_due = 0
 
-        no_of_buses_reached = OutDepotVehicleReceive.objects.filter(out_depot_bus_sending_depot=summary_depot).count()
+        no_of_buses_reached = OutDepotVehicleReceive.objects.filter(
+            out_depot_bus_sending_depot=allotment_buses.parent_depot) \
+            .filter(out_depot_bus_reporting_depot=allotment_buses.operating_depot).count()
 
         if no_of_buses_dispatched != 0:
             no_of_buses_not_reached = no_of_buses_dispatched - no_of_buses_reached
         else:
             no_of_buses_not_reached = 0
 
+        no_of_buses_sent_back = OutDepotVehicleSentBack.objects.filter(
+            special_bus_data_entry__special_bus_sending_depot=allotment_buses.parent_depot) \
+            .filter(special_bus_data_entry__special_bus_reporting_depot=allotment_buses.operating_depot).count()
+
         summary_depot_result.append({
-            'depot_id': summary_depot.id,
-            'depot_name': summary_depot.name,
+            'parent_depot': allotment_buses.parent_depot.name,
+            'operating_depot': allotment_buses.operating_depot.name,
             'buses_allotted': no_of_buses_allotted,
             'buses_dispatched': no_of_buses_dispatched,
             'buses_due': no_of_buses_due,
             'buses_reached': no_of_buses_reached,
             'buses_not_reached': no_of_buses_not_reached,
+            'no_of_buses_sent_back': no_of_buses_sent_back
         })
     return render(request, 'reports/summary_sending_buses_list.html',
                   {'summary_depot_result': summary_depot_result})
@@ -1951,62 +1978,40 @@ def search_depot_list(request):
                                 filter_condition).filter(
                                 start_from_location=point_data).aggregate(
                                 total_ticket_amount_sum=Coalesce(Sum('total_ticket_amount'), 0),
-                                mhl_adult_amount_sum=Coalesce(Sum('mhl_adult_amount'), 0),
-                                mhl_child_amount_sum=Coalesce(Sum('mhl_child_amount'), 0)
                             )
 
                             total_earnings_down = TripStatistics.objects.filter(entry_type='down').filter(
                                 filter_condition).filter(
                                 start_to_location=point_data).aggregate(
                                 total_ticket_amount_sum=Coalesce(Sum('total_ticket_amount'), 0),
-                                mhl_adult_amount_sum=Coalesce(Sum('mhl_adult_amount'), 0),
-                                mhl_child_amount_sum=Coalesce(Sum('mhl_child_amount'), 0)
                             )
 
                             total_passenger_up = TripStatistics.objects.filter(entry_type='up').filter(
                                 filter_condition).filter(
                                 start_from_location=point_data).aggregate(
                                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-                                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-                                mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-                                mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+                                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
                             )
 
                             total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
                                 filter_condition).filter(
                                 start_to_location=point_data).aggregate(
                                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-                                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-                                mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-                                mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+                                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
                             )
 
                             total_passengers = {
                                 'total_adult_passengers': total_passenger_up['total_adult_passengers'] +
-                                                          total_passengers_down[
-                                                              'total_adult_passengers'],
+                                                          total_passengers_down['total_adult_passengers'],
                                 'total_child_passengers': total_passenger_up['total_child_passengers'] +
-                                                          total_passengers_down[
-                                                              'total_child_passengers'],
-                                'mhl_adult_passengers': total_passenger_up['mhl_adult_passengers'] +
-                                                        total_passengers_down[
-                                                            'mhl_adult_passengers'],
-                                'mhl_child_passengers': total_passenger_up['mhl_child_passengers'] +
-                                                        total_passengers_down[
-                                                            'mhl_child_passengers']
+                                                          total_passengers_down['total_child_passengers']
                             }
 
                             total_passenger_count = total_passengers['total_adult_passengers'] + total_passengers[
-                                'total_child_passengers'] + \
-                                                    total_passengers['mhl_adult_passengers'] + total_passengers[
-                                                        'mhl_child_passengers']
+                                'total_child_passengers']
 
-                            total_earnings_count = total_earnings_up['total_ticket_amount_sum'] + total_earnings_up[
-                                'mhl_adult_amount_sum'] + total_earnings_up['mhl_child_amount_sum'] + \
-                                                   total_earnings_down[
-                                                       'total_ticket_amount_sum'] + total_earnings_down[
-                                                       'mhl_adult_amount_sum'] + \
-                                                   total_earnings_down['mhl_child_amount_sum']
+                            total_earnings_count = total_earnings_up['total_ticket_amount_sum'] + \
+                                                   total_earnings_down['total_ticket_amount_sum']
 
                             performance_depot_result.append({
                                 'point_name': point_data.point_name,
@@ -2050,32 +2055,24 @@ def search_depot_list(request):
 
                             total_earnings_up = TripStatistics.objects.filter(entry_type='up').filter(
                                 start_from_location=point_data).aggregate(
-                                total_ticket_amount_sum=Coalesce(Sum('total_ticket_amount'), 0),
-                                mhl_adult_amount_sum=Coalesce(Sum('mhl_adult_amount'), 0),
-                                mhl_child_amount_sum=Coalesce(Sum('mhl_child_amount'), 0)
+                                total_ticket_amount_sum=Coalesce(Sum('total_ticket_amount'), 0)
                             )
 
                             total_earnings_down = TripStatistics.objects.filter(entry_type='down').filter(
                                 start_to_location=point_data).aggregate(
-                                total_ticket_amount_sum=Coalesce(Sum('total_ticket_amount'), 0),
-                                mhl_adult_amount_sum=Coalesce(Sum('mhl_adult_amount'), 0),
-                                mhl_child_amount_sum=Coalesce(Sum('mhl_child_amount'), 0)
+                                total_ticket_amount_sum=Coalesce(Sum('total_ticket_amount'), 0)
                             )
 
                             total_passenger_up = TripStatistics.objects.filter(entry_type='up').filter(
                                 start_from_location=point_data).aggregate(
                                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-                                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-                                mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-                                mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+                                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
                             )
 
                             total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
                                 start_to_location=point_data).aggregate(
                                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-                                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-                                mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-                                mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+                                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
                             )
 
                             total_passengers = {
@@ -2084,26 +2081,14 @@ def search_depot_list(request):
                                                               'total_adult_passengers'],
                                 'total_child_passengers': total_passenger_up['total_child_passengers'] +
                                                           total_passengers_down[
-                                                              'total_child_passengers'],
-                                'mhl_adult_passengers': total_passenger_up['mhl_adult_passengers'] +
-                                                        total_passengers_down[
-                                                            'mhl_adult_passengers'],
-                                'mhl_child_passengers': total_passenger_up['mhl_child_passengers'] +
-                                                        total_passengers_down[
-                                                            'mhl_child_passengers']
+                                                              'total_child_passengers']
                             }
 
                             total_passenger_count = total_passengers['total_adult_passengers'] + total_passengers[
-                                'total_child_passengers'] + \
-                                                    total_passengers['mhl_adult_passengers'] + total_passengers[
-                                                        'mhl_child_passengers']
+                                'total_child_passengers']
 
-                            total_earnings_count = total_earnings_up['total_ticket_amount_sum'] + total_earnings_up[
-                                'mhl_adult_amount_sum'] + total_earnings_up['mhl_child_amount_sum'] + \
-                                                   total_earnings_down[
-                                                       'total_ticket_amount_sum'] + total_earnings_down[
-                                                       'mhl_adult_amount_sum'] + \
-                                                   total_earnings_down['mhl_child_amount_sum']
+                            total_earnings_count = total_earnings_up['total_ticket_amount_sum'] + \
+                                                   total_earnings_down['total_ticket_amount_sum']
 
                             performance_depot_result.append({
                                 'point_name': point_data.point_name,
@@ -2216,37 +2201,59 @@ def search_handling_bus_details_list(request):
         buses_on_hand_data = BusesOnHand.objects.filter(point_name=point_name).values_list('unique_code',
                                                                                            flat=True).distinct()
         if len(buses_on_hand_data) > 0:
+
             for buses_on_hand in buses_on_hand_data:
 
-                buses_in_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='in').latest(
-                    'created_at')
-                buses_created_in = buses_in_data.created_at
-                entry_time_in = buses_created_in.astimezone(indian_timezone)
-                check_time = entry_time_in.strftime("%H:%M:%S %p %Z")
-                entry_time_present_date = datetime.datetime.now(
-                    datetime.timezone(datetime.timedelta(hours=5, minutes=30)))
-                time_difference = entry_time_present_date - entry_time_in
-                hours_difference = time_difference.total_seconds() / 3600
 
-                buses_out_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).filter(bus_in_out='out').latest(
-                    'created_at')
-                buses_created_out = buses_out_data.created_at
 
-                if buses_created_in > buses_created_out:
+
+                bus_in_count = BusesOnHand.objects.filter(point_name=point_name).filter(
+                    unique_code=buses_on_hand).filter(
+                    bus_in_out='in').count()
+                bus_out_count = BusesOnHand.objects.filter(point_name=point_name).filter(
+                    unique_code=buses_on_hand).filter(
+                    bus_in_out='out').count()
+
+                buses_created_in = None  # Initialize these variables outside of the conditional blocks
+                buses_created_out = None
+
+                if bus_in_count > 0:
+                    buses_in_data = BusesOnHand.objects.filter(point_name=point_name).filter(
+                        unique_code=buses_on_hand).filter(bus_in_out='in').latest(
+                        'created_at')
+                    buses_created_in = buses_in_data.created_at
+                    entry_time_in = buses_created_in.astimezone(indian_timezone)
+                    check_time = entry_time_in.strftime("%H:%M:%S %p %Z")
+                    entry_time_present_date = datetime.datetime.now(
+                        datetime.timezone(datetime.timedelta(hours=5, minutes=30)))
+                    time_difference = entry_time_present_date - entry_time_in
+                    hours_difference = time_difference.total_seconds() / 3600
+
+                if bus_out_count > 0:
+                    buses_out_data = BusesOnHand.objects.filter(point_name=point_name).filter(
+                        unique_code=buses_on_hand).filter(bus_in_out='out').latest(
+                        'created_at')
+                    buses_created_out = buses_out_data.created_at
+
+                if buses_created_in is not None and (buses_created_out is None or buses_created_in > buses_created_out):
                     if int(hours_difference) >= int(select_time_range):
                         unique_code = buses_on_hand
 
-                        parent_depot = OutDepotVehicleReceive.objects.get(
-                            special_bus_data_entry=buses_in_data.special_bus_data_entry)
-                        parent_depot_name = parent_depot.out_depot_bus_sending_depot.name
-                        bus_number = parent_depot.bus_number.bus_number
-                        alloted_depot_name = parent_depot.out_depot_bus_reporting_depot.name
+                        # parent_depot = OutDepotVehicleReceive.objects.get(
+                        #     special_bus_data_entry=buses_in_data.special_bus_data_entry)
+                        # parent_depot_name = parent_depot.out_depot_bus_sending_depot.name
+                        # bus_number = parent_depot.bus_number.bus_number
+                        # alloted_depot_name = parent_depot.out_depot_bus_reporting_depot.name
+
+                        bus_number = []
+
+                        unique_data = BusesOnHand.objects.get(unique_code=buses_on_hand)
+                        if unique_data.bus_number is not None:
+                            bus_number = VehicleDetails.objects.get(bus_number=unique_data.bus_number.bus_number)
 
                         point_names_result.append({
                             'unique_code': unique_code,
-                            'parent_depot_name': parent_depot_name,
                             'bus_number': bus_number,
-                            'alloted_depot_name': alloted_depot_name,
                             'check_time': check_time,
                             'hours_difference': round(hours_difference)
                         })
@@ -2258,6 +2265,62 @@ def search_handling_bus_details_list(request):
     else:
         return render(request, 'reports/handling_bus_details.html',
                       {'point_names': point_names})
+
+
+@custom_login_required
+def handling_bus_count(request):
+    point_names_result = []
+    buses_on_hand_point = BusesOnHand.objects.values_list('point_name', flat=True).distinct()
+    if len(buses_on_hand_point) > 0:
+        for buses_on_point in buses_on_hand_point:
+            pointName = PointData.objects.get(id=buses_on_point)
+            buses_on_hand_data = BusesOnHand.objects.filter(point_name=buses_on_point).values_list('unique_code',
+                                                                                                   flat=True).distinct()
+            if len(buses_on_hand_data) > 0:
+                uni_count = 0
+                for buses_on_hand in buses_on_hand_data:
+                    try:
+                        bus_in_count = BusesOnHand.objects.filter(point_name=buses_on_point).filter(
+                            unique_code=buses_on_hand).filter(
+                            bus_in_out='in').count()
+                        bus_out_count = BusesOnHand.objects.filter(point_name=buses_on_point).filter(
+                            unique_code=buses_on_hand).filter(
+                            bus_in_out='out').count()
+
+                        buses_created_in = None  # Initialize these variables outside of the conditional blocks
+                        buses_created_out = None
+
+                        if bus_in_count > 0:
+                            buses_in_data = BusesOnHand.objects.filter(point_name=buses_on_point).filter(
+                                unique_code=buses_on_hand).filter(
+                                bus_in_out='in').latest(
+                                'created_at')
+                            buses_created_in = buses_in_data.created_at
+
+                        if bus_out_count > 0:
+                            buses_out_data = BusesOnHand.objects.filter(point_name=buses_on_point).filter(
+                                unique_code=buses_on_hand).filter(
+                                bus_in_out='out').latest(
+                                'created_at')
+                            buses_created_out = buses_out_data.created_at
+
+                        if buses_created_in is not None and (
+                                buses_created_out is None or buses_created_in > buses_created_out):
+                            uni_count += 1
+                    except Exception as e:
+                        print(buses_on_hand)
+                        print(e)
+            else:
+                uni_count = 0
+            point_names_result.append({
+                'point_name': pointName.point_name,
+                'uni_count': uni_count
+            })
+        return render(request, 'reports/handling_bus_count.html',
+                      {'point_names_result': point_names_result})
+    else:
+        return render(request, 'reports/handling_bus_count.html',
+                      {'point_names_result': point_names_result})
 
 
 @custom_login_required
@@ -2285,14 +2348,19 @@ def search_bus_details(request):
         pattern_numeric = r'^\d+$'
         if re.match(pattern, unique_bus_no):
             bus_data = VehicleDetails.objects.get(bus_number=unique_bus_no)
-            bus_number_crew_details = OutDepotVehicleReceive.objects.filter(bus_number=bus_data).first()
+            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(bus_number=bus_data)
+            own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(bus_number=bus_data)
+
             return render(request, 'reports/search_bus_details.html',
-                          {'search_bus_details_info': bus_number_crew_details})
+                          {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data,
+                           'own_depot_vehicle_receive_data': own_depot_vehicle_receive_data})
         if re.match(pattern_numeric, unique_bus_no):
             print(unique_bus_no)
-            unique_number_crew_details = OutDepotVehicleReceive.objects.filter(unique_no=unique_bus_no).first()
+            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(unique_no=unique_bus_no)
+            own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_bus_no)
             return render(request, 'reports/search_bus_details.html',
-                          {'search_bus_details_info': unique_number_crew_details})
+                          {'out_depot_vehicle_receive_data': out_depot_vehicle_receive_data,
+                           'own_depot_vehicle_receive_data': own_depot_vehicle_receive_data})
     else:
         return render(request, 'reports/search_bus_details.html', {})
 
@@ -2549,9 +2617,9 @@ def search_hour_wise_dispatched_buses_list(request):
                         'total_passg': total_passengers_count,
                         'total_earnings': total_earnings_count,
                         "start_time": '{:02d}'.format(start.time().hour) + ':' + '{:02d}'.format(
-                            start.time().minute) + ':' + '{:02d}'.format(start.time().second),
+                            start.time().minute),
                         "end_time": '{:02d}'.format(end.time().hour) + ':' + '{:02d}'.format(
-                            end.time().minute) + ':' + ':59'
+                            end.time().minute)
                     })
             else:
                 trip_point_data = TripStatistics.objects.filter(entry_type=entry_type).filter(
@@ -2596,11 +2664,10 @@ def search_hour_wise_dispatched_buses_list(request):
                         'total_passg': total_passengers_count,
                         'total_earnings': total_earnings_count,
                         "start_time": '{:02d}'.format(
-                            start.time().hour) + ':' + '{:02d}'.format(start.time().minute) + ':' + '{:02d}'.format(
-                            start.time().second),
+                            start.time().hour) + ':' + '{:02d}'.format(start.time().minute),
 
                         "end_time": '{:02d}'.format(end.time().hour) + ':' + '{:02d}'.format(
-                            end.time().minute) + ':' + ':59'
+                            end.time().minute)
 
                     })
 
@@ -2787,12 +2854,19 @@ def buses_on_hand_update(request):
             bus_data = BusesOnHand.objects.get(id=buses_on_hand_id)
             unique_code = bus_data.unique_code
             bus_in_out = 'out'
-            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=bus_data.unique_code)
-            special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
             point_name_data = PointData.objects.get(id=bus_data.point_name.id)
             user_data = User.objects.get(id=request.session['user_id'])
+
+            out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.filter(unique_no=unique_code).first()
+            own_depot_vehicle_receive_data = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_code).first()
+
+            if out_depot_vehicle_receive_data:
+                bus_number = out_depot_vehicle_receive_data.bus_number
+            else:
+                bus_number = own_depot_vehicle_receive_data.bus_number
+
             buses_on_hand_detail = BusesOnHand.objects.create(unique_code=unique_code,
-                                                              special_bus_data_entry=special_bus_data,
+                                                              bus_number=bus_number,
                                                               created_by=user_data, bus_in_out=bus_in_out,
                                                               point_name=point_name_data)
             buses_on_hand_detail.save()
@@ -2821,7 +2895,6 @@ def hsd_oil_submission_edit(request):
 @custom_login_required
 def hsd_oil_submission_update(request):
     hsd_oil_submission_id = request.POST.get('id')
-    bus_number = request.POST.get('hsd_oil_bus_number')
     hsd_liters = request.POST.get('hsd_top_oil_liters')
     mts_no = request.POST.get('mts_no')
     point_name = request.POST.get('point_name')
@@ -2836,9 +2909,6 @@ def hsd_oil_submission_update(request):
             hsd_oil_submission_data.hsd_liters = hsd_liters
             hsd_oil_submission_data.mts_no = mts_no
             hsd_oil_submission_data.status = hsd_oil_submission_status
-            vehicle_detail_data = VehicleDetails.objects.get(bus_number=bus_number)
-            special_bus_data = SpecialBusDataEntry.objects.get(bus_number=vehicle_detail_data)
-            hsd_oil_submission_data.special_bus_data_entry = special_bus_data
             hsd_oil_submission_data.shift = shift
             user_data = User.objects.get(id=request.session['user_id'])
             hsd_oil_submission_data.updated_by = user_data
@@ -3077,7 +3147,7 @@ def dashboard_data_of_selected_date(request):
     for point in point_names_list:
         total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
             start_to_location__point_name='Thadvai').filter(
-                start_from_location__point_name=point).filter(trip_start__date=date).aggregate(
+            start_from_location__point_name=point).filter(trip_start__date=date).aggregate(
             total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
             total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
             mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
@@ -3103,7 +3173,7 @@ def dashboard_data_of_selected_date(request):
 
             total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
                 'total_child_passengers'] + total_passengers_down['mhl_adult_passengers'] + \
-                                        total_passengers_down['mhl_child_passengers']
+                                          total_passengers_down['mhl_child_passengers']
 
             no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
                 .filter(start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point).count()
