@@ -17,7 +17,6 @@ from django.contrib.messages import constants as messages
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -27,8 +26,7 @@ SECRET_KEY = 'django-insecure-*@zef-$nd5kp(-mmk_2d@0up)-*ojj01w+%_=7lz=)@!5i@8q(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*','medaram-analytics.onrender.com']
-
+ALLOWED_HOSTS = ['*', 'medaram-analytics.onrender.com']
 
 # Application definition
 
@@ -74,7 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'medaram_analytics.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -99,7 +96,6 @@ WSGI_APPLICATION = 'medaram_analytics.wsgi.application'
 # }
 
 
-
 DATABASES = {
 
     'default': {
@@ -120,7 +116,6 @@ DATABASES = {
 
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -139,7 +134,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -152,7 +146,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = False
-
 
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-secondary',
