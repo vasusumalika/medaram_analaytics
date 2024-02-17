@@ -1737,6 +1737,7 @@ def buses_on_hand_add(request):
             if buses_created_in is not None and (buses_created_out is None or buses_created_out <= buses_created_in):
                 messages.error(request, 'Already bus in parking please check')
                 return redirect("app:buses_on_hand_add")
+
             out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(unique_no=unique_code)
             special_bus_data = out_depot_vehicle_receive_data.special_bus_data_entry
             point_name_data = PointData.objects.get(id=point_name)
@@ -2994,31 +2995,33 @@ def dashboard_overall_data_list(request):
         total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
             start_to_location__point_name='Thadvai').filter(trip_start__date=date).aggregate(
             total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-            mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-            mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
+            # mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+            # mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
         )
 
         total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
             trip_start__date=date).filter(
             start_from_location__point_name='Thadvai').aggregate(
             total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-            mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-            mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
+            # mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+            # mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
         )
 
         if any(total_passengers_up.values()) or any(total_passengers_down.values()):
-            total_passengers_left = total_passengers_up['total_adult_passengers'] + total_passengers_up[
-                'total_child_passengers'] + total_passengers_up['mhl_adult_passengers'] + \
-                                    total_passengers_up['mhl_child_passengers']
+            total_passengers_left = total_passengers_up['total_adult_passengers'] + \
+                                    total_passengers_up['total_child_passengers']\
+                                    # + total_passengers_up['mhl_adult_passengers'] + \
+                                    # total_passengers_up['mhl_child_passengers']
 
             no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
                 start_to_location__point_name='Thadvai').count()
 
-            total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
-                'total_child_passengers'] + total_passengers_down['mhl_adult_passengers'] + \
-                                          total_passengers_down['mhl_child_passengers']
+            total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + \
+                                          total_passengers_down['total_child_passengers'] \
+                                          # + total_passengers_down['mhl_adult_passengers'] + \
+                                          # total_passengers_down['mhl_child_passengers']
 
             no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
                 .filter(start_from_location__point_name='Thadvai').count()
@@ -3079,31 +3082,25 @@ def dashboard_data_of_selected_date(request):
             start_to_location__point_name='Thadvai').filter(
                 start_from_location__point_name=point).filter(trip_start__date=date).aggregate(
             total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-            mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-            mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
         )
 
         total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
             trip_start__date=date).filter(start_to_location__point_name=point).filter(
             start_from_location__point_name='Thadvai').aggregate(
             total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-            mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-            mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+            total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
         )
 
         if any(total_passengers_up.values()) or any(total_passengers_down.values()):
             total_passengers_left = total_passengers_up['total_adult_passengers'] + total_passengers_up[
-                'total_child_passengers'] + total_passengers_up['mhl_adult_passengers'] + \
-                                    total_passengers_up['mhl_child_passengers']
+                'total_child_passengers']
 
             no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
                 start_to_location__point_name='Thadvai').filter(start_from_location__point_name=point).count()
 
             total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
-                'total_child_passengers'] + total_passengers_down['mhl_adult_passengers'] + \
-                                        total_passengers_down['mhl_child_passengers']
+                'total_child_passengers']
 
             no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
                 .filter(start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point).count()
@@ -3163,31 +3160,25 @@ def dashboard_data_of_selected_point(request):
                 start_to_location__point_name='Thadvai').filter(
                 start_from_location__point_name=point_name).filter(trip_start__date=date).aggregate(
                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-                mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-                mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
             )
 
             total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
                 trip_start__date=date).filter(
                 start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point_name).aggregate(
                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
-                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
-                mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
-                mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+                total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
             )
 
             if any(total_passengers_up.values()) or any(total_passengers_down.values()):
                 total_passengers_left = total_passengers_up['total_adult_passengers'] + total_passengers_up[
-                    'total_child_passengers'] + total_passengers_up['mhl_adult_passengers'] + \
-                                        total_passengers_up['mhl_child_passengers']
+                    'total_child_passengers']
 
                 no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
                     start_to_location__point_name='Thadvai').filter(start_from_location__point_name=point_name).count()
 
                 total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
-                    'total_child_passengers'] + total_passengers_down['mhl_adult_passengers'] + \
-                                              total_passengers_down['mhl_child_passengers']
+                    'total_child_passengers']
 
                 no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
                     .filter(start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point_name). \
@@ -3252,11 +3243,14 @@ def dashboard_details_entry_type(request):
                     mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
                 )
                 if any(total_passengers.values()):
-                    total_adult_passengers = total_passengers['total_adult_passengers']
-                    total_child_passengers = total_passengers['total_child_passengers']
+                    total_adult_passengers = total_passengers['total_adult_passengers'] - \
+                                             total_passengers['mhl_adult_passengers']
+                    total_child_passengers = total_passengers['total_child_passengers'] - \
+                                             total_passengers['mhl_child_passengers']
                     mhl_adult_passengers = total_passengers['mhl_adult_passengers']
                     mhl_child_passengers = total_passengers['mhl_child_passengers']
-                    total_passengers_count = total_adult_passengers + total_child_passengers + mhl_adult_passengers + mhl_child_passengers
+                    total_passengers_count = total_passengers['total_adult_passengers'] + \
+                                             total_passengers['total_child_passengers']
 
                     total_amounts = TripStatistics.objects.filter(entry_type=entry_type).filter(
                         start_to_location__point_name='Thadvai'). \
@@ -3268,7 +3262,6 @@ def dashboard_details_entry_type(request):
                     )
 
                     total_fare_passenger_amount = total_amounts['total_ticket_amount']
-                    total_mhl_amount = total_amounts['mhl_adult_amount'] + total_amounts['mhl_child_amount']
                     # total_earnings = total_fare_passenger_amount + total_mhl_amount
 
                     result_data.append({
@@ -3278,8 +3271,7 @@ def dashboard_details_entry_type(request):
                         'total_adult_passengers': total_adult_passengers,
                         'total_child_passengers': total_child_passengers,
                         'mhl_adult_passengers': mhl_adult_passengers,
-                        'mhl_child_passengers': mhl_child_passengers,
-                        'total_mhl_amount': total_mhl_amount
+                        'mhl_child_passengers': mhl_child_passengers
                     })
             else:
                 total_passengers = TripStatistics.objects.filter(entry_type=entry_type).filter(
@@ -3291,10 +3283,14 @@ def dashboard_details_entry_type(request):
                     mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
                 )
                 if any(total_passengers.values()):
-                    total_adult_passengers = total_passengers['total_adult_passengers']
-                    total_child_passengers = total_passengers['total_child_passengers']
+                    total_adult_passengers = total_passengers['total_adult_passengers'] - \
+                                             total_passengers['mhl_adult_passengers']
+                    total_child_passengers = total_passengers['total_child_passengers'] - \
+                                             total_passengers['mhl_child_passengers']
                     mhl_adult_passengers = total_passengers['mhl_adult_passengers']
                     mhl_child_passengers = total_passengers['mhl_child_passengers']
+                    total_passengers_count = total_passengers['total_adult_passengers'] + \
+                                             total_passengers['total_child_passengers']
 
                     total_amounts = TripStatistics.objects.filter(entry_type=entry_type).filter(
                         start_from_location__point_name='Thadvai'). \
@@ -3306,17 +3302,16 @@ def dashboard_details_entry_type(request):
                     )
 
                     total_fare_passenger_amount = total_amounts['total_ticket_amount']
-                    total_mhl_amount = total_amounts['mhl_adult_amount'] + total_amounts['mhl_child_amount']
                     # total_earnings = total_fare_passenger_amount + total_mhl_amount
+
                     result_data.append({
                         'date': date.strftime('%Y-%m-%d'),
-                        'total_passengers': total_passengers,
+                        'total_passengers': total_passengers_count,
                         'total_earnings': total_fare_passenger_amount,
                         'total_adult_passengers': total_adult_passengers,
                         'total_child_passengers': total_child_passengers,
                         'mhl_adult_passengers': mhl_adult_passengers,
-                        'mhl_child_passengers': mhl_child_passengers,
-                        'total_mhl_amount': total_mhl_amount
+                        'mhl_child_passengers': mhl_child_passengers
                     })
         return render(request, 'reports/dashboard_details_entry_type.html', {'point_names': point_names,
                                                                              'dashboard_data': result_data})
