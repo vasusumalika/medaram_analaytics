@@ -1,4 +1,5 @@
 import re
+import subprocess
 
 import pytz
 from django.http import JsonResponse
@@ -42,6 +43,8 @@ from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from dateutil.rrule import rrule, DAILY
 from rest_framework.decorators import api_view
+from django.http import FileResponse
+import os
 
 
 def custom_login_required(view_func):
@@ -2207,9 +2210,6 @@ def search_handling_bus_details_list(request):
 
             for buses_on_hand in buses_on_hand_data:
 
-
-
-
                 bus_in_count = BusesOnHand.objects.filter(point_name=point_name).filter(
                     unique_code=buses_on_hand).filter(
                     bus_in_out='in').count()
@@ -3083,17 +3083,17 @@ def dashboard_overall_data_list(request):
 
         if any(total_passengers_up.values()) or any(total_passengers_down.values()):
             total_passengers_left = total_passengers_up['total_adult_passengers'] + \
-                                    total_passengers_up['total_child_passengers']\
-                                    # + total_passengers_up['mhl_adult_passengers'] + \
-                                    # total_passengers_up['mhl_child_passengers']
+                                    total_passengers_up['total_child_passengers'] \
+                # + total_passengers_up['mhl_adult_passengers'] + \
+            # total_passengers_up['mhl_child_passengers']
 
             no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
                 start_to_location__point_name='Thadvai').count()
 
             total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + \
                                           total_passengers_down['total_child_passengers'] \
-                                          # + total_passengers_down['mhl_adult_passengers'] + \
-                                          # total_passengers_down['mhl_child_passengers']
+                # + total_passengers_down['mhl_adult_passengers'] + \
+            # total_passengers_down['mhl_child_passengers']
 
             no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
                 .filter(start_from_location__point_name='Thadvai').count()
@@ -3152,7 +3152,7 @@ def dashboard_data_of_selected_date(request):
     for point in point_names_list:
         total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
             start_to_location__point_name='Thadvai').filter(
-                start_from_location__point_name=point).filter(trip_start__date=date).aggregate(
+            start_from_location__point_name=point).filter(trip_start__date=date).aggregate(
             total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
             total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
         )
@@ -3587,6 +3587,38 @@ def driver_import(request):
 def driver_list(request):
     driver_data = Driver.objects.filter(~Q(status=2))
     return render(request, 'driver/list.html', {"driver_data": driver_data})
+
+
+@custom_login_required
+def contact_jeeps(request):
+    # Path to your PDF file
+    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - jeeps.pdf'
+    title = "CONTACT DETAILS JEEPS"
+    return render(request, 'contact_info/contact_pdf.html', {'pdf_filename': pdf_filename, "title": title})
+
+
+@custom_login_required
+def contact_mech_camps(request):
+    # Path to your PDF file
+    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - mechanical camps.pdf'
+    title = "CONTACT DETAILS MECHANICAL CAMPS"
+    return render(request, 'contact_info/contact_pdf.html', {'pdf_filename': pdf_filename, "title": title})
+
+
+@custom_login_required
+def contact_relief_dgts(request):
+    # Path to your PDF file
+    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - Relife DGTs.pdf'
+    title = "CONTACT DETAILS RELIEF DGTs"
+    return render(request, 'contact_info/contact_pdf.html', {'pdf_filename': pdf_filename, "title": title})
+
+
+@custom_login_required
+def contact_doctors(request):
+    # Path to your PDF file
+    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - DOCTORS.pdf'
+    title = "CONTACT DETAILS DOCTORS"
+    return render(request, 'contact_info/contact_pdf.html', {'pdf_filename': pdf_filename, "title": title})
 
 
 # REST API STARTS FROM HERE

@@ -410,6 +410,21 @@
 									</li>
 								{% endif %}
 
+								<li class="slide">
+									<a class="side-menu__item has-link" data-bs-toggle="slide" href="">
+										<img alt="Logo" src="{% static 'images/sidebar/icons8-worker-id-card-96.png' %}" class="side-menu__icon"/>
+										<span class="side-menu__label">Contact Info</span>
+										<i class="angle fa fa-angle-right"></i>
+									</a>
+									<ul class="slide-menu">
+										<li><a class="slide-item" href="{% url 'app:contact_jeeps'%}">Jeeps</a></li>
+										<li><a class="slide-item" href="{% url 'app:contact_mech_camps'%}">Mechanical Camps</a></li>
+										<li><a class="slide-item" href="{% url 'app:contact_relief_dgts'%}">Relief DGTs</a></li>
+										<li><a class="slide-item" href="{% url 'app:contact_doctors'%}">Doctors</a></li>
+
+									</ul>
+								</li>
+
 
 
 

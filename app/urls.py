@@ -171,6 +171,11 @@ urlpatterns = [
     path('driver/list', views.driver_list, name='driver_list'),
     path('driver/import', views.driver_import, name='driver_import'),
 
+    path('contact/info/jeeps', views.contact_jeeps, name='contact_jeeps'),
+    path('contact/info/mechanical/camps', views.contact_mech_camps, name='contact_mech_camps'),
+    path('contact/info/relief/dgts', views.contact_relief_dgts, name='contact_relief_dgts'),
+    path('contact/info/doctors', views.contact_doctors, name='contact_doctors'),
+
     # Medaram REST API STARTS FROM HERE
     path("api/login/", views.LoginAPIView.as_view()),
     path("api/get-all-depot/", views.DepotAPIView.as_view()),
