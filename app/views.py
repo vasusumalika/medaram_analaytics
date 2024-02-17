@@ -102,6 +102,9 @@ def do_login(request):
             else:
                 messages.error(request, 'Invalid Login Credentials!!')
                 return redirect("app:index")
+        else:
+            messages.error(request, 'Invalid Login Credentials!!')
+            return redirect("app:index")
     else:
         messages.error(request, 'Login failed. Try again!!')
         return redirect("app:index")
