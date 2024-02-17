@@ -11,14 +11,16 @@ jobs:
           id-token: write # This is required for requesting the JWT
           contents: read # This is required for actions/checkout
     steps:
-   #   - name: Checkout source
-   #     uses: actions/checkout@v3
+      - name: Checkout source
+        uses: actions/checkout@v3
+   
    #   - name: Configure AWS Credentials
    #     uses: aws-actions/configure-aws-credentials@v3
    #     with:
    #        role-to-assume: arn:aws:iam::022608205880:role/github_actions_role_poc #change to reflect your IAM role’s ARN
    #        role-session-name: github_actions_role_poc
    #        aws-region: 'us-west-2'
+   
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
