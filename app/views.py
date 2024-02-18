@@ -3600,7 +3600,7 @@ def contact_jeeps(request):
 @custom_login_required
 def contact_mech_camps(request):
     # Path to your PDF file
-    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - mechanical camps.pdf'
+    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - mechanical camps.jpg'
     title = "CONTACT DETAILS MECHANICAL CAMPS"
     return render(request, 'contact_info/contact_pdf.html', {'pdf_filename': pdf_filename, "title": title})
 
@@ -3608,7 +3608,7 @@ def contact_mech_camps(request):
 @custom_login_required
 def contact_relief_dgts(request):
     # Path to your PDF file
-    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - Relife DGTs.pdf'
+    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - Relife DGTs.jpg'
     title = "CONTACT DETAILS RELIEF DGTs"
     return render(request, 'contact_info/contact_pdf.html', {'pdf_filename': pdf_filename, "title": title})
 
@@ -3616,7 +3616,7 @@ def contact_relief_dgts(request):
 @custom_login_required
 def contact_doctors(request):
     # Path to your PDF file
-    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - DOCTORS.pdf'
+    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - DOCTORS_page-0001.jpg'
     title = "CONTACT DETAILS DOCTORS"
     return render(request, 'contact_info/contact_pdf.html', {'pdf_filename': pdf_filename, "title": title})
 
