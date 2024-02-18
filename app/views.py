@@ -3592,7 +3592,7 @@ def driver_list(request):
 @custom_login_required
 def contact_jeeps(request):
     # Path to your PDF file
-    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - jeeps.pdf'
+    pdf_filename = 'CONTACT DETAILS_17022024.xlsx - jeeps_page-0001.jpg'
     title = "CONTACT DETAILS JEEPS"
     return render(request, 'contact_info/contact_pdf.html', {'pdf_filename': pdf_filename, "title": title})
 
