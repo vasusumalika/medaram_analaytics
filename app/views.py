@@ -1166,8 +1166,8 @@ def trip_end_add(request):
     mhl_adult_amount = request.POST.get('mhl_adult_amount')
     mhl_child_amount = request.POST.get('mhl_child_amount')
     trip_verified = request.POST.get('trip_verified')
-    trip_verified_time = timezone.now()
-    trip_end = timezone.now()
+    trip_verified_time = datetime.datetime.now()
+    trip_end = datetime.datetime.now()
     service_operated_date = request.POST.get('service_operated_date')
     if trip_check_id:
         try:
@@ -2444,8 +2444,8 @@ def search_route_wise_buses_to_list(request):
             return render(request, 'reports/search_route_wise_buses_to_list.html',
                           {'point_names': point_names})
     else:
-        current_datetime = timezone.now()
-        yesterday_datetime = current_datetime - datetime.timedelta(days=3)
+        current_datetime = datetime.datetime.now()
+        yesterday_datetime = current_datetime - datetime.timedelta(days=30)
 
         trip_point_data = TripStatistics.objects.filter(entry_type='up').filter(
             start_to_location__point_name__in=settings.DOWN_LOCATION).filter(trip_start__gte=yesterday_datetime). \
@@ -2454,7 +2454,8 @@ def search_route_wise_buses_to_list(request):
             for trip_point in trip_point_data:
                 point_name = PointData.objects.get(id=trip_point)
                 no_of_buses = TripStatistics.objects.filter(entry_type='up').filter(
-                    start_to_location=trip_point).count()
+                    start_from_location=trip_point).filter(
+            start_to_location__point_name__in=settings.DOWN_LOCATION).count()
                 total_passengers = TripStatistics.objects.filter(entry_type='up').filter(
                     start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
                     start_from_location=trip_point).filter(trip_start__gte=yesterday_datetime).aggregate(
@@ -2485,7 +2486,7 @@ def search_route_wise_buses_to_list(request):
                     'total_earnings_count': total_earnings_count,
                 })
         return render(request, 'reports/search_route_wise_buses_to_list.html',
-                      {'point_names': point_names})
+                      {'point_names': point_names, "trip_point_result": trip_point_result})
 
 
 @custom_login_required
@@ -2503,7 +2504,7 @@ def search_route_wise_buses_from_list(request):
             for trip_point in trip_point_data:
                 point_name = PointData.objects.get(id=trip_point)
                 no_of_buses = TripStatistics.objects.filter(entry_type='down').filter(
-                    start_to_location=trip_point).count()
+                    start_to_location=trip_point).filter(trip_start__date=given_date).count()
                 total_passengers = TripStatistics.objects.filter(entry_type='down').filter(
                     start_to_location=trip_point).filter(trip_start__date=given_date).aggregate(
                     total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
@@ -2539,8 +2540,8 @@ def search_route_wise_buses_from_list(request):
             return render(request, 'reports/search_route_wise_buses_from_list.html',
                           {'point_names': point_names})
     else:
-        current_datetime = timezone.now()
-        yesterday_datetime = current_datetime - datetime.timedelta(days=1)
+        current_datetime = datetime.datetime.now()
+        yesterday_datetime = current_datetime - datetime.timedelta(days=30)
 
         trip_point_data = TripStatistics.objects.filter(entry_type='down').filter(
             start_from_location__point_name__in=settings.DOWN_LOCATION).filter(trip_start__gte=yesterday_datetime). \
