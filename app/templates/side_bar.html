@@ -802,8 +802,15 @@
 		}
 
       $(document).ready(function() {
-			var currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
-			$(".report-datepicker").val(currentDate); // Assuming your text field's id is "datePicker"
+      		// Get current date in UTC
+			var currentDateUTC = new Date();
+
+			// Convert UTC to IST
+			var currentDateIST = new Date(currentDateUTC.getTime() + 5.5 * 60 * 60 * 1000); // Add 5 hours and 30 minutes for IST
+
+			// Get the date part only
+			var currentDateISTString = currentDateIST.toISOString().split('T')[0];
+			$(".report-datepicker").val(currentDateISTString); // Assuming your text field's id is "datePicker"
 			$('#tp3').timepicker('setTime', new Date().getHours() + ':' + new Date().getMinutes());
 	  });
 
