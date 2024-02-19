@@ -62,7 +62,7 @@
 															<th class="border-bottom-0">Parent Depot</th>
 															<th class="border-bottom-0">Operating Depot</th>
 															<th class="border-bottom-0">Buses Allotted</th>
-
+                                                            <th class="border-bottom-0">Actions</th>
 														</tr>
 													</thead>
 													<tbody>
@@ -71,6 +71,10 @@
 															  <td>{{ allotment.parent_depot.name }}</td>
 															  <td>{{ allotment.operating_depot.name }}</td>
 															  <td>{{ allotment.no_of_buses }}</td>
+															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:allotment_of_buses_edit' %}?id={{ allotment.id }}">
+																   	<i class="fe fe-edit fe-pen" title="Edit"></i>
+															   		</a>
+															  </td>
 														  </tr>
                                                         {% endfor %}
 													</tbody>
