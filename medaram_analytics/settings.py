@@ -191,3 +191,5 @@ EMPLOYEE_DESIGNATION = {
     10: 'Admin',
 
 }
+
+DOWN_LOCATION = ['Thadvai', 'THADVAI_MEDARAM']
