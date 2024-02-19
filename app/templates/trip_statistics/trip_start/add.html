@@ -71,20 +71,18 @@
 												{% elif request.session.user_type == 'PSG UP THADVAI' %}
 
                                                        <div class="row row-sm">
-                                                              <div class="col-md-4">
-                                                                  <label for="validationCustom04" class="form-label">Journey</label>
-                                                                  <select class="form-select custom-select" id="entry_type"  name="entry_type" required>
+                                                              <div class="form-group col-md-4">
+                                                                  <label for="entry_type" class="form-label">Journey</label>
+                                                                  <select class="form-control custom-select" id="entry_type"  name="entry_type" required style="width: 100%;">
                                                                         <option value="">Select Option</option>
                                                                         <option value="up">Up</option>
                                                                         <option value="down">Down</option>
                                                                   </select>
                                                                </div>
 
-
-
-                                                              <div class="col-md-4">
-                                                                  <label for="validationCustom04" class="form-label">From</label>
-                                                                  <select class="form-select custom-select" id="start_from_location"  name="start_from_location" required>
+                                                              <div class="form-group col-md-4">
+                                                                  <label for="start_from_location" class="form-label">From</label>
+                                                                  <select class="form-control custom-select" id="start_from_location"  name="start_from_location" required>
                                                                         <option value="">Select Option</option>
                                                                         {% for point in point_data %}
                                                                             <option value="{{ point.point_name }}">
@@ -94,9 +92,9 @@
                                                                   </select>
                                                                </div>
 
-                                                               <div class="col-md-4">
-                                                                  <label for="validationCustom04" class="form-label">To</label>
-                                                                  <select class="form-select custom-select" id="start_to_location"  name="start_to_location" required>
+                                                               <div class="form-group col-md-4">
+                                                                  <label for="start_to_location" class="form-label">To</label>
+                                                                  <select class="form-control custom-select" id="start_to_location"  name="start_to_location" required>
                                                                         <option value="">Select Option</option>
                                                                         {% for point in point_data %}
                                                                             <option value="{{ point.point_name }}">
@@ -123,9 +121,9 @@
                                                                    <input type="text" class="form-control mb-4" name="start_from_location" value="{{request.session.point_name}}"  readonly>
                                                               </div>
 
-                                                              <div class="col-md-4">
-                                                                  <label for="validationCustom04" class="form-label">To</label>
-                                                                  <select class="form-select custom-select" id="point"  name="start_to_location" required>
+                                                              <div class="form-group col-md-4">
+                                                                  <label for="start_to_location" class="form-label">To</label>
+                                                                  <select class="form-control custom-select" id="point"  name="start_to_location" required>
                                                                         <option value="">Select Option</option>
                                                                         {% for point in point_data %}
                                                                             <option value="{{ point.point_name }}">

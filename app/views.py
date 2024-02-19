@@ -1691,8 +1691,19 @@ def hsd_oil_submission_add(request):
 
 @custom_login_required
 def buses_on_hand_list(request):
+    # buses_on_hand_result = []
+    # buses_on_hand_data = BusesOnHand.objects.values_list('unique_code', flat=True).distinct()
+    user_ttype = request.session['user_type']
+    user_ppoint = request.session['point_name']
+    point_id = PointData.objects.get(point_name=user_ppoint)
     buses_on_hand_result = []
-    buses_on_hand_data = BusesOnHand.objects.values_list('unique_code', flat=True).distinct()
+
+    if request.session['user_type'] == 'PARKING':
+        buses_on_hand_data = BusesOnHand.objects.values_list('unique_code', flat=True).filter(
+            point_name=point_id).distinct()
+    else:
+        buses_on_hand_data = BusesOnHand.objects.values_list('unique_code', flat=True).distinct()
+
     if len(buses_on_hand_data) > 0:
 
         for buses_on_hand in buses_on_hand_data:
@@ -1727,6 +1738,12 @@ def buses_on_hand_list(request):
 @transaction.atomic
 @custom_login_required
 def buses_on_hand_add(request):
+    user_id = request.session['user_id']
+    if user_id:
+        user_data = User.objects.get(id=user_id)
+        point_name_id_list = []
+        if user_data.point_name:
+            point_name_id_list.append(user_data.point_name.id)
     if request.method == "POST":
         unique_code = request.POST.get('unique_code')
         point_name = request.POST.get('point_name')
@@ -1737,7 +1754,6 @@ def buses_on_hand_add(request):
         bus_out_count = BusesOnHand.objects.filter(unique_code=unique_code).filter(bus_in_out='out').count()
         buses_created_in = None  # Initialize these variables outside of the conditional blocks
         buses_created_out = None
-
         if bus_in_count > 0:
             buses_in_data = BusesOnHand.objects.filter(unique_code=unique_code).filter(bus_in_out='in').latest(
                 'created_at')
@@ -1774,7 +1790,8 @@ def buses_on_hand_add(request):
         return redirect("app:buses_on_hand_list")
     try:
         point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
-        return render(request, 'buses_on_hand/add.html', {"point_name_data": point_name_data})
+        print(point_name_id_list)
+        return render(request, 'buses_on_hand/add.html', {"point_name_data": point_name_data, 'point_name_list': point_name_id_list})
     except Exception as e:
         print(e)
         return render(request, 'buses_on_hand/add.html', {})
@@ -1818,7 +1835,8 @@ def summary_sending_buses_list(request):
             'buses_due': no_of_buses_due,
             'buses_reached': no_of_buses_reached,
             'buses_not_reached': no_of_buses_not_reached,
-            'no_of_buses_sent_back': no_of_buses_sent_back
+            'no_of_buses_sent_back': no_of_buses_sent_back,
+            'depot_id': allotment_buses.parent_depot.id
         })
     return render(request, 'reports/summary_sending_buses_list.html',
                   {'summary_depot_result': summary_depot_result})
@@ -1965,7 +1983,8 @@ def search_depot_list(request):
 
                     point_data = PointData.objects.get(id=depot_point)
 
-                    if point_data.point_name != 'Thadvai':
+                    # if point_data.point_name != 'Thadvai':
+                    if point_data.point_name not in settings.DOWN_LOCATION:
 
                         check_depot_points = TripStatistics.objects.filter(
                             Q(start_from_location=point_data) | Q(start_to_location=point_data)).filter(
@@ -2045,7 +2064,8 @@ def search_depot_list(request):
                 for depot_point in depot_points:
 
                     point_data = PointData.objects.get(id=depot_point)
-                    if point_data.point_name != 'Thadvai':
+                    # if point_data.point_name != 'Thadvai':
+                    if point_data.point_name not in settings.DOWN_LOCATION:
                         check_depot_points = TripStatistics.objects.filter(
                             Q(start_from_location=point_data) | Q(start_to_location=point_data)).count()
                         if check_depot_points > 0:
@@ -2109,6 +2129,7 @@ def search_depot_list(request):
                             })
         return render(request, 'reports/performance_of_buses_list.html', {'depot_data': depot_data,
                                                                           "performance_depot_result": performance_depot_result})
+
 
 
 @custom_login_required
@@ -2370,7 +2391,8 @@ def search_bus_details(request):
 
 @custom_login_required
 def search_route_wise_buses_to_list(request):
-    point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name='Thadvai'))
+    # point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name='Thadvai'))
+    point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name__in=settings.DOWN_LOCATION))
     trip_point_result = []
     if request.method == "POST":
 
@@ -2379,14 +2401,14 @@ def search_route_wise_buses_to_list(request):
         given_date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
 
         trip_point_data = TripStatistics.objects.filter(entry_type='up').filter(
-            start_to_location__point_name='Thadvai').filter(
+            start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
             start_from_location=point_name).filter(trip_start__date=given_date).count()
         if trip_point_data > 0:
             # for trip_point in trip_point_data:
             point_name = PointData.objects.get(id=point_name)
             no_of_buses = trip_point_data
             total_passengers = TripStatistics.objects.filter(entry_type='up').filter(
-                start_to_location__point_name='Thadvai').filter(
+                start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
                 start_from_location=point_name).filter(trip_start__date=given_date).aggregate(
                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                 total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
@@ -2398,7 +2420,7 @@ def search_route_wise_buses_to_list(request):
                                      total_passengers['mhl_child_passengers']
 
             total_earnings = TripStatistics.objects.filter(entry_type='up').filter(
-                start_to_location__point_name='Thadvai').filter(
+                start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
                 start_from_location=point_name).filter(trip_start__date=given_date).aggregate(
                 total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
                 mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
@@ -2426,7 +2448,7 @@ def search_route_wise_buses_to_list(request):
         yesterday_datetime = current_datetime - datetime.timedelta(days=3)
 
         trip_point_data = TripStatistics.objects.filter(entry_type='up').filter(
-            start_to_location__point_name='Thadvai').filter(trip_start__gte=yesterday_datetime). \
+            start_to_location__point_name__in=settings.DOWN_LOCATION).filter(trip_start__gte=yesterday_datetime). \
             values_list('start_from_location', flat=True).distinct()
         if len(trip_point_data) > 0:
             for trip_point in trip_point_data:
@@ -2434,7 +2456,7 @@ def search_route_wise_buses_to_list(request):
                 no_of_buses = TripStatistics.objects.filter(entry_type='up').filter(
                     start_to_location=trip_point).count()
                 total_passengers = TripStatistics.objects.filter(entry_type='up').filter(
-                    start_to_location__point_name='Thadvai').filter(
+                    start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
                     start_from_location=trip_point).filter(trip_start__gte=yesterday_datetime).aggregate(
                     total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                     total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
@@ -2446,7 +2468,7 @@ def search_route_wise_buses_to_list(request):
                                          total_passengers['mhl_child_passengers']
 
                 total_earnings = TripStatistics.objects.filter(entry_type='up').filter(
-                    start_to_location__point_name='Thadvai').filter(
+                    start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
                     start_from_location=trip_point).filter(trip_start__gte=yesterday_datetime).aggregate(
                     total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
                     mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
@@ -2475,7 +2497,7 @@ def search_route_wise_buses_from_list(request):
         date = request.POST.get('date')
         given_date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
         trip_point_data = TripStatistics.objects.filter(entry_type='down').filter(
-            start_from_location__point_name='Thadvai').filter(trip_start__date=given_date). \
+            start_from_location__point_name__in=settings.DOWN_LOCATION).filter(trip_start__date=given_date). \
             values_list('start_to_location', flat=True).distinct()
         if len(trip_point_data) > 0:
             for trip_point in trip_point_data:
@@ -2521,7 +2543,7 @@ def search_route_wise_buses_from_list(request):
         yesterday_datetime = current_datetime - datetime.timedelta(days=1)
 
         trip_point_data = TripStatistics.objects.filter(entry_type='down').filter(
-            start_from_location__point_name='Thadvai').filter(trip_start__gte=yesterday_datetime). \
+            start_from_location__point_name__in=settings.DOWN_LOCATION).filter(trip_start__gte=yesterday_datetime). \
             values_list('start_to_location', flat=True).distinct()
         if len(trip_point_data) > 0:
             for trip_point in trip_point_data:
@@ -2562,7 +2584,7 @@ def search_route_wise_buses_from_list(request):
 
 @custom_login_required
 def search_hour_wise_dispatched_buses_list(request):
-    point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name='Thadvai'))
+    point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name__in=settings.DOWN_LOCATION))
     if request.method == "POST":
         trip_point_result = []
         point_name = request.POST.get('point_name')
@@ -2580,13 +2602,13 @@ def search_hour_wise_dispatched_buses_list(request):
             if entry_type == 'up':
                 trip_point_data = TripStatistics.objects.filter(entry_type=entry_type).filter(
                     start_from_location=point_name). \
-                    filter(start_to_location__point_name='Thadvai').filter(trip_start__range=(start, end))
+                    filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(trip_start__range=(start, end))
                 if len(trip_point_data) > 0:
                     no_of_trips = trip_point_data.count()
 
                     total_passengers = TripStatistics.objects.filter(entry_type=entry_type).filter(
                         start_from_location=point_name). \
-                        filter(start_to_location__point_name='Thadvai').filter(
+                        filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
                         trip_start__range=(start, end)).aggregate(
                         total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                         total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
@@ -2599,7 +2621,7 @@ def search_hour_wise_dispatched_buses_list(request):
 
                     total_earnings = TripStatistics.objects.filter(entry_type=entry_type).filter(
                         start_from_location=point_name). \
-                        filter(start_to_location__point_name='Thadvai').filter(
+                        filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
                         trip_start__range=(start, end)).aggregate(
                         total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
                         mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
@@ -2626,13 +2648,13 @@ def search_hour_wise_dispatched_buses_list(request):
                     })
             else:
                 trip_point_data = TripStatistics.objects.filter(entry_type=entry_type).filter(
-                    start_from_location__point_name='Thadvai').filter(start_to_location=point_name).filter(
+                    start_from_location__point_name__in=settings.DOWN_LOCATION).filter(start_to_location=point_name).filter(
                     trip_start__range=(start, end))
                 if len(trip_point_data) > 0:
                     no_of_trips = trip_point_data.count()
 
                     total_passengers = TripStatistics.objects.filter(entry_type=entry_type).filter(
-                        start_from_location__point_name='Thadvai'). \
+                        start_from_location__point_name__in=settings.DOWN_LOCATION). \
                         filter(start_to_location=point_name).filter(
                         trip_start__range=(start, end)).aggregate(
                         total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
@@ -2645,7 +2667,7 @@ def search_hour_wise_dispatched_buses_list(request):
                                              total_passengers['mhl_child_passengers']
 
                     total_earnings = TripStatistics.objects.filter(entry_type=entry_type).filter(
-                        start_from_location__point_name='Thadvai'). \
+                        start_from_location__point_name__in=settings.DOWN_LOCATION). \
                         filter(start_to_location=point_name).filter(
                         trip_start__range=(start, end)).aggregate(
                         total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
@@ -3065,7 +3087,7 @@ def dashboard_overall_data_list(request):
     total_available_buses = 0
     for date in dates_list:
         total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
-            start_to_location__point_name='Thadvai').filter(trip_start__date=date).aggregate(
+            start_to_location__point_name__in=settings.DOWN_LOCATION).filter(trip_start__date=date).aggregate(
             total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
             total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
             # mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
@@ -3074,7 +3096,7 @@ def dashboard_overall_data_list(request):
 
         total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
             trip_start__date=date).filter(
-            start_from_location__point_name='Thadvai').aggregate(
+            start_from_location__point_name__in=settings.DOWN_LOCATION).aggregate(
             total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
             total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
             # mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
@@ -3088,7 +3110,7 @@ def dashboard_overall_data_list(request):
             # total_passengers_up['mhl_child_passengers']
 
             no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
-                start_to_location__point_name='Thadvai').count()
+                start_to_location__point_name__in=settings.DOWN_LOCATION).count()
 
             total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + \
                                           total_passengers_down['total_child_passengers'] \
@@ -3096,7 +3118,7 @@ def dashboard_overall_data_list(request):
             # total_passengers_down['mhl_child_passengers']
 
             no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
-                .filter(start_from_location__point_name='Thadvai').count()
+                .filter(start_from_location__point_name__in=settings.DOWN_LOCATION).count()
 
             total_passengers_left_over = total_passengers_left - total_passengers_dispatched
 
@@ -3137,9 +3159,9 @@ def dashboard_data_of_selected_date(request):
     trip_data = TripStatistics.objects.filter(trip_start__date=date)
     point_names = set()
     for trip_statistic in trip_data:
-        if trip_statistic.start_to_location.point_name != 'Thadvai':
+        if trip_statistic.start_to_location.point_name not in settings.DOWN_LOCATION:
             point_names.add(trip_statistic.start_to_location.point_name)
-        if trip_statistic.start_from_location.point_name != 'Thadvai':
+        if trip_statistic.start_from_location.point_name not in settings.DOWN_LOCATION:
             point_names.add(trip_statistic.start_from_location.point_name)
     point_names_list = list(point_names)
     result_data = []
@@ -3151,7 +3173,7 @@ def dashboard_data_of_selected_date(request):
     total_available_buses = 0
     for point in point_names_list:
         total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
-            start_to_location__point_name='Thadvai').filter(
+            start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
             start_from_location__point_name=point).filter(trip_start__date=date).aggregate(
             total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
             total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
@@ -3159,7 +3181,7 @@ def dashboard_data_of_selected_date(request):
 
         total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
             trip_start__date=date).filter(start_to_location__point_name=point).filter(
-            start_from_location__point_name='Thadvai').aggregate(
+            start_from_location__point_name__in=settings.DOWN_LOCATION).aggregate(
             total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
             total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
         )
@@ -3169,13 +3191,14 @@ def dashboard_data_of_selected_date(request):
                 'total_child_passengers']
 
             no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
-                start_to_location__point_name='Thadvai').filter(start_from_location__point_name=point).count()
+                start_to_location__point_name__in=settings.DOWN_LOCATION).filter(start_from_location__point_name=point).count()
 
             total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
                 'total_child_passengers']
 
             no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
-                .filter(start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point).count()
+                .filter(start_from_location__point_name__in=settings.DOWN_LOCATION).\
+                filter(start_to_location__point_name=point).count()
 
             total_passengers_left_over = total_passengers_left - total_passengers_dispatched
 
@@ -3229,7 +3252,7 @@ def dashboard_data_of_selected_point(request):
         total_available_buses = 0
         for date in dates_list:
             total_passengers_up = TripStatistics.objects.filter(entry_type='up').filter(
-                start_to_location__point_name='Thadvai').filter(
+                start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
                 start_from_location__point_name=point_name).filter(trip_start__date=date).aggregate(
                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                 total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
@@ -3237,7 +3260,8 @@ def dashboard_data_of_selected_point(request):
 
             total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
                 trip_start__date=date).filter(
-                start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point_name).aggregate(
+                start_from_location__point_name__in=settings.DOWN_LOCATION).\
+                filter(start_to_location__point_name=point_name).aggregate(
                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                 total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
             )
@@ -3247,13 +3271,15 @@ def dashboard_data_of_selected_point(request):
                     'total_child_passengers']
 
                 no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
-                    start_to_location__point_name='Thadvai').filter(start_from_location__point_name=point_name).count()
+                    start_to_location__point_name__in=settings.DOWN_LOCATION).\
+                    filter(start_from_location__point_name=point_name).count()
 
                 total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
                     'total_child_passengers']
 
                 no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
-                    .filter(start_from_location__point_name='Thadvai').filter(start_to_location__point_name=point_name). \
+                    .filter(start_from_location__point_name__in=settings.DOWN_LOCATION).\
+                    filter(start_to_location__point_name=point_name). \
                     count()
 
                 total_passengers_left_over = total_passengers_left - total_passengers_dispatched
@@ -3294,7 +3320,7 @@ def dashboard_data_of_selected_point(request):
 
 @custom_login_required
 def dashboard_details_entry_type(request):
-    point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name='Thadvai'))
+    point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name__in=settings.DOWN_LOCATION))
     result_data = []
     if request.method == "POST":
         point_name = request.POST.get('point_name')
@@ -3307,7 +3333,7 @@ def dashboard_details_entry_type(request):
         for date in dates_list:
             if entry_type == 'up':
                 total_passengers = TripStatistics.objects.filter(entry_type=entry_type).filter(
-                    start_to_location__point_name='Thadvai').filter(
+                    start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
                     start_from_location__point_name=point_name).filter(trip_start__date=date).aggregate(
                     total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                     total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
@@ -3325,7 +3351,7 @@ def dashboard_details_entry_type(request):
                                              total_passengers['total_child_passengers']
 
                     total_amounts = TripStatistics.objects.filter(entry_type=entry_type).filter(
-                        start_to_location__point_name='Thadvai'). \
+                        start_to_location__point_name__in=settings.DOWN_LOCATION). \
                         filter(start_from_location__point_name=point_name).filter(
                         trip_start__date=date).aggregate(
                         total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
@@ -3347,7 +3373,7 @@ def dashboard_details_entry_type(request):
                     })
             else:
                 total_passengers = TripStatistics.objects.filter(entry_type=entry_type).filter(
-                    start_from_location__point_name='Thadvai').filter(
+                    start_from_location__point_name__in=settings.DOWN_LOCATION).filter(
                     start_to_location__point_name=point_name).filter(trip_start__date=date).aggregate(
                     total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                     total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
@@ -3365,7 +3391,7 @@ def dashboard_details_entry_type(request):
                                              total_passengers['total_child_passengers']
 
                     total_amounts = TripStatistics.objects.filter(entry_type=entry_type).filter(
-                        start_from_location__point_name='Thadvai'). \
+                        start_from_location__point_name__in=settings.DOWN_LOCATION). \
                         filter(start_to_location__point_name=point_name).filter(
                         trip_start__date=date).aggregate(
                         total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
@@ -3545,6 +3571,41 @@ def allotment_of_buses_import(request):
 def allotment_of_buses_list(request):
     allotment_of_buses_data = AllotmentOfBuses.objects.filter(~Q(status=2))
     return render(request, 'allotment_of_buses/list.html', {"allotment_of_buses_data": allotment_of_buses_data})
+
+
+@custom_login_required
+def allotment_of_buses_edit(request):
+    allotment_of_buses_id = request.GET.get('id')
+    if allotment_of_buses_id:
+        allotment_of_buses_data = AllotmentOfBuses.objects.get(id=allotment_of_buses_id)
+    try:
+        return render(request, 'allotment_of_buses/edit.html', {"allotment_of_buses_data": allotment_of_buses_data})
+    except Exception as e:
+        print(e)
+        return render(request, 'allotment_of_buses/edit.html', {})
+
+
+@custom_login_required
+def allotment_of_buses_update(request):
+    allotment_of_bus_id = request.POST.get('id')
+    buses_allotted = request.POST.get('no_of_buses')
+    allotment_status = 0
+    if allotment_of_bus_id:
+        try:
+            allotment_of_buses_data = AllotmentOfBuses.objects.get(id=allotment_of_bus_id)
+            allotment_of_buses_data.no_of_buses = buses_allotted
+            allotment_of_buses_data.status = allotment_status
+            user_data = User.objects.get(id=request.session['user_id'])
+            allotment_of_buses_data.updated_by = user_data
+            allotment_of_buses_data.save()
+            messages.success(request, 'Allotment of Buses updated successfully!!')
+            return redirect("app:allotment_of_buses_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Allotment of Buses update  failed!!')
+            return redirect("app:allotment_of_buses_list")
+    else:
+        return redirect("app:allotment_of_buses_list")
 
 
 @transaction.atomic

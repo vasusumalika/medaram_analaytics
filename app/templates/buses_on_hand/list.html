@@ -58,7 +58,7 @@
 												<table id="listing-table" class="table table-bordered text-nowrap key-buttons border-bottom  w-100">
 													<thead>
 														<tr>
-<!--															<th class="border-bottom-0">Point Name</th>-->
+															<th class="border-bottom-0">Point Name</th>
 															<th class="border-bottom-0">Unique Code</th>
 <!--															<th class="border-bottom-0">Buses(IN/OUT)</th>-->
 															<th class="border-bottom-0">Out</th>
@@ -67,7 +67,7 @@
 													<tbody>
 														{% for buses_on_hand in buses_on_hand_result %}
                                                           <tr>
-<!--															  <td>{{ buses_on_hand.point_name.point_name }}</td>-->
+															  <td>{{ buses_on_hand.point_name.point_name }}</td>
 															  <td>{{ buses_on_hand.unique_code }}</td>
 <!--															  <td>{{ buses_on_hand.bus_in_out }}</td>-->
 															  <td><a class="btn btn-primary fs-14 text-white edit-icn" title="Edit" href="{% url 'app:buses_on_hand_update' %}?id={{ buses_on_hand.bus_in_id }}">

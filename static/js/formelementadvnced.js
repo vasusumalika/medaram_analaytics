@@ -71,6 +71,12 @@ $(function (e) {
 		autoclose: true,
 	});
 
+	$('.report-datepicker').datepicker({
+		format: 'yyyy-mm-dd',
+		todayHighlight: true,
+		autoclose: true,
+	});
+
 	//Multiple Months Date Picker
 	$('#datepickerNoOfMonths').datepicker({
 		showOtherMonths: true,

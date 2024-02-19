@@ -30,6 +30,8 @@
 	<!--- FONT-ICONS CSS -->
 	<link href="{% static 'css/icons.css' %}" rel="stylesheet" />
 
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
 
 </head>
 
@@ -518,6 +520,8 @@
 	<script src="{% static 'js/formelementadvnced.js' %}"></script>
 	<script src="{% static 'js/calendar.js' %}"></script>
 
+<!--	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>-->
+
 
 	<script>
 		$(function(){
@@ -686,7 +690,7 @@
 <!--            	}-->
 <!--        	});-->
 
-        	var dataTable = $('#out_depot_vehicle_receive-table').DataTable({
+        	var dataTable = $('#listing_table_download').DataTable({
             	language: {
                 	searchPlaceholder: 'Search...',
                 	sSearch: '',
@@ -749,6 +753,8 @@
         			}
 				});
 			});
+
+
         });
 
         function validateInput() {
@@ -797,7 +803,7 @@
 
       $(document).ready(function() {
 			var currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
-			$("#fc-datepicker").val(currentDate); // Assuming your text field's id is "datePicker"
+			$(".report-datepicker").val(currentDate); // Assuming your text field's id is "datePicker"
 			$('#tp3').timepicker('setTime', new Date().getHours() + ':' + new Date().getMinutes());
 	  });
 
