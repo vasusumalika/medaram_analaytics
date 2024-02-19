@@ -70,10 +70,11 @@
 											</form>
 										</div>
 
-											<div class="card-body">
+										<div class="card-body">
 											<form class="form-horizontal row" action="#" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
 												{% for  out_depot in out_depot_vehicle_receive_data %}
+
 													<div class="form-group col-md-6">
 														<label class="form-label">Allotted Depot Name</label>
 														<input type="text" class="form-control" value="{{out_depot.special_bus_data_entry.special_bus_reporting_depot.name}}" readonly>
@@ -128,10 +129,11 @@
 														<label class="form-label" >Unique No</label>
 														<input type="text" class="form-control" value="{{out_depot.unique_no}}" readonly>
 													</div>
-												 {% endfor %}
+												{% endfor %}
 
 
 												{% for  own_depot in own_depot_vehicle_receive_data %}
+
 													<div class="form-group col-md-6">
 														<label class="form-label">Allotted Depot Name</label>
 														<input type="text" class="form-control" value="{{own_depot.bus_number.depot.name}}" readonly>
