@@ -167,6 +167,8 @@ urlpatterns = [
 
     path('allotment/of/buses/list', views.allotment_of_buses_list, name='allotment_of_buses_list'),
     path('allotment/of/buses/import', views.allotment_of_buses_import, name='allotment_of_buses_import'),
+    path('allotment/of/buses/edit', views.allotment_of_buses_edit, name='allotment_of_buses_edit'),
+    path('allotment/of/buses/update', views.allotment_of_buses_update, name='allotment_of_buses_update'),
 
     path('driver/list', views.driver_list, name='driver_list'),
     path('driver/import', views.driver_import, name='driver_import'),

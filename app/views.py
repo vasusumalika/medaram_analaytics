@@ -3547,6 +3547,41 @@ def allotment_of_buses_list(request):
     return render(request, 'allotment_of_buses/list.html', {"allotment_of_buses_data": allotment_of_buses_data})
 
 
+@custom_login_required
+def allotment_of_buses_edit(request):
+    allotment_of_buses_id = request.GET.get('id')
+    if allotment_of_buses_id:
+        allotment_of_buses_data = AllotmentOfBuses.objects.get(id=allotment_of_buses_id)
+    try:
+        return render(request, 'allotment_of_buses/edit.html', {"allotment_of_buses_data": allotment_of_buses_data})
+    except Exception as e:
+        print(e)
+        return render(request, 'allotment_of_buses/edit.html', {})
+
+
+@custom_login_required
+def allotment_of_buses_update(request):
+    allotment_of_bus_id = request.POST.get('id')
+    buses_allotted = request.POST.get('no_of_buses')
+    allotment_status = 0
+    if allotment_of_bus_id:
+        try:
+            allotment_of_buses_data = AllotmentOfBuses.objects.get(id=allotment_of_bus_id)
+            allotment_of_buses_data.no_of_buses = buses_allotted
+            allotment_of_buses_data.status = allotment_status
+            user_data = User.objects.get(id=request.session['user_id'])
+            allotment_of_buses_data.updated_by = user_data
+            allotment_of_buses_data.save()
+            messages.success(request, 'Allotment of Buses updated successfully!!')
+            return redirect("app:allotment_of_buses_list")
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Allotment of Buses update  failed!!')
+            return redirect("app:allotment_of_buses_list")
+    else:
+        return redirect("app:allotment_of_buses_list")
+
+
 @transaction.atomic
 @custom_login_required
 def driver_import(request):
