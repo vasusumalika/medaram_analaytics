@@ -1824,7 +1824,8 @@ def summary_sending_buses_list(request):
             'buses_due': no_of_buses_due,
             'buses_reached': no_of_buses_reached,
             'buses_not_reached': no_of_buses_not_reached,
-            'no_of_buses_sent_back': no_of_buses_sent_back
+            'no_of_buses_sent_back': no_of_buses_sent_back,
+            'depot_id': allotment_buses.parent_depot.id
         })
     return render(request, 'reports/summary_sending_buses_list.html',
                   {'summary_depot_result': summary_depot_result})
