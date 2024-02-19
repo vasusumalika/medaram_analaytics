@@ -1727,6 +1727,12 @@ def buses_on_hand_list(request):
 @transaction.atomic
 @custom_login_required
 def buses_on_hand_add(request):
+    user_id = request.session['user_id']
+    if user_id:
+        user_data = User.objects.get(id=user_id)
+        point_name_id_list = []
+        if user_data.point_name:
+            point_name_id_list.append(user_data.point_name.id)
     if request.method == "POST":
         unique_code = request.POST.get('unique_code')
         point_name = request.POST.get('point_name')
@@ -1737,7 +1743,6 @@ def buses_on_hand_add(request):
         bus_out_count = BusesOnHand.objects.filter(unique_code=unique_code).filter(bus_in_out='out').count()
         buses_created_in = None  # Initialize these variables outside of the conditional blocks
         buses_created_out = None
-
         if bus_in_count > 0:
             buses_in_data = BusesOnHand.objects.filter(unique_code=unique_code).filter(bus_in_out='in').latest(
                 'created_at')
@@ -1774,7 +1779,8 @@ def buses_on_hand_add(request):
         return redirect("app:buses_on_hand_list")
     try:
         point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
-        return render(request, 'buses_on_hand/add.html', {"point_name_data": point_name_data})
+        print(point_name_id_list)
+        return render(request, 'buses_on_hand/add.html', {"point_name_data": point_name_data, 'point_name_list': point_name_id_list})
     except Exception as e:
         print(e)
         return render(request, 'buses_on_hand/add.html', {})
@@ -2109,6 +2115,7 @@ def search_depot_list(request):
                             })
         return render(request, 'reports/performance_of_buses_list.html', {'depot_data': depot_data,
                                                                           "performance_depot_result": performance_depot_result})
+
 
 
 @custom_login_required
