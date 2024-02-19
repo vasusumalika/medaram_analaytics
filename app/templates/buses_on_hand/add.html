@@ -58,12 +58,10 @@
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="point_name">Point Name</label>
                                                     <select class="form-control custom-select" name="point_name" id="point_name" required>
-                                                     	<option value="">Select Option</option>
+
                                                         	{% for point_name in point_name_data %}
-                                                            	<option value="{{ point_name.id }}">
-                                                                	{{ point_name.point_name }}
-                                                                </option>
-                                                            {% endfor %}
+																<option value="{{ point_name.id }}"{% if point_name.id in point_name_list %} selected{% endif %}>{{ point_name.point_name }}</option>
+															{% endfor %}
                                                     </select>
 												</div>
 
