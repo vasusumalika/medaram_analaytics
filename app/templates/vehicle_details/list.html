@@ -62,7 +62,7 @@
 
 													<div class="col-md-4">
                                                     	<label class="form-label" for="bus_number">Bus Number</label>
-                                                    	<input type="text" id="bus_number" name="bus_number" class="form-control" required>
+                                                    	<input type="text" id="bus_number" name="bus_number" class="form-control" >
 													</div>
 
 													<div class="form-group col-md-4">
@@ -77,17 +77,17 @@
                                                     	</select>
 													</div>
 
-													<div class="form-group col-md-4">
-														<label class="form-label" for="operation_type_id">Operation Type</label>
-														<select class="form-control custom-select" name="operation_type_id" id="operation_type_id">
-                                                     		<option value="">Select Option</option>
-                                                        		{% for operation_type in operation_type_data %}
-                                                            		<option value="{{ operation_type.id }}">
-                                                                		{{ operation_type.description }}
-                                                                	</option>
-                                                            	{% endfor %}
-                                                    	</select>
-													</div>
+<!--													<div class="form-group col-md-4">-->
+<!--														<label class="form-label" for="operation_type_id">Operation Type</label>-->
+<!--														<select class="form-control custom-select" name="operation_type_id" id="operation_type_id">-->
+<!--                                                     		<option value="">Select Option</option>-->
+<!--                                                        		{% for operation_type in operation_type_data %}-->
+<!--                                                            		<option value="{{ operation_type.id }}">-->
+<!--                                                                		{{ operation_type.description }}-->
+<!--                                                                	</option>-->
+<!--                                                            	{% endfor %}-->
+<!--                                                    	</select>-->
+<!--													</div>-->
 
 													<div class="form-group mt-3">
 														<div>
