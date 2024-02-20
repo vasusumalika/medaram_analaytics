@@ -465,9 +465,13 @@
 
 	<style>
     /* Add this style to align buttons with the table */
-	.dt-buttons.btn-group.flex-wrap {
+		.dt-buttons.btn-group.flex-wrap {
     gap: 10px;
     }
+
+    .dataTables_length select {
+    	width: 10px; /* Adjust the width as needed */
+	}
 </style>
 
 	<!-- JQUERY JS -->
@@ -696,7 +700,7 @@
                 	sSearch: '',
             	},
             	pageLength: 10,
-            	dom: 'Bfrtip', // Add the 'B' button for export
+            	dom: 'Blfrtip', // Include the 'l' for length changing and the 'B' button for export
             	buttons: [
                 	'pdf'
             	],

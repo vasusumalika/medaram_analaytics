@@ -621,8 +621,29 @@ def vehicle_update(request):
 
 @custom_login_required
 def vehicle_details_list(request):
+    depot_data = Depot.objects.filter(~Q(status=2))
+    operation_type_data = OperationType.objects.filter(~Q(status=2))
     vehicle_details_data = VehicleDetails.objects.filter(~Q(status=2))
-    return render(request, 'vehicle_details/list.html', {"vehicle_details": vehicle_details_data})
+    if request.method == "POST":
+        bus_number = request.POST.get('bus_number')
+        depot_id = request.POST.get('depot_id', '')
+        operation_type_id = request.POST.get('operation_type_id', '')
+        vehicle_details_data = vehicle_details_data.filter(bus_number__istartswith=bus_number)
+        if depot_id and operation_type_id:
+            vehicle_details_data = vehicle_details_data.filter(depot_id=depot_id, opt_type_id=operation_type_id)
+        else:
+            if depot_id:
+                vehicle_details_data = vehicle_details_data.filter(depot_id=depot_id)
+            if operation_type_id:
+                vehicle_details_data = vehicle_details_data.filter(opt_type_id=operation_type_id)
+        return render(request, 'vehicle_details/list.html', {"vehicle_details": vehicle_details_data,
+                                                             'depot_data': depot_data,
+                                                             'operation_type_data': operation_type_data})
+    else:
+        vehicle_details_data = vehicle_details_data.order_by('-id')[:50]
+        return render(request, 'vehicle_details/list.html', {"vehicle_details": vehicle_details_data,
+                                                             'depot_data': depot_data,
+                                                             'operation_type_data': operation_type_data})
 
 
 @transaction.atomic
@@ -3681,6 +3702,13 @@ def contact_doctors(request):
     pdf_filename = 'CONTACT DETAILS_17022024.xlsx - DOCTORS_page-0001.jpg'
     title = "CONTACT DETAILS DOCTORS"
     return render(request, 'contact_info/contact_pdf.html', {'pdf_filename': pdf_filename, "title": title})
+
+
+@custom_login_required
+def trip_start_list(request):
+    trip_data = TripStatistics.objects.filter(Q(created_by_id=request.session['user_id']) &
+                                              ~Q(status=2)).order_by('-id')[:5]
+    return render(request, 'trip_statistics/trip_start/list.html', {"trip_data": trip_data})
 
 
 # REST API STARTS FROM HERE

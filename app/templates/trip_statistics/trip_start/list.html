@@ -1,0 +1,102 @@
+{% extends 'side_bar.html' %}
+
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block htmlbody %}
+
+<!--app-content open-->
+				<div class="app-content main-content mt-0">
+					<div class="side-app">
+						<!-- CONTAINER -->
+						<div class="main-container container-fluid">
+
+							<!-- PAGE-HEADER -->
+							<div class="page-header">
+								<div>
+									<h1 class="page-title">Manage Trip Start List</h1>
+								</div>
+								<div class="ms-auto pageheader-btn">
+									<ol class="breadcrumb">
+										<li class="breadcrumb-item"><a href="javascript:void(0);">Manage Trip Start</a></li>
+										<li class="breadcrumb-item active" aria-current="page">Trip Start List</li>
+									</ol>
+								</div>
+							</div>
+							<!-- PAGE-HEADER END -->
+
+
+
+							<!-- Row -->
+							<div class="row row-sm">
+								<div class="col-lg-12">
+									<div class="row">
+                                        <div class="col-md-12">
+                                        </div>
+                                      </div>
+									<div class="card">
+										{% if messages %}
+											{% for message in messages %}
+											<div class="container-fluid p-0">
+											  <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+												<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+												  <span aria-hidden="True">&times;</span>
+												</button>
+												{{ message }}
+											  </div>
+											</div>
+											{% endfor %}
+										{% endif %}
+										<div class="card-header border-bottom">
+											<h3 class="card-title">Trip Start List</h3>
+										</div>
+										<div class="card-body">
+											<div class="table-responsive export-table">
+												<table id="listing-table" class="table table-bordered text-nowrap key-buttons border-bottom  w-100">
+													<thead>
+														<tr>
+															<th class="border-bottom-0">Unique Number</th>
+															<th class="border-bottom-0">Bus Number</th>
+															<th class="border-bottom-0">Point Name</th>
+															<th class="border-bottom-0">Entry Type</th>
+															<th class="border-bottom-0">Total Ticket Amount</th>
+															<th class="border-bottom-0">Total Adult Passengers</th>
+															<th class="border-bottom-0">Total Child Passengers</th>
+                                                            <th class="border-bottom-0">MHL Adult Passengers</th>
+															<th class="border-bottom-0">MHL Child Passengers</th>
+															<th class="border-bottom-0">MHL Adult Amount</th>
+															<th class="border-bottom-0">MHL Child Amount</th>
+														</tr>
+													</thead>
+													<tbody>
+														{% for trip in trip_data %}
+                                                          <tr>
+															  <td>{{ trip.unique_code }}</td>
+															  <td>{{ trip.bus_number }}</td>
+															  <td>{{ trip.point_name.point_name }}</td>
+															  <td>{{ trip.entry_type }}</td>
+															  <td>{{ trip.total_ticket_amount }}</td>
+															  <td>{{ trip.total_adult_passengers }}</td>
+															  <td>{{ trip.total_child_passengers }}</td>
+															  <td>{{ trip.mhl_adult_passengers }}</td>
+															  <td>{{ trip.mhl_child_passengers }}</td>
+															  <td>{{ trip.mhl_adult_amount }}</td>
+															   <td>{{ trip.mhl_child_amount }}</td>
+														  </tr>
+                                                        {% endfor %}
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- End Row -->
+                      </div>
+					</div>
+				</div>
+				<!-- CONTAINER CLOSED -->
+
+
+{% endblock %}
