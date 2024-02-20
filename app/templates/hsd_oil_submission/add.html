@@ -173,7 +173,10 @@
 										<div class="card-body">
 											<form class="form-horizontal row" action="{% url 'app:hsd_oil_submission_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
-												<input type="text" id="unique_bus_no" name="unique_bus_no" value="{{unique_bus_no}}">
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="unique_bus_no">Unique Number / Bus Number</label>
+													<input type="text" id="unique_bus_no" name="unique_bus_no" value="{{unique_bus_no}}" class="form-control" required>
+												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="point_name">Point Name</label>
