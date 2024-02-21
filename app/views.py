@@ -2752,11 +2752,17 @@ def search_hour_wise_dispatched_buses_list(request):
         entry_type = request.POST.get('entry_type')
         given_date = datetime.datetime.strptime(selected_date, '%Y-%m-%d').date()
 
-        current_time = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=5, minutes=30)))
-        start_of_day = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
-        # Generate the hourly ranges
-        hourly_ranges = [(start_of_day + timezone.timedelta(hours=i), start_of_day + timezone.timedelta(hours=i + 1))
-                         for i in range(24)]
+        # current_time = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=5, minutes=30)))
+        # start_of_day = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
+        # # Generate the hourly ranges
+        # hourly_ranges = [(start_of_day + timezone.timedelta(hours=i), start_of_day + timezone.timedelta(hours=i + 1))
+        #                  for i in range(24)]
+
+        datetime_object = datetime.datetime.strptime(selected_date, "%Y-%m-%d")
+        desired_timezone = pytz.timezone('Asia/Kolkata')
+        datetime_object_with_tz = desired_timezone.localize(datetime_object)
+        hourly_ranges = [(datetime_object_with_tz + datetime.timedelta(hours=i),
+                          datetime_object_with_tz + datetime.timedelta(hours=i + 1)) for i in range(24)]
 
         for start, end in hourly_ranges:
             if entry_type == 'up':
