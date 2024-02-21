@@ -58,6 +58,7 @@
 												<table id="listing_table_download" class="table table-bordered text-nowrap key-buttons border-bottom  w-100">
 													<thead>
 														<tr>
+															<th class="border-bottom-0">Depot</th>
 															<th class="border-bottom-0">Bus Number</th>
 															<th class="border-bottom-0">Unique No</th>
 															<th class="border-bottom-0">Bus Type</th>
@@ -78,6 +79,7 @@
 													<tbody>
 														{% for own_depot_bus_detail_entry in own_depot_bus_detail_entry_data %}
                                                           <tr>
+															  <td>{{ own_depot_bus_detail_entry.depot.name }}</td>
 															  <td>{{ own_depot_bus_detail_entry.bus_number.bus_number }}</td>
 															  <td>{{ own_depot_bus_detail_entry.unique_no }}</td>
 															  <td>{{ own_depot_bus_detail_entry.bus_type }}</td>
