@@ -87,13 +87,15 @@
 										</div>
 										<div class="card-body">
 											<div class="table-responsive export-table">
-												<table id="listing_table_download" class="table table-bordered text-nowrap key-buttons border-bottom  w-100">
+												<table id="listing-table" class="table table-bordered text-nowrap key-buttons border-bottom  w-100">
 													<thead>
 														<tr>
 <!--															<th class="border-bottom-0">Operating Depot Name</th>-->
 <!--															<th class="border-bottom-0">Allotted Buses Number</th>-->
 
 <!--                                                            <th class="border-bottom-0">No of Trips</th>-->
+															<th class="border-bottom-0">Date</th>
+															<th class="border-bottom-0">Depot</th>
 															<th class="border-bottom-0">From Point</th>
 <!--															<th class="border-bottom-0">To Point</th>-->
 															<th class="border-bottom-0">No of Trips Up</th>
@@ -109,6 +111,8 @@
 <!--															  <td><b><a style="text-decoration:underline" href="{% url 'app:display_operating_depot_list' %}?id={{ performance_depot.depot_id }}">{{ performance_depot.depot_name }}</a></b></td>-->
 <!--															  <td>{{ performance_depot.buses_allotted }}</td>-->
 <!--                                                              <td>{{ performance_depot.no_of_trips_count }}</td>-->
+															  <td>{{performance_depot.date}}</td>
+															  <td>{{performance_depot.depot_name}}</td>
 															  <td>{{ performance_depot.point_name }}</td>
 <!--															  <td>Thadvai</td>-->
 															  <td>{{ performance_depot.no_of_trips_up_count }}</td>
