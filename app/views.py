@@ -622,28 +622,28 @@ def vehicle_update(request):
 @custom_login_required
 def vehicle_details_list(request):
     depot_data = Depot.objects.filter(~Q(status=2))
-    operation_type_data = OperationType.objects.filter(~Q(status=2))
+    # operation_type_data = OperationType.objects.filter(~Q(status=2))
     vehicle_details_data = VehicleDetails.objects.filter(~Q(status=2))
     if request.method == "POST":
         bus_number = request.POST.get('bus_number')
         depot_id = request.POST.get('depot_id', '')
-        operation_type_id = request.POST.get('operation_type_id', '')
-        vehicle_details_data = vehicle_details_data.filter(bus_number__istartswith=bus_number)
-        if depot_id and operation_type_id:
-            vehicle_details_data = vehicle_details_data.filter(depot_id=depot_id, opt_type_id=operation_type_id)
-        else:
+        # operation_type_id = request.POST.get('operation_type_id', '')
+
+        if depot_id and bus_number:
+            vehicle_details_data = vehicle_details_data.filter(depot_id=depot_id, bus_number__istartswith=bus_number)
+        elif depot_id != "" or bus_number != "":
             if depot_id:
                 vehicle_details_data = vehicle_details_data.filter(depot_id=depot_id)
-            if operation_type_id:
-                vehicle_details_data = vehicle_details_data.filter(opt_type_id=operation_type_id)
+            if bus_number:
+                vehicle_details_data = vehicle_details_data.filter(bus_number__istartswith=bus_number)
+        else:
+            vehicle_details_data = vehicle_details_data.order_by('-id')[:50]
         return render(request, 'vehicle_details/list.html', {"vehicle_details": vehicle_details_data,
-                                                             'depot_data': depot_data,
-                                                             'operation_type_data': operation_type_data})
+                                                             'depot_data': depot_data})
     else:
         vehicle_details_data = vehicle_details_data.order_by('-id')[:50]
         return render(request, 'vehicle_details/list.html', {"vehicle_details": vehicle_details_data,
-                                                             'depot_data': depot_data,
-                                                             'operation_type_data': operation_type_data})
+                                                             'depot_data': depot_data})
 
 
 @transaction.atomic
@@ -1812,7 +1812,8 @@ def buses_on_hand_add(request):
     try:
         point_name_data = PointData.objects.filter(Q(status=0) | Q(status=1))
         print(point_name_id_list)
-        return render(request, 'buses_on_hand/add.html', {"point_name_data": point_name_data, 'point_name_list': point_name_id_list})
+        return render(request, 'buses_on_hand/add.html',
+                      {"point_name_data": point_name_data, 'point_name_list': point_name_id_list})
     except Exception as e:
         print(e)
         return render(request, 'buses_on_hand/add.html', {})
@@ -2165,7 +2166,6 @@ def search_depot_list(request):
                                                                           "performance_depot_result": performance_depot_result})
 
 
-
 @custom_login_required
 def display_operating_depot_list(request):
     operating_depot_name = request.GET.get('id')
@@ -2305,9 +2305,12 @@ def search_handling_bus_details_list(request):
 
                         bus_number = []
 
-                        unique_data = BusesOnHand.objects.get(unique_code=buses_on_hand)
+                        # unique_data = BusesOnHand.objects.get(unique_code=buses_on_hand)
+                        unique_data = BusesOnHand.objects.filter(unique_code=buses_on_hand).latest('created_at')
                         if unique_data.bus_number is not None:
-                            bus_number = VehicleDetails.objects.get(bus_number=unique_data.bus_number.bus_number)
+                            # bus_number = VehicleDetails.objects.get(bus_number=unique_data.bus_number.bus_number)
+                            bus_number = VehicleDetails.objects.filter(bus_number=unique_data.bus_number.bus_number)\
+                                .latest('created_at')
 
                         point_names_result.append({
                             'unique_code': unique_code,
@@ -2489,7 +2492,7 @@ def search_route_wise_buses_to_list(request):
                 point_name = PointData.objects.get(id=trip_point)
                 no_of_buses = TripStatistics.objects.filter(entry_type='up').filter(
                     start_from_location=trip_point).filter(
-            start_to_location__point_name__in=settings.DOWN_LOCATION).count()
+                    start_to_location__point_name__in=settings.DOWN_LOCATION).count()
                 total_passengers = TripStatistics.objects.filter(entry_type='up').filter(
                     start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
                     start_from_location=trip_point).filter(trip_start__gte=yesterday_datetime).aggregate(
@@ -2617,17 +2620,139 @@ def search_route_wise_buses_from_list(request):
                       {'point_names': point_names, 'trip_point_result': trip_point_result})
 
 
+# @custom_login_required
+# def search_hour_wise_dispatched_buses_list(request):
+#     point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name__in=settings.DOWN_LOCATION))
+#     if request.method == "POST":
+#         trip_point_result = []
+#         point_name = request.POST.get('point_name')
+#         date = request.POST.get('date')
+#         entry_type = request.POST.get('entry_type')
+#         given_date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+#
+#         current_time = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=5, minutes=30)))
+#         start_of_day = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
+#         # Generate the hourly ranges
+#         hourly_ranges = [(start_of_day + timezone.timedelta(hours=i), start_of_day + timezone.timedelta(hours=i + 1))
+#                          for i in range(24)]
+#         for start, end in hourly_ranges:
+#             if entry_type == 'up':
+#                 trip_point_data = TripStatistics.objects.filter(entry_type=entry_type).filter(
+#                     start_from_location=point_name). \
+#                     filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
+#                     trip_start__range=(start, end))
+#                 if len(trip_point_data) > 0:
+#                     no_of_trips = trip_point_data.count()
+#
+#                     total_passengers = TripStatistics.objects.filter(entry_type=entry_type).filter(
+#                         start_from_location=point_name). \
+#                         filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
+#                         trip_start__range=(start, end)).aggregate(
+#                         total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+#                         total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+#                         mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+#                         mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+#                     )
+#                     total_passengers_count = total_passengers['total_adult_passengers'] + total_passengers[
+#                         'total_child_passengers'] + total_passengers['mhl_adult_passengers'] + \
+#                                              total_passengers['mhl_child_passengers']
+#
+#                     total_earnings = TripStatistics.objects.filter(entry_type=entry_type).filter(
+#                         start_from_location=point_name). \
+#                         filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
+#                         trip_start__range=(start, end)).aggregate(
+#                         total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
+#                         mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
+#                         mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0)
+#                     )
+#
+#                     total_earnings_count = total_earnings['total_ticket_amount'] + total_earnings[
+#                         'mhl_adult_amount'] + total_earnings['mhl_child_amount']
+#
+#                     trip_point_result.append({
+#                         'no_of_trips': no_of_trips,
+#                         'no_of_fair_adult_pssg': total_passengers['total_adult_passengers'],
+#                         'no_of_fair_child_pssg': total_passengers['total_child_passengers'],
+#                         'total_fare_pssg_amount': total_earnings['total_ticket_amount'],
+#                         'no_of_mhl_adult_pssg': total_passengers['mhl_adult_passengers'],
+#                         'no_of_mhl_child_pssg': total_passengers['mhl_child_passengers'],
+#                         'total_mhl_amount': total_earnings['mhl_adult_amount'] + total_earnings['mhl_child_amount'],
+#                         'total_passg': total_passengers_count,
+#                         'total_earnings': total_earnings_count,
+#                         "start_time": '{:02d}'.format(start.time().hour) + ':' + '{:02d}'.format(
+#                             start.time().minute),
+#                         "end_time": '{:02d}'.format(end.time().hour) + ':' + '{:02d}'.format(
+#                             end.time().minute)
+#                     })
+#             else:
+#                 trip_point_data = TripStatistics.objects.filter(entry_type=entry_type).filter(
+#                     start_from_location__point_name__in=settings.DOWN_LOCATION).filter(
+#                     start_to_location=point_name).filter(
+#                     trip_start__range=(start, end))
+#                 if len(trip_point_data) > 0:
+#                     no_of_trips = trip_point_data.count()
+#
+#                     total_passengers = TripStatistics.objects.filter(entry_type=entry_type).filter(
+#                         start_from_location__point_name__in=settings.DOWN_LOCATION). \
+#                         filter(start_to_location=point_name).filter(
+#                         trip_start__range=(start, end)).aggregate(
+#                         total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
+#                         total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
+#                         mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
+#                         mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
+#                     )
+#                     total_passengers_count = total_passengers['total_adult_passengers'] + total_passengers[
+#                         'total_child_passengers'] + total_passengers['mhl_adult_passengers'] + \
+#                                              total_passengers['mhl_child_passengers']
+#
+#                     total_earnings = TripStatistics.objects.filter(entry_type=entry_type).filter(
+#                         start_from_location__point_name__in=settings.DOWN_LOCATION). \
+#                         filter(start_to_location=point_name).filter(
+#                         trip_start__range=(start, end)).aggregate(
+#                         total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
+#                         mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
+#                         mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0)
+#                     )
+#
+#                     total_earnings_count = total_earnings['total_ticket_amount'] + total_earnings[
+#                         'mhl_adult_amount'] + total_earnings['mhl_child_amount']
+#
+#                     trip_point_result.append({
+#                         'no_of_trips': no_of_trips,
+#                         'no_of_fair_adult_pssg': total_passengers['total_adult_passengers'],
+#                         'no_of_fair_child_pssg': total_passengers['total_child_passengers'],
+#                         'total_fare_pssg_amount': total_earnings['total_ticket_amount'],
+#                         'no_of_mhl_adult_pssg': total_passengers['mhl_adult_passengers'],
+#                         'no_of_mhl_child_pssg': total_passengers['mhl_child_passengers'],
+#                         'total_mhl_amount': total_earnings['mhl_adult_amount'] + total_earnings['mhl_child_amount'],
+#                         'total_passg': total_passengers_count,
+#                         'total_earnings': total_earnings_count,
+#                         "start_time": '{:02d}'.format(
+#                             start.time().hour) + ':' + '{:02d}'.format(start.time().minute),
+#
+#                         "end_time": '{:02d}'.format(end.time().hour) + ':' + '{:02d}'.format(
+#                             end.time().minute)
+#
+#                     })
+#
+#         return render(request, 'reports/hour_wise_dispatched_buses_list.html',
+#                       {'trip_point_result': trip_point_result,
+#                        'point_names': point_names})
+#     else:
+#         return render(request, 'reports/hour_wise_dispatched_buses_list.html',
+#                       {'point_names': point_names})
+
 @custom_login_required
 def search_hour_wise_dispatched_buses_list(request):
     point_names = PointData.objects.filter(~Q(status=2)).filter(~Q(point_name__in=settings.DOWN_LOCATION))
     if request.method == "POST":
         trip_point_result = []
         point_name = request.POST.get('point_name')
-        date = request.POST.get('date')
+        selected_date = request.POST.get('date')
         entry_type = request.POST.get('entry_type')
-        given_date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        given_date = datetime.datetime.strptime(selected_date, '%Y-%m-%d').date()
 
-        current_time = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=0, minutes=0)))
+        current_time = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=5, minutes=30)))
         start_of_day = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
         # Generate the hourly ranges
         hourly_ranges = [(start_of_day + timezone.timedelta(hours=i), start_of_day + timezone.timedelta(hours=i + 1))
@@ -2637,39 +2762,42 @@ def search_hour_wise_dispatched_buses_list(request):
             if entry_type == 'up':
                 trip_point_data = TripStatistics.objects.filter(entry_type=entry_type).filter(
                     start_from_location=point_name). \
-                    filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(trip_start__range=(start, end))
+                    filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
+                    trip_start__range=(timezone.localtime(start), timezone.localtime(end))).filter(trip_start__date=given_date)
                 if len(trip_point_data) > 0:
                     no_of_trips = trip_point_data.count()
 
                     total_passengers = TripStatistics.objects.filter(entry_type=entry_type).filter(
                         start_from_location=point_name). \
                         filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
-                        trip_start__range=(start, end)).aggregate(
+                        trip_start__range=(timezone.localtime(start), timezone.localtime(end))).aggregate(
                         total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                         total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
                         mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
                         mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
                     )
                     total_passengers_count = total_passengers['total_adult_passengers'] + total_passengers[
-                        'total_child_passengers'] + total_passengers['mhl_adult_passengers'] + \
-                                             total_passengers['mhl_child_passengers']
+                        'total_child_passengers']
+                    total_fare_passengers_adult = total_passengers['total_adult_passengers'] - total_passengers[
+                        'mhl_adult_passengers']
+                    total_fare_passengers_child = total_passengers['total_child_passengers'] - total_passengers[
+                        'mhl_child_passengers']
 
                     total_earnings = TripStatistics.objects.filter(entry_type=entry_type).filter(
                         start_from_location=point_name). \
                         filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
-                        trip_start__range=(start, end)).aggregate(
+                        trip_start__range=(timezone.localtime(start), timezone.localtime(end))).aggregate(
                         total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
                         mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
                         mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0)
                     )
 
-                    total_earnings_count = total_earnings['total_ticket_amount'] + total_earnings[
-                        'mhl_adult_amount'] + total_earnings['mhl_child_amount']
+                    total_earnings_count = total_earnings['total_ticket_amount']
 
                     trip_point_result.append({
                         'no_of_trips': no_of_trips,
-                        'no_of_fair_adult_pssg': total_passengers['total_adult_passengers'],
-                        'no_of_fair_child_pssg': total_passengers['total_child_passengers'],
+                        'no_of_fair_adult_pssg': total_fare_passengers_adult,
+                        'no_of_fair_child_pssg': total_fare_passengers_child,
                         'total_fare_pssg_amount': total_earnings['total_ticket_amount'],
                         'no_of_mhl_adult_pssg': total_passengers['mhl_adult_passengers'],
                         'no_of_mhl_child_pssg': total_passengers['mhl_child_passengers'],
@@ -2683,8 +2811,9 @@ def search_hour_wise_dispatched_buses_list(request):
                     })
             else:
                 trip_point_data = TripStatistics.objects.filter(entry_type=entry_type).filter(
-                    start_from_location__point_name__in=settings.DOWN_LOCATION).filter(start_to_location=point_name).filter(
-                    trip_start__range=(start, end))
+                    start_from_location__point_name__in=settings.DOWN_LOCATION).filter(
+                    start_to_location=point_name).filter(
+                    trip_start__range=(start, end)).filter(trip_start__date=given_date)
                 if len(trip_point_data) > 0:
                     no_of_trips = trip_point_data.count()
 
@@ -2698,8 +2827,9 @@ def search_hour_wise_dispatched_buses_list(request):
                         mhl_child_passengers=Coalesce(Sum('mhl_child_passengers'), 0)
                     )
                     total_passengers_count = total_passengers['total_adult_passengers'] + total_passengers[
-                        'total_child_passengers'] + total_passengers['mhl_adult_passengers'] + \
-                                             total_passengers['mhl_child_passengers']
+                        'total_child_passengers']
+                    total_fare_passengers_adult = total_passengers['total_adult_passengers'] - total_passengers['mhl_adult_passengers']
+                    total_fare_passengers_child = total_passengers['total_child_passengers'] - total_passengers['mhl_child_passengers']
 
                     total_earnings = TripStatistics.objects.filter(entry_type=entry_type).filter(
                         start_from_location__point_name__in=settings.DOWN_LOCATION). \
@@ -2710,13 +2840,12 @@ def search_hour_wise_dispatched_buses_list(request):
                         mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0)
                     )
 
-                    total_earnings_count = total_earnings['total_ticket_amount'] + total_earnings[
-                        'mhl_adult_amount'] + total_earnings['mhl_child_amount']
+                    total_earnings_count = total_earnings['total_ticket_amount']
 
                     trip_point_result.append({
                         'no_of_trips': no_of_trips,
-                        'no_of_fair_adult_pssg': total_passengers['total_adult_passengers'],
-                        'no_of_fair_child_pssg': total_passengers['total_child_passengers'],
+                        'no_of_fair_adult_pssg': total_fare_passengers_adult,
+                        'no_of_fair_child_pssg': total_fare_passengers_child,
                         'total_fare_pssg_amount': total_earnings['total_ticket_amount'],
                         'no_of_mhl_adult_pssg': total_passengers['mhl_adult_passengers'],
                         'no_of_mhl_child_pssg': total_passengers['mhl_child_passengers'],
@@ -3226,13 +3355,14 @@ def dashboard_data_of_selected_date(request):
                 'total_child_passengers']
 
             no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
-                start_to_location__point_name__in=settings.DOWN_LOCATION).filter(start_from_location__point_name=point).count()
+                start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
+                start_from_location__point_name=point).count()
 
             total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
                 'total_child_passengers']
 
             no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
-                .filter(start_from_location__point_name__in=settings.DOWN_LOCATION).\
+                .filter(start_from_location__point_name__in=settings.DOWN_LOCATION). \
                 filter(start_to_location__point_name=point).count()
 
             total_passengers_left_over = total_passengers_left - total_passengers_dispatched
@@ -3295,7 +3425,7 @@ def dashboard_data_of_selected_point(request):
 
             total_passengers_down = TripStatistics.objects.filter(entry_type='down').filter(
                 trip_start__date=date).filter(
-                start_from_location__point_name__in=settings.DOWN_LOCATION).\
+                start_from_location__point_name__in=settings.DOWN_LOCATION). \
                 filter(start_to_location__point_name=point_name).aggregate(
                 total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                 total_child_passengers=Coalesce(Sum('total_child_passengers'), 0)
@@ -3306,14 +3436,14 @@ def dashboard_data_of_selected_point(request):
                     'total_child_passengers']
 
                 no_of_buses_left = TripStatistics.objects.filter(entry_type='up').filter(trip_start__date=date).filter(
-                    start_to_location__point_name__in=settings.DOWN_LOCATION).\
+                    start_to_location__point_name__in=settings.DOWN_LOCATION). \
                     filter(start_from_location__point_name=point_name).count()
 
                 total_passengers_dispatched = total_passengers_down['total_adult_passengers'] + total_passengers_down[
                     'total_child_passengers']
 
                 no_of_buses_dispatched = TripStatistics.objects.filter(entry_type='down').filter(trip_start__date=date) \
-                    .filter(start_from_location__point_name__in=settings.DOWN_LOCATION).\
+                    .filter(start_from_location__point_name__in=settings.DOWN_LOCATION). \
                     filter(start_to_location__point_name=point_name). \
                     count()
 
