@@ -1098,30 +1098,33 @@ def trip_start_add(request):
         start_to_location = request.POST.get('start_to_location')
         entry_type = request.POST.get('entry_type')
         service_operated_date = request.POST.get('service_operated_date')
-        status = 0
-
+        trip_start_status = 0
         try:
-            user_data = User.objects.get(id=request.session['user_id'])
-            start_from_point_data = PointData.objects.get(point_name=start_from_location)
-            start_to_pont_data = PointData.objects.get(point_name=start_to_location)
+            if bus_number:
+                user_data = User.objects.get(id=request.session['user_id'])
+                start_from_point_data = PointData.objects.get(point_name=start_from_location)
+                start_to_pont_data = PointData.objects.get(point_name=start_to_location)
 
-            statistics_data_entry = TripStatistics.objects.create(unique_code=unique_code, bus_number=bus_number,
-                                                                  total_ticket_amount=total_ticket_amount,
-                                                                  total_adult_passengers=total_adult_passengers,
-                                                                  total_child_passengers=total_child_passengers,
-                                                                  mhl_adult_passengers=mhl_adult_passengers,
-                                                                  mhl_child_passengers=mhl_child_passengers,
-                                                                  mhl_adult_amount=mhl_adult_amount,
-                                                                  mhl_child_amount=mhl_child_amount,
-                                                                  entry_type=entry_type,
-                                                                  status=status, created_by=user_data,
-                                                                  start_from_location=start_from_point_data,
-                                                                  start_to_location=start_to_pont_data,
-                                                                  data_enter_by=user_data,
-                                                                  service_operated_date=service_operated_date)
-            statistics_data_entry.save()
-            messages.success(request, 'Statistics Trip Data Created Successfully')
-            return redirect("app:trip_start_add")
+                statistics_data_entry = TripStatistics.objects.create(unique_code=unique_code, bus_number=bus_number,
+                                                                      total_ticket_amount=total_ticket_amount,
+                                                                      total_adult_passengers=total_adult_passengers,
+                                                                      total_child_passengers=total_child_passengers,
+                                                                      mhl_adult_passengers=mhl_adult_passengers,
+                                                                      mhl_child_passengers=mhl_child_passengers,
+                                                                      mhl_adult_amount=mhl_adult_amount,
+                                                                      mhl_child_amount=mhl_child_amount,
+                                                                      entry_type=entry_type,
+                                                                      status=trip_start_status, created_by=user_data,
+                                                                      start_from_location=start_from_point_data,
+                                                                      start_to_location=start_to_pont_data,
+                                                                      data_enter_by=user_data,
+                                                                      service_operated_date=service_operated_date)
+                statistics_data_entry.save()
+                messages.success(request, 'Statistics Trip Data Created Successfully')
+                return redirect("app:trip_start_add")
+            else:
+                messages.error(request, 'Statistics Trip Data Creation Failed!!')
+                return redirect("app:trip_start_add")
         except Exception as e:
             print(e)
             messages.error(request, 'Statistics Trip Data Creation Failed!!')
@@ -1451,17 +1454,19 @@ def own_depot_bus_details_entry_update(request):
     driver2_staff_no = request.POST.get('driver2_staff_no')
     incharge_name = request.POST.get('incharge_name')
     incharge_phone_number = request.POST.get('incharge_phone_number')
-    status = 0
+    own_depot_bus_details_entry_status = 0
     if own_depot_bus_details_entry_id:
         try:
-            # own_depot_buses_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
-            # if own_depot_buses_entry_unique_count.exists():
-            #     messages.error(request, 'Unique number already exists!update failed!')
-            #     redirect("app:own_depot_bus_details_entry_list")
             own_depot_bus_details_entry_data = OwnDepotBusDetailsEntry.objects.get(id=own_depot_bus_details_entry_id)
+            if own_depot_bus_details_entry_data.unique_no != unique_no:
+                own_depot_buses_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
+                out_depot_buses_receive_unique_count = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
+                if own_depot_buses_entry_unique_count.exists() or out_depot_buses_receive_unique_count.exists():
+                    messages.error(request, 'Unique number already exists update  failed!!')
+                    return redirect("app:own_depot_bus_details_entry_list")
             # vehicle_details_id = VehicleDetails.objects.get(bus_number=bus_number)
             # own_depot_bus_details_entry_data.bus_number = vehicle_details_id
-            # own_depot_bus_details_entry_data.unique_no = unique_no
+            own_depot_bus_details_entry_data.unique_no = unique_no
             own_depot_bus_details_entry_data.bus_type = bus_type
             own_depot_bus_details_entry_data.log_sheet_no = log_sheet_no
             own_depot_bus_details_entry_data.driver1_name = driver1_name
@@ -1472,7 +1477,7 @@ def own_depot_bus_details_entry_update(request):
             own_depot_bus_details_entry_data.driver2_staff_no = driver2_staff_no
             own_depot_bus_details_entry_data.incharge_name = incharge_name
             own_depot_bus_details_entry_data.incharge_phone_number = incharge_phone_number
-            own_depot_bus_details_entry_data.status = status
+            own_depot_bus_details_entry_data.status = own_depot_bus_details_entry_status
             vehicle_details = VehicleDetails.objects.get(bus_number=bus_number)
             depot_data = Depot.objects.get(id=vehicle_details.depot.id)
             own_depot_bus_details_entry_data.depot = depot_data
@@ -2952,11 +2957,13 @@ def out_depot_vehicle_receive_update(request):
     out_depot_buses_receive_status = 0
     if out_depot_vehicle_receive_id:
         try:
-            out_depot_buses_receive_unique_count = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
-            if out_depot_buses_receive_unique_count.exists():
-                messages.error(request, 'Unique number already exists update  failed!!')
-                return redirect("app:out_depot_buses_receive_list")
             out_depot_vehicle_receive_data = OutDepotVehicleReceive.objects.get(id=out_depot_vehicle_receive_id)
+            if out_depot_vehicle_receive_data.unique_no != unique_no:
+                out_depot_buses_receive_unique_count = OutDepotVehicleReceive.objects.filter(unique_no=unique_no)
+                own_depot_bus_details_entry_unique_count = OwnDepotBusDetailsEntry.objects.filter(unique_no=unique_no)
+                if out_depot_buses_receive_unique_count.exists() or own_depot_bus_details_entry_unique_count.exists():
+                    messages.error(request, 'Unique number already exists update failed!!')
+                    return redirect("app:out_depot_buses_receive_list")
             out_depot_vehicle_receive_data.unique_no = unique_no
             out_depot_vehicle_receive_data.new_log_sheet_no = new_log_sheet_no
             out_depot_vehicle_receive_data.hsd_top_oil_liters = hsd_top_oil_liters
