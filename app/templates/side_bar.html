@@ -657,6 +657,7 @@
 			$('.trip_start_unique_no').on('input', function() {
             	var selectedUniqueNo = $(this).val();
             	$('#trip_start_bus_number').val('');
+            	$('#busNumberValidationMessage').text('');
             	console.log(selectedUniqueNo);
 				$.ajax({
 					url: '{% url "app:get_out_and_own_depot_bus_number" %}',
@@ -755,6 +756,16 @@
 				});
 			});
 
+			$('#trip_start_add_form').submit(function(event) {
+    			// Check if the bus number field is empty
+    			if ($('#trip_start_bus_number').val().trim() === '') {
+        			// Prevent form submission
+        			event.preventDefault();
+        			// Alert the user or show an error message
+        			$('#busNumberValidationMessage').text('Provided unique number has no associated bus number');
+    			}
+			});
+
         });
 
         function validateInput() {
@@ -817,12 +828,17 @@
       		var minutes = currentTime.getMinutes();
       		var formattedTime = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes);
 
-      		$('#tp3').timepicker({
+      		$('.timepicker-add').timepicker({
           		timeFormat: 'H:i',
           		step: 30
       		});
 
-      		$('#tp3').val(formattedTime);
+      		$('#tp3_add').val(formattedTime);
+
+      		$('.timepicker-edit').timepicker({
+    			timeFormat: 'H:i',
+    			step: 30
+			});
 	  });
 
 	</script>

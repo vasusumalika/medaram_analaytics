@@ -75,7 +75,8 @@
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="unique_no">Unique Number</label>
-                                                    <input type="text" id="unique_no"  value="{{own_depot_bus_details_entry_data.unique_no}}" name="unique_no" class="form-control" readonly>
+                                                    <input type="text" id="unique_no"  value="{{own_depot_bus_details_entry_data.unique_no}}" name="unique_no" class="form-control" required pattern="^\d{4}$" title="Please enter exactly four digits" oninput="validateInput()">
+													<span id="validationMessage" style="color: red;"></span>
 												</div>
 
 												<div class="col-sm-12 col-md-12 col-xl-6">
@@ -107,18 +108,16 @@
                                                     <input type="text" id="driver1_name"  value="{{own_depot_bus_details_entry_data.driver1_name}}" name="driver1_name" class="form-control" required>
 												</div>
 
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="driver1_phone_number">Driver1 Phone Number</label>
-                                                    <input type="text" id="driver1_phone_number" value="{{own_depot_bus_details_entry_data.driver1_phone_number}}"  name="driver1_phone_number" class="form-control" required pattern="[0-9]{10}" title="Phone number must be 10 digits">
-												</div>
-
-
 											    <div class="form-group col-md-6">
                                                     <label class="form-label" for="driver1_staff_no">Driver1 Staff Number</label>
                                                     <input type="text" id="driver1_staff_no" value="{{own_depot_bus_details_entry_data.driver1_staff_no}}"  name="driver1_staff_no" class="form-control" required pattern="^\d{1,6}$" title="Accepting Length Limit: upto 6." oninput="validateDriverStaffNumberInput('driver1_staff_no', 'validate_info_1')">
 													<span id="validate_info_1" style="color: red;"></span>
 												</div>
 
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver1_phone_number">Driver1 Phone Number</label>
+                                                    <input type="text" id="driver1_phone_number" value="{{own_depot_bus_details_entry_data.driver1_phone_number}}"  name="driver1_phone_number" class="form-control" required pattern="[0-9]{10}" title="Phone number must be 10 digits">
+												</div>
 
 												</div>
 												</div>
@@ -134,14 +133,14 @@
 												</div>
 
 												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="driver2_phone_number">Driver2 Phone Number</label>
-                                                    <input type="text" id="driver2_phone_number" value="{{own_depot_bus_details_entry_data.driver2_phone_number}}"  name="driver2_phone_number" class="form-control" pattern="[0-9]{10}" title="Phone number must be 10 digits">
-												</div>
-
-												  <div class="form-group col-md-6">
                                                     <label class="form-label" for="driver2_staff_no">Driver2 Staff Number</label>
                                                     <input type="text" id="driver2_staff_no" value="{{own_depot_bus_details_entry_data.driver2_staff_no}}"  name="driver2_staff_no" class="form-control" pattern="^\d{1,6}$" title="Accepting Length Limit: Upto 6." oninput="validateDriverStaffNumberInput('driver2_staff_no', 'validate_info_2')">
 													<span id="validate_info_2" style="color: red;"></span>
+												</div>
+
+												<div class="form-group col-md-6">
+                                                    <label class="form-label" for="driver2_phone_number">Driver2 Phone Number</label>
+                                                    <input type="text" id="driver2_phone_number" value="{{own_depot_bus_details_entry_data.driver2_phone_number}}"  name="driver2_phone_number" class="form-control" pattern="[0-9]{10}" title="Phone number must be 10 digits">
 												</div>
 
 												</div>
@@ -168,7 +167,6 @@
 												</div>
 												</div>
 												</div>
-
 
 
 												<div class="form-group mt-3">
