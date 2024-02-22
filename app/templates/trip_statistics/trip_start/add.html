@@ -51,7 +51,7 @@
 										<div class="card-body">
 											<a  href="{% url 'app:trip_start_list' %}" target="_blank"><input type="button" value="Trip Start List" class="btn btn-primary" style="margin: 0 20px 20px 0;"></a>
 
-											<form class="form-horizontal row" action="{% url 'app:trip_start_add' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+											<form class="form-horizontal row" action="{% url 'app:trip_start_add' %}" id="trip_start_add_form" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
                                                {% if request.session.user_type == 'PSG ENTRY UP' or request.session.user_type == 'Super_admin' %}
 
@@ -142,19 +142,16 @@
 
 
 
-
-
-
-
 												<div class="form-group col-md-6">
-    												<label class="form-label" for="trip_start_unique_no">Unique No:</label>
+    												<label class="form-label" for="unique_no">Unique No:</label>
     												<input type="text" id="unique_no" name="trip_start_unique_no" class="form-control trip_start_unique_no" required pattern="^\d{4}$" title="Please enter exactly four digits" oninput="validateInput()">
     												<span id="validationMessage" style="color: red;"></span>
 												</div>
 
 												<div class="form-group col-md-6">
                                                     <label class="form-label" for="trip_start_bus_number">Bus Number</label>
-                                                    <input type="text" id="trip_start_bus_number" name="trip_start_bus_number" class="form-control" readonly>
+                                                    <input type="text" id="trip_start_bus_number" name="trip_start_bus_number" class="form-control" title="No bus number for the given unique number" readonly required>
+													<span id="busNumberValidationMessage" style="color: red;"></span>
 												</div>
 
 												<div class="form-group col-md-6">
