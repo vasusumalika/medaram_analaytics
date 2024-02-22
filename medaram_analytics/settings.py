@@ -96,7 +96,6 @@ WSGI_APPLICATION = 'medaram_analytics.wsgi.application'
 # }
 
 
-
 DATABASES = {
 
     'default': {
@@ -116,7 +115,6 @@ DATABASES = {
     }
 
 }
-
 
 
 # Password validation

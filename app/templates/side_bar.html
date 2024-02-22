@@ -30,9 +30,6 @@
 	<!--- FONT-ICONS CSS -->
 	<link href="{% static 'css/icons.css' %}" rel="stylesheet" />
 
-<!--	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">-->
-<!--	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>-->
-
 </head>
 
 <body class="ltr app sidebar-mini" >
@@ -814,8 +811,18 @@
 			// Get the date part only
 			var currentDateISTString = currentDateIST.toISOString().split('T')[0];
 			$(".report-datepicker").val(currentDateISTString); // Assuming your text field's id is "datePicker"
-			$('#tp3').timepicker('setTime', new Date().getHours() + ':' + new Date().getMinutes());
 
+			var currentTime = new Date();
+      		var hours = currentTime.getHours();
+      		var minutes = currentTime.getMinutes();
+      		var formattedTime = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes);
+
+      		$('#tp3').timepicker({
+          		timeFormat: 'H:i',
+          		step: 30
+      		});
+
+      		$('#tp3').val(formattedTime);
 	  });
 
 	</script>

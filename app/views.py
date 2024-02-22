@@ -657,6 +657,10 @@ def vehicle_detail_add(request):
         vehicle_owner = request.POST.get('vehicle_owner')
         vehicle_detail_status = 0
         try:
+            vehicle_count = VehicleDetails.objects.filter(Q(bus_number__iexact=bus_number) & ~Q(status=2))
+            if vehicle_count.exists():
+                messages.error(request, 'Bus number already exist. Please try again')
+                return redirect('app:vehicle_detail_add')
             vehicle_data = Vehicle.objects.get(id=vehicle_id)
             depot_data = Depot.objects.get(id=depot_id)
             operation_type_data = OperationType.objects.get(id=opt_type_id)
@@ -724,6 +728,11 @@ def vehicle_detail_update(request):
     if vehicle_detail_id:
         try:
             vehicle_detail_data = VehicleDetails.objects.get(id=vehicle_detail_id)
+            if vehicle_detail_data.bus_number != bus_number:
+                vehicle_count = VehicleDetails.objects.filter(Q(bus_number__iexact=bus_number) & ~Q(status=2))
+                if vehicle_count.exists():
+                    messages.error(request, 'Bus number already exist. Please try again')
+                    return redirect('app:vehicle_details_list')
             vehicle_detail_data.bus_number = bus_number
             vehicle_detail_data.vehicle_owner = vehicle_owner
             vehicle_detail_data.status = vehicle_detail_status
@@ -2768,15 +2777,17 @@ def search_hour_wise_dispatched_buses_list(request):
             if entry_type == 'up':
                 trip_point_data = TripStatistics.objects.filter(entry_type=entry_type).filter(
                     start_from_location=point_name). \
-                    filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
-                    trip_start__range=(timezone.localtime(start), timezone.localtime(end))).filter(trip_start__date=given_date)
+                    filter(start_to_location__point_name__in=settings.DOWN_LOCATION)\
+                    .filter(trip_start__range=(start, end))\
+                    .filter(trip_start__date=given_date)
+                print(str(trip_point_data.query))
                 if len(trip_point_data) > 0:
                     no_of_trips = trip_point_data.count()
 
                     total_passengers = TripStatistics.objects.filter(entry_type=entry_type).filter(
                         start_from_location=point_name). \
                         filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
-                        trip_start__range=(timezone.localtime(start), timezone.localtime(end))).aggregate(
+                        trip_start__range=(start, end)).aggregate(
                         total_adult_passengers=Coalesce(Sum('total_adult_passengers'), 0),
                         total_child_passengers=Coalesce(Sum('total_child_passengers'), 0),
                         mhl_adult_passengers=Coalesce(Sum('mhl_adult_passengers'), 0),
@@ -2792,7 +2803,7 @@ def search_hour_wise_dispatched_buses_list(request):
                     total_earnings = TripStatistics.objects.filter(entry_type=entry_type).filter(
                         start_from_location=point_name). \
                         filter(start_to_location__point_name__in=settings.DOWN_LOCATION).filter(
-                        trip_start__range=(timezone.localtime(start), timezone.localtime(end))).aggregate(
+                        trip_start__range=(start, end)).aggregate(
                         total_ticket_amount=Coalesce(Sum('total_ticket_amount'), 0),
                         mhl_adult_amount=Coalesce(Sum('mhl_adult_amount'), 0),
                         mhl_child_amount=Coalesce(Sum('mhl_child_amount'), 0)
