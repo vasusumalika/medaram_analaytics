@@ -32,6 +32,12 @@ from app import serializers as app_serializers
 import datetime
 from django.db.models.functions import TruncHour
 from django.db.models import Max, Subquery, OuterRef
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import HttpResponse
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, PageBreak
+from io import BytesIO
 
 ENCRYPTION_KEY = getattr(settings, 'ENCRYPTION_KEY', None)
 if ENCRYPTION_KEY is None:
@@ -3876,6 +3882,160 @@ def trip_start_list(request):
     trip_data = TripStatistics.objects.filter(Q(created_by_id=request.session['user_id']) &
                                               ~Q(status=2)).order_by('-id')[:5]
     return render(request, 'trip_statistics/trip_start/list.html', {"trip_data": trip_data})
+
+
+@custom_login_required
+def depot_wise_trip_count(request):
+    depot_data = Depot.objects.values('id', 'name').filter(~Q(status=2))
+    depot_wise_trip_count_result = []
+    if request.method == "POST":
+        depot_name = request.POST.get('depot_id')
+        depot_points = PointData.objects.filter(~Q(status=2)).filter(Q(depot_name=depot_name)).values_list('id',
+                                                                                                       flat=True)
+        for depot_point in depot_points:
+            point_data = PointData.objects.get(id=depot_point)
+            if point_data.point_name not in settings.DOWN_LOCATION:
+                unique_code_data = TripStatistics.objects.filter(Q(start_from_location=point_data) |
+                                                                 Q(start_to_location=point_data)) \
+                    .values_list('unique_code', flat=True).distinct()
+                for unique_code in unique_code_data:
+                    check_depot_points = TripStatistics.objects.filter(
+                        Q(start_from_location=point_data) | Q(start_to_location=point_data)) \
+                        .filter(unique_code=unique_code).count()
+                    if check_depot_points > 0:
+                        no_of_trips_up_count = TripStatistics.objects.filter(entry_type='up').filter(
+                            start_from_location=point_data).filter(unique_code=unique_code).count()
+                        no_of_trips_down_count = TripStatistics.objects.filter(entry_type='down').filter(
+                            start_to_location=point_data).filter(unique_code=unique_code).count()
+                        depot_wise_trip_count_result.append({
+                            'point_name': point_data.point_name,
+                            'depot_name': point_data.depot_name.name,
+                            'unique_no': unique_code,
+                            'no_of_trips_up_count': no_of_trips_up_count,
+                            'no_of_trips_down_count': no_of_trips_down_count
+                        })
+        return render(request, 'reports/depot_wise_trip_count_list.html',
+                      {"depot_wise_trip_count_result": depot_wise_trip_count_result, 'depot_data': depot_data})
+    else:
+        depot_points = set()
+        unique_code_data = TripStatistics.objects.filter(~Q(status=2)).values_list('unique_code', flat=True).distinct()[:30]
+        for unique_code in unique_code_data:
+            from_points_id = TripStatistics.objects.filter(~Q(status=2)).filter(Q(unique_code=unique_code))\
+                .values_list('start_from_location', flat=True).distinct()
+            depot_points.update(from_points_id)
+            to_points_id = TripStatistics.objects.filter(~Q(status=2)).filter(Q(unique_code=unique_code))\
+                .values_list('start_to_location', flat=True).distinct()
+            depot_points.update(to_points_id)
+            for depot_point in depot_points:
+                point_data = PointData.objects.get(id=depot_point)
+                if point_data.point_name not in settings.DOWN_LOCATION:
+                    check_depot_points = TripStatistics.objects.filter(
+                            Q(start_from_location=point_data) | Q(start_to_location=point_data)) \
+                            .filter(unique_code=unique_code).count()
+                    if check_depot_points > 0:
+                        no_of_trips_up_count = TripStatistics.objects.filter(entry_type='up').filter(
+                            start_from_location=point_data).filter(unique_code=unique_code).count()
+                        no_of_trips_down_count = TripStatistics.objects.filter(entry_type='down').filter(
+                            start_to_location=point_data).filter(unique_code=unique_code).count()
+                        depot_wise_trip_count_result.append({
+                            'point_name': point_data.point_name,
+                            'depot_name': point_data.depot_name.name,
+                            'unique_no': unique_code,
+                            'no_of_trips_up_count': no_of_trips_up_count,
+                            'no_of_trips_down_count': no_of_trips_down_count
+                        })
+        # Pagination
+    # paginator = Paginator(depot_wise_trip_count_result, per_page=10)  # 10 results per page, adjust as needed
+    # page_number = request.GET.get('page')
+    #
+    # try:
+    #     depot_wise_trip_count_result_page = paginator.page(page_number)
+    # except PageNotAnInteger:
+    #     depot_wise_trip_count_result_page = paginator.page(1)
+    # except EmptyPage:
+    #     depot_wise_trip_count_result_page = paginator.page(paginator.num_pages)
+
+        return render(request, 'reports/depot_wise_trip_count_list.html',
+                      {"depot_wise_trip_count_result": depot_wise_trip_count_result, 'depot_data': depot_data})
+
+
+def depot_wise_trip_count_pdf(request):
+    depot_wise_trip_count_result = []
+    depot_points = set()
+    from_points_id = TripStatistics.objects.filter(~Q(status=2)).values_list('start_from_location', flat=True) \
+        .distinct()
+    depot_points.update(from_points_id)
+    to_points_id = TripStatistics.objects.filter(~Q(status=2)).values_list('start_to_location', flat=True) \
+        .distinct()
+    depot_points.update(to_points_id)
+
+    for depot_point in depot_points:
+        point_data = PointData.objects.get(id=depot_point)
+        if point_data.point_name not in settings.DOWN_LOCATION:
+            unique_code_data = TripStatistics.objects.filter(Q(start_from_location=point_data) |
+                                                             Q(start_to_location=point_data)) \
+                .values_list('unique_code', flat=True).distinct()
+            for unique_code in unique_code_data:
+                check_depot_points = TripStatistics.objects.filter(
+                    Q(start_from_location=point_data) | Q(start_to_location=point_data)) \
+                    .filter(unique_code=unique_code).count()
+                if check_depot_points > 0:
+                    no_of_trips_up_count = TripStatistics.objects.filter(entry_type='up').filter(
+                        start_from_location=point_data).filter(unique_code=unique_code).count()
+                    no_of_trips_down_count = TripStatistics.objects.filter(entry_type='down').filter(
+                        start_to_location=point_data).filter(unique_code=unique_code).count()
+                    depot_wise_trip_count_result.append({
+                        'depot_name': point_data.depot_name.name,
+                        'point_name': point_data.point_name,
+                        'unique_no': unique_code,
+                        'no_of_trips_up_count': no_of_trips_up_count,
+                        'no_of_trips_down_count': no_of_trips_down_count
+                    })
+
+    # Create a BytesIO buffer to store PDF
+    buffer = BytesIO()
+
+    # Create a PDF document
+    pdf = SimpleDocTemplate(buffer, pagesize=letter)
+    data = []
+
+    # Populate data for the PDF table
+    for result in depot_wise_trip_count_result:
+        data.append([result['depot_name'], result['point_name'], result['unique_no'], result['no_of_trips_up_count'],
+                     result['no_of_trips_down_count']])
+    # Add column headers
+    column_headers = ['Depot Name', 'Point Name', 'Unique No', 'No of Trips Up', 'No of Trips Down']
+    data.insert(0, column_headers)
+
+    # Create a table with the data
+    table = Table(data)
+
+    # Add style to the table
+    style = TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                        ('GRID', (0, 0), (-1, -1), 1, colors.black)])
+
+    table.setStyle(style)
+
+    # Repeat the header row on each page
+    table.repeatRows = 1
+
+    # Add table to the PDF document
+    elements = [table]
+    pdf.build(elements)
+
+    # Reset the buffer
+    buffer.seek(0)
+
+    # Set response content type
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="depot_wise_trip_count.pdf"'
+
+    return response
 
 
 # REST API STARTS FROM HERE
