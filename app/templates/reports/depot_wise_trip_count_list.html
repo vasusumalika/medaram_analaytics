@@ -15,12 +15,12 @@
 							<!-- PAGE-HEADER -->
 							<div class="page-header">
 								<div>
-									<h1 class="page-title">Manage Performance of Buses List</h1>
+									<h1 class="page-title">Manage Depot Wise Trips Count</h1>
 								</div>
 								<div class="ms-auto pageheader-btn">
 									<ol class="breadcrumb">
-										<li class="breadcrumb-item"><a href="javascript:void(0);">Manage Performance of Buses List</a></li>
-										<li class="breadcrumb-item active" aria-current="page">Performance of Buses List</li>
+										<li class="breadcrumb-item"><a href="javascript:void(0);">Manage Depot Wise Trips Count</a></li>
+										<li class="breadcrumb-item active" aria-current="page">Depot wise Trips Count</li>
 									</ol>
 								</div>
 							</div>
@@ -50,14 +50,15 @@
 											</div>
 											{% endfor %}
 										{% endif %}
+
 										<div class="card-body">
 
-											<form class="form-horizontal row" action="{% url 'app:search_depot_list' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+											<form class="form-horizontal row" action="{% url 'app:depot_wise_trip_count' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
 
 												<div class="form-group col-md-6">
-                                                    <label class="form-label" for="depot_name">Search Depot Name</label>
+                                                    <label class="form-label" for="depot_id">Search Depot Name</label>
 													<br>
-													<select class="form-control custom-select" name="depot_name" id="depot_name">
+													<select class="form-control custom-select" name="depot_id" id="depot_id">
                                                      	<option value="">Select Option</option>
                                                         	{% for depot in depot_data %}
                                                             	<option value="{{ depot.id }}">
@@ -65,12 +66,6 @@
                                                                 </option>
                                                             {% endfor %}
                                                     </select>
-												</div>
-
-												<div class="form-group col-md-6">
-                                                    <label class="form-label" >Select Date</label>
-													<br>
-                                                    <input type="date" class="form-control" id="date" name="date" >
 												</div>
 
 												<div class="form-group mt-3">
@@ -81,48 +76,50 @@
 											</form>
 										</div>
 
-
 										<div class="card-header border-bottom">
-											<h3 class="card-title">Performance of Buses List</h3>
+											<h3 class="card-title">Depot Wise Trips Count</h3>
 										</div>
 										<div class="card-body">
 											<div class="table-responsive export-table">
-												<table id="listing_table_download" class="table table-bordered text-nowrap key-buttons border-bottom  w-100">
+												<a  href="{% url 'app:depot_wise_trip_count_pdf' %}"><input type="button" value="Export to PDF" class="btn btn-primary" style="margin: 0 20px 20px 0;"></a>
+												<table id="listing-table" class="table table-bordered text-nowrap key-buttons border-bottom  w-100">
 													<thead>
 														<tr>
-<!--															<th class="border-bottom-0">Operating Depot Name</th>-->
-<!--															<th class="border-bottom-0">Allotted Buses Number</th>-->
-
-<!--                                                            <th class="border-bottom-0">No of Trips</th>-->
-															<th class="border-bottom-0">Date</th>
-															<th class="border-bottom-0">Depot</th>
-															<th class="border-bottom-0">From Point</th>
-<!--															<th class="border-bottom-0">To Point</th>-->
+															<th class="border-bottom-0">Depot Name</th>
+															<th class="border-bottom-0">Point Name</th>
+                                                            <th class="border-bottom-0">Unique No</th>
 															<th class="border-bottom-0">No of Trips Up</th>
 															<th class="border-bottom-0">No of Trips Down</th>
-                                                            <th class="border-bottom-0">Total Passenger Transported</th>
-                                                            <th class="border-bottom-0">Total Earnings</th>
 
 														</tr>
 													</thead>
 													<tbody>
-														{% for performance_depot in performance_depot_result %}
+														{% for depot_wise_trip in depot_wise_trip_count_result %}
                                                           <tr>
-<!--															  <td><b><a style="text-decoration:underline" href="{% url 'app:display_operating_depot_list' %}?id={{ performance_depot.depot_id }}">{{ performance_depot.depot_name }}</a></b></td>-->
-<!--															  <td>{{ performance_depot.buses_allotted }}</td>-->
-<!--                                                              <td>{{ performance_depot.no_of_trips_count }}</td>-->
-															  <td>{{performance_depot.date}}</td>
-															  <td>{{performance_depot.depot_name}}</td>
-															  <td>{{ performance_depot.point_name }}</td>
-<!--															  <td>Thadvai</td>-->
-															  <td>{{ performance_depot.no_of_trips_up_count }}</td>
-															  <td>{{ performance_depot.no_of_trips_down_count }}</td>
-															  <td>{{ performance_depot.total_passenger_count }}</td>
-															  <td>{{ performance_depot.total_earnings_count }}</td>
-
-
+															  <td>{{ depot_wise_trip.depot_name }}</td>
+															  <td>{{ depot_wise_trip.point_name }}</td>
+															  <td>{{ depot_wise_trip.unique_no }}</td>
+															  <td>{{ depot_wise_trip.no_of_trips_up_count }}</td>
+															  <td>{{ depot_wise_trip.no_of_trips_down_count }}</td>
 														  </tr>
                                                         {% endfor %}
+
+<!--														<div class="pagination">-->
+<!--    														<span class="step-links">-->
+<!--        														{% if depot_wise_trip_count_result.has_previous %}-->
+<!--            														<a href="?page=1">&laquo; first</a>-->
+<!--																	<a href="?page={{ depot_wise_trip_count_result.previous_page_number }}">previous</a>-->
+<!--        														{% endif %}-->
+<!--																<span class="current">-->
+<!--            														Page {{ depot_wise_trip_count_result.number }} of {{ depot_wise_trip_count_result.paginator.num_pages }}.-->
+<!--        														</span>-->
+<!--																{% if depot_wise_trip_count_result.has_next %}-->
+<!--            														<a href="?page={{ product_details.next_page_number }}">next</a>-->
+<!--            														<a href="?page={{ product_details.paginator.num_pages }}">last &raquo;</a>-->
+<!--        														{% endif %}-->
+<!--    														</span>-->
+<!--														</div>-->
+
 													</tbody>
 												</table>
 											</div>
